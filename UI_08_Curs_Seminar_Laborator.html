@@ -1,0 +1,2460 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UI08 – Operatori și expresii în C/C++ (continuare): Curs · Seminar · Laborator</title>
+<style>
+:root{
+  --bg:#f7f7f4; --paper:#ffffff; --ink:#1d2330; --ink2:#4a5263; --muted:#7a8293; --line:#e3e4df; --soft:#f1f2ee;
+  --accent:#1f5fbf; --accent-soft:#e7effb;
+  --b:#1f8a4c; --b-soft:#e5f4ea; --i:#b8740b; --i-soft:#fbf1df; --a:#7a3fb8; --a-soft:#f1e9fa;
+  --bad:#c0392b; --bad-soft:#fbe9e7; --good:#1f8a4c; --good-soft:#e5f4ea; --warn:#9a6a00; --warn-soft:#fff6db;
+  --code-bg:#1e2330; --code-ink:#e6e8ee; --c-kw:#7fb2ff; --c-ty:#5fd3c4; --c-str:#f0c674; --c-num:#f99b72; --c-com:#8a93a6; --c-pp:#d49df5; --c-lib:#9ad17b;
+  --mono:ui-monospace,"Cascadia Code","JetBrains Mono",Consolas,"Liberation Mono",monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --serif:Georgia,"Iowan Old Style","Palatino Linotype",serif;
+  --radius:10px; --side:285px;
+}
+body.dark{
+  --bg:#14171e; --paper:#1b1f28; --ink:#e7e9ee; --ink2:#b8bfcc; --muted:#8992a3; --line:#2c3240; --soft:#222733;
+  --accent:#7fb2ff; --accent-soft:#1e2a40;
+  --b:#5fcf8c; --b-soft:#17301f; --i:#f0b44c; --i-soft:#33280f; --a:#c39af0; --a-soft:#2a1f3a;
+  --bad:#ff8a7a; --bad-soft:#3a1d1a; --good:#5fcf8c; --good-soft:#17301f; --warn:#f0c674; --warn-soft:#332a10;
+  --code-bg:#11141b;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 var(--sans);}
+a{color:var(--accent)}
+code{font-family:var(--mono);font-size:.9em;background:var(--soft);padding:.08em .35em;border-radius:5px;border:1px solid var(--line)}
+pre code{background:none;border:0;padding:0}
+h1,h2,h3,h4{line-height:1.25;font-family:var(--sans)}
+h2{font-size:1.75rem;margin:0 0 .4rem}
+h3{font-size:1.3rem;margin:2.2rem 0 .6rem;padding-top:.4rem}
+h4{font-size:1.05rem;margin:1.6rem 0 .4rem}
+p{margin:.6rem 0}
+.topbar{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:8px 18px;flex-wrap:wrap}
+.topbar .brand{font-weight:700;letter-spacing:.2px;white-space:nowrap}
+.topbar .brand span{color:var(--muted);font-weight:500}
+.lvlbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.lvlbar .lab{font-size:.82rem;color:var(--muted);margin-right:2px}
+.lvlbtn{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:4px 12px;font-size:.85rem;cursor:pointer;font-weight:600}
+.lvlbtn[data-l="b"].on{background:var(--b);border-color:var(--b);color:#fff}
+.lvlbtn[data-l="i"].on{background:var(--i);border-color:var(--i);color:#fff}
+.lvlbtn[data-l="a"].on{background:var(--a);border-color:var(--a);color:#fff}
+.spacer{flex:1}
+.progress{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--muted)}
+.progress .bar{width:120px;height:8px;background:var(--soft);border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+.progress .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.iconbtn{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:.85rem}
+.layout{display:grid;grid-template-columns:var(--side) 1fr;max-width:1380px;margin:0 auto}
+nav.toc{position:sticky;top:52px;height:calc(100vh - 52px);overflow:auto;padding:18px 10px 40px 18px;border-right:1px solid var(--line);font-size:.9rem}
+nav.toc .grp{margin:14px 0 4px;font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:700}
+nav.toc a{display:block;color:var(--ink2);text-decoration:none;padding:3px 8px;border-radius:6px;border-left:3px solid transparent}
+nav.toc a.sub{padding-left:20px;font-size:.85rem}
+nav.toc a:hover{background:var(--soft)}
+nav.toc a.active{border-left-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+nav.toc a .ok{color:var(--good);font-weight:700;margin-left:4px;display:none}
+nav.toc a.done .ok{display:inline}
+main{padding:24px 38px 120px;min-width:0}
+.hero{background:linear-gradient(135deg,var(--accent-soft),var(--paper));border:1px solid var(--line);border-radius:16px;padding:30px 32px;margin-bottom:26px}
+.hero .kicker{font-size:.8rem;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:700}
+.hero h1{font-size:2.1rem;margin:.3rem 0 .4rem;font-family:var(--serif);font-weight:600}
+.hero p{color:var(--ink2);max-width:75ch}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{font-size:.8rem;border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:3px 11px;color:var(--ink2)}
+section.part{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:28px 32px;margin:0 0 28px}
+.parthead{display:flex;align-items:flex-start;gap:14px;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:8px}
+.parthead .num{font:700 1rem var(--mono);background:var(--ink);color:var(--paper);border-radius:8px;padding:4px 9px}
+.parthead .meta{color:var(--muted);font-size:.9rem}
+.studied{margin-left:auto;font-size:.85rem;color:var(--ink2);display:flex;gap:6px;align-items:center;white-space:nowrap;cursor:pointer}
+.badge{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:5px;padding:1px 7px;vertical-align:middle;margin-right:6px}
+.badge.b{background:var(--b-soft);color:var(--b)} .badge.i{background:var(--i-soft);color:var(--i)} .badge.a{background:var(--a-soft);color:var(--a)}
+.lv{border-left:4px solid var(--line);padding:2px 0 2px 16px;margin:16px 0}
+.lv.b{border-left-color:var(--b)} .lv.i{border-left-color:var(--i)} .lv.a{border-left-color:var(--a)}
+body.f-b .lv.i, body.f-b .lv.a, body.f-i .lv.a, body.f-b .q.i, body.f-b .q.a, body.f-i .q.a, body.f-b tr.i, body.f-b tr.a, body.f-i tr.a{display:none}
+.box{border-radius:var(--radius);padding:12px 16px;margin:14px 0;border:1px solid var(--line);background:var(--soft)}
+.box.def{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 30%,transparent)}
+.box.warn{background:var(--warn-soft);border-color:color-mix(in srgb,var(--warn) 35%,transparent)}
+.box.bad{background:var(--bad-soft);border-color:color-mix(in srgb,var(--bad) 35%,transparent)}
+.box.good{background:var(--good-soft);border-color:color-mix(in srgb,var(--good) 35%,transparent)}
+.box .t{font-weight:700;display:block;margin-bottom:2px}
+.syntax{font:600 1.05rem var(--mono);background:var(--paper);border:1px dashed var(--accent);border-radius:8px;padding:10px 14px;display:inline-block;margin:6px 0}
+.codewrap{position:relative;margin:12px 0}
+.codewrap .ctitle{font:600 .75rem var(--mono);color:#aab3c5;background:#2a3040;padding:5px 12px;border-radius:8px 8px 0 0;display:flex;justify-content:space-between}
+pre.code{margin:0;background:var(--code-bg);color:var(--code-ink);padding:14px 16px;border-radius:8px;overflow:auto;font:13.5px/1.55 var(--mono);tab-size:4}
+.codewrap .ctitle + pre.code{border-radius:0 0 8px 8px}
+.copy{position:absolute;right:8px;top:8px;font-size:.72rem;border:1px solid #445;background:#2a3040;color:#cfd6e4;border-radius:6px;padding:2px 8px;cursor:pointer;opacity:.75}
+.codewrap .ctitle ~ .copy{top:32px}
+.copy:hover{opacity:1}
+.tk-kw{color:var(--c-kw)} .tk-ty{color:var(--c-ty)} .tk-str{color:var(--c-str)} .tk-num{color:var(--c-num)} .tk-com{color:var(--c-com);font-style:italic} .tk-pp{color:var(--c-pp)} .tk-lib{color:var(--c-lib)}
+pre.out{background:#0c0f14;color:#b6f0b0;font:13px/1.5 var(--mono);padding:10px 14px;border-radius:8px;margin:6px 0;overflow:auto;white-space:pre}
+pre.out::before{content:"ieșire ▸";display:block;color:#6b7a6b;font-size:.72rem;margin-bottom:2px}
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:.92rem}
+th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
+th{background:var(--soft);font-weight:700}
+td code,th code{white-space:nowrap}
+.tbl-wrap{overflow:auto}
+.widget{border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));border-radius:14px;padding:16px 18px;margin:20px 0;background:linear-gradient(180deg,var(--accent-soft),var(--paper) 120px)}
+.widget > .wt{font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.widget > .wt::before{content:"▶";font-size:.7rem;color:var(--accent)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+label.f{font-size:.85rem;color:var(--ink2);display:flex;flex-direction:column;gap:3px}
+input[type=text],input[type=number],select,textarea{font:14px var(--mono);padding:6px 9px;border:1px solid var(--line);border-radius:7px;background:var(--paper);color:var(--ink)}
+textarea{width:100%;resize:vertical}
+button.btn{font:600 .88rem var(--sans);border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:8px;padding:7px 14px;cursor:pointer}
+button.btn.ghost{background:var(--paper);color:var(--accent)}
+button.btn:disabled{opacity:.45;cursor:default}
+.mem{display:flex;gap:14px;flex-wrap:wrap;margin:12px 0}
+.cell{min-width:92px;border:2px solid var(--line);border-radius:10px;padding:8px 10px;text-align:center;background:var(--paper);transition:all .25s}
+.cell .n{font:600 .8rem var(--mono);color:var(--muted)}
+.cell .v{font:700 1.5rem var(--mono)}
+.cell.hot{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);transform:translateY(-2px)}
+.cell.tmp{border-style:dashed}
+.narr{min-height:3.2em;font-size:.95rem;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+.steps{list-style:none;padding:0;margin:8px 0;counter-reset:s}
+.steps li{padding:5px 8px 5px 40px;position:relative;border-bottom:1px dashed var(--line);font-size:.92rem}
+.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:6px;top:5px;font:700 .75rem var(--mono);background:var(--soft);border:1px solid var(--line);border-radius:5px;padding:0 5px}
+.steps li i{color:var(--muted);font-style:normal;font-size:.85em}
+.steps .sp{color:var(--a);font-weight:700}
+.result{font:600 1rem var(--mono);padding:8px 12px;border-radius:8px;background:var(--good-soft);border:1px solid color-mix(in srgb,var(--good) 35%,transparent);margin:8px 0}
+.err{font:600 .95rem var(--sans);padding:8px 12px;border-radius:8px;background:var(--bad-soft);border:1px solid color-mix(in srgb,var(--bad) 35%,transparent);color:var(--bad);margin:8px 0}
+.wlist div{padding:6px 10px;border-radius:7px;margin:5px 0;font-size:.9rem}
+.wlist .ub{background:var(--bad-soft);border:1px solid color-mix(in srgb,var(--bad) 30%,transparent)}
+.wlist .warn{background:var(--warn-soft);border:1px solid color-mix(in srgb,var(--warn) 30%,transparent)}
+.ast ul{list-style:none;margin:0;padding-left:18px;border-left:1px dashed var(--line)}
+.ast > ul{padding-left:0;border:0}
+.ast li{margin:3px 0;font:13px var(--mono)}
+.ast .nd{display:inline-block;background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:0 6px}
+.ast .ty{color:var(--muted);font-size:.85em;margin-left:5px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.card{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--paper)}
+details{border:1px solid var(--line);border-radius:10px;padding:8px 14px;margin:10px 0;background:var(--paper)}
+details > summary{cursor:pointer;font-weight:600;color:var(--accent)}
+details[open] > summary{margin-bottom:6px}
+.ex{border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:16px 0;background:var(--paper)}
+.ex > .h{font-weight:700;margin-bottom:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ex > .h .no{font:700 .8rem var(--mono);background:var(--ink);color:var(--paper);border-radius:6px;padding:1px 7px}
+.q{border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:12px 0;background:var(--paper)}
+.q .qt{font-weight:600;margin-bottom:6px}
+.q .opts label{display:block;padding:5px 10px;border:1px solid var(--line);border-radius:8px;margin:5px 0;cursor:pointer;font-size:.93rem}
+.q .opts label:hover{background:var(--soft)}
+.q .opts label.right{background:var(--good-soft);border-color:var(--good)}
+.q .opts label.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.q .fb{display:none;font-size:.9rem;margin-top:6px;padding:8px 10px;border-radius:8px;background:var(--soft)}
+.q.answered .fb{display:block}
+.score{position:sticky;bottom:12px;display:inline-flex;gap:10px;align-items:center;background:var(--ink);color:var(--paper);border-radius:999px;padding:6px 16px;font-weight:600;font-size:.9rem;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.trace input{width:64px;text-align:center}
+.trace td.okc{background:var(--good-soft)} .trace td.noc{background:var(--bad-soft)}
+.kbd{font:600 .8rem var(--mono);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;background:var(--paper)}
+.objectives li{margin:4px 0}
+.sumgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.sumgrid .card h4{margin:.1rem 0 .3rem}
+.figure{text-align:center;margin:14px 0}
+.figure svg{max-width:100%;height:auto}
+.figure .cap{font-size:.85rem;color:var(--muted);margin-top:4px}
+.pill{display:inline-block;padding:0 7px;border-radius:5px;font:600 .8rem var(--mono);background:var(--soft);border:1px solid var(--line)}
+.hlrow td{background:var(--warn-soft)}
+.hl{background:color-mix(in srgb,var(--accent) 18%,transparent);border-radius:3px;padding:0 2px}
+footer{color:var(--muted);font-size:.85rem;text-align:center;padding:30px}
+@media (max-width:980px){.layout{grid-template-columns:1fr} nav.toc{display:none} main{padding:16px} section.part{padding:20px 16px} .grid2,.grid3{grid-template-columns:1fr}}
+@media print{.topbar,nav.toc,.copy,.widget{display:none!important} .layout{display:block} section.part{break-inside:auto;border:0} details{display:block} details>*{display:block!important}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand">UI08 · Operatori și expresii în C/C++ <span>(continuare)</span></div>
+  <div class="lvlbar" role="group" aria-label="Nivel">
+    <span class="lab">Afișează conținutul până la nivelul:</span>
+    <button class="lvlbtn" data-l="b" title="Doar esențialul">Începător</button>
+    <button class="lvlbtn" data-l="i" title="Esențialul + materia tipică de seminar/laborator/examen">Mediu</button>
+    <button class="lvlbtn on" data-l="a" title="Tot, inclusiv detaliile fine ale standardului">Avansat (tot)</button>
+  </div>
+  <div class="spacer"></div>
+  <div class="progress"><span id="progTxt">0 / 0 studiate</span><div class="bar"><i id="progBar"></i></div></div>
+  <button class="iconbtn" id="themeBtn" title="Comută modul întunecat">◐ Temă</button>
+</div>
+<div class="layout">
+<nav class="toc" id="toc">
+  <div class="grp">Început</div>
+  <a href="#intro">Cum folosiți acest material</a>
+  <a href="#objectives">Obiective și cunoștințe necesare</a>
+  <div class="grp">Curs</div>
+  <a href="#c1">1 · Operatorul virgulă <span class="ok">✓</span></a>
+  <a href="#c2">2 · Operatorul condițional ?: <span class="ok">✓</span></a>
+  <a href="#c3">3 · Incrementare / decrementare ++ -- <span class="ok">✓</span></a>
+  <a href="#c4">4 · Operatorul sizeof <span class="ok">✓</span></a>
+  <a href="#c5">5 · Conversia explicită (cast) <span class="ok">✓</span></a>
+  <a href="#c6">6 · Prioritate, asociativitate, ordine de evaluare <span class="ok">✓</span></a>
+  <a class="sub" href="#lab-tool">Laboratorul de expresii (interactiv)</a>
+  <a href="#c7">7 · Rezumat și fișă recapitulativă <span class="ok">✓</span></a>
+  <div class="grp">Seminar</div>
+  <a href="#seminar">Probleme rezolvate <span class="ok">✓</span></a>
+  <a class="sub" href="#trace">Exercițiu de urmărire</a>
+  <a class="sub" href="#predict">Ghiciți rezultatul</a>
+  <div class="grp">Laborator</div>
+  <a href="#lab">Lucrări de laborator L1–L8 <span class="ok">✓</span></a>
+  <div class="grp">Evaluare</div>
+  <a href="#selftest">Test de autoevaluare <span class="ok">✓</span></a>
+  <a href="#quiz">Chestionar interactiv <span class="ok">✓</span></a>
+  <a href="#glossary">Glosar</a>
+  <a href="#biblio">Bibliografie</a>
+</nav>
+<main>
+
+<div class="hero" id="intro">
+  <div class="kicker">Programarea calculatoarelor și limbaje de programare I · Unitatea de învățare 8</div>
+  <h1>Operatori și expresii în limbajul C/C++ (continuare)</h1>
+  <p>Operatorul virgulă, operatorul condițional <code>?:</code>, incrementarea și decrementarea <code>++</code>/<code>--</code>, operatorul <code>sizeof</code> și conversia explicită de tip (cast). Unitatea arată și cum decide C/C++ care operator se aplică primul (prioritate și asociativitate) și în ce ordine se evaluează operanzii.</p>
+  <div class="chips">
+    <span class="chip">📘 Curs – teorie cu exemple rezolvate</span>
+    <span class="chip">✏️ Seminar – probleme pe hârtie</span>
+    <span class="chip">💻 Laborator – programe de scris și rulat</span>
+    <span class="chip">✅ Test de autoevaluare + chestionar interactiv</span>
+    <span class="chip">⏱ ≈ 3–4 h studiu individual + 2 h laborator</span>
+  </div>
+</div>
+
+<section class="part" id="howto">
+  <div class="parthead"><span class="num">0</span><div><h2>Cum folosiți acest material</h2><div class="meta">Trei niveluri într-un singur text</div></div></div>
+  <p>Fiecare temă este scrisă pe trei niveluri, care se construiesc unul pe altul. Fiecare bloc are o bară colorată și o etichetă:</p>
+  <div class="grid3">
+    <div class="card"><span class="badge b">Începător</span><p>Ce face operatorul, sintaxa lui și exemple simple pe care le puteți urmări de mână. <b>Toată lumea începe de aici.</b></p></div>
+    <div class="card"><span class="badge i">Mediu</span><p>Utilizări și combinații tipice, capcane frecvente, tipul de întrebări din seminar, laborator și examen.</p></div>
+    <div class="card"><span class="badge a">Avansat</span><p>Regulile exacte ale standardelor C și C++: secvențiere, comportament nedefinit, reguli de tip, diferențe C/C++, cast-urile din C++ modern.</p></div>
+  </div>
+  <p>Folosiți butoanele <b>„Afișează conținutul până la nivelul”</b> din partea de sus pentru a ascunde nivelurile la care nu ați ajuns încă. Puteți reveni mai târziu cu un nivel mai înalt și reciti același capitol. Bifați <b>„Marchează ca studiat”</b> în capul fiecărei părți ca să vă urmăriți progresul. Progresul se salvează în acest browser.</p>
+  <div class="box"><span class="t">Sfat de studiu</span>Nu vă limitați la citirea exemplelor. Urmăriți-le pe hârtie: notați valoarea fiecărei variabile după fiecare operație, ca în tabelele de la seminar. Apoi verificați-vă cu instrumentele interactive (marcate cu ▶) și, la final, compilați programele de laborator. Toate programele din această unitate folosesc <b>C++ standard</b> (<code>#include &lt;iostream&gt;</code>, <code>int main()</code>) și au fost testate cu un compilator actual (g++ 13, <code>-std=c++17</code>).</div>
+  <div class="box warn"><span class="t">Compilatoare vechi și compilatoare moderne</span>Manualele mai vechi și mediul Borland/Turbo C++ 3.1 folosesc <code>#include &lt;iostream.h&gt;</code> și <code>void main()</code> și raportează <code>sizeof(int) = 2</code>. Acestea sunt specifice compilatoarelor MS-DOS pe 16 biți. Un compilator modern (GCC, Clang, MSVC) cere <code>#include &lt;iostream&gt;</code>, <code>using namespace std;</code> (sau <code>std::cout</code>) și <code>int main()</code>, iar pe el <code>sizeof(int)</code> este 4. Materialul arată ambele variante acolo unde diferă.</div>
+</section>
+
+<section class="part" id="objectives">
+  <div class="parthead"><span class="num">★</span><div><h2>Obiective și cunoștințe necesare</h2></div></div>
+  <h4>După parcurgerea acestei unități veți putea:</h4>
+  <ul class="objectives">
+    <li><span class="badge b">Î</span>folosi corect operatorii <b>virgulă</b>, <b>condițional</b>, de <b>incrementare/decrementare</b>, <b>sizeof</b> și de <b>conversie (cast)</b>;</li>
+    <li><span class="badge b">Î</span>calcula de mână valoarea și tipul unei expresii care îi folosește;</li>
+    <li><span class="badge i">M</span>aplica <b>prioritatea</b> și <b>asociativitatea</b> operatorilor pentru a pune parantezele implicite în orice expresie;</li>
+    <li><span class="badge i">M</span>prevedea <b>efectele secundare</b> ale lui <code>++</code>/<code>--</code> prefixat și postfixat și evita capcanele clasice ale împărțirii întregi și ale conversiilor;</li>
+    <li><span class="badge a">A</span>recunoaște <b>comportamentul nedefinit</b> cauzat de modificări nesecvențiate și explica de ce compilatoare diferite dau rezultate diferite;</li>
+    <li><span class="badge a">A</span>alege între cast-urile în stil C și cast-urile cu nume din C++ (<code>static_cast</code> și celelalte) și explica cum se stabilește tipul pentru <code>?:</code> și <code>sizeof</code>.</li>
+  </ul>
+  <h4>Ce ar trebui să știți deja (din unitatea anterioară)</h4>
+  <div class="lv b">
+    <span class="badge b">Recapitulare – începător</span>
+    <ul>
+      <li>O <b>expresie</b> este o combinație de <b>operanzi</b> (constante, variabile, apeluri de funcții) și <b>operatori</b>. Orice expresie are o <b>valoare</b> și un <b>tip</b>.</li>
+      <li>Un operator este <b>unar</b> (un operand: <code>-x</code>, <code>!x</code>), <b>binar</b> (doi operanzi: <code>a + b</code>) sau <b>ternar</b> (trei operanzi: doar <code>?:</code>).</li>
+      <li>Aritmetici: <code>+ - * / %</code>. Între doi întregi, <code>/</code> este <b>împărțire întreagă</b> (<code>7/2 == 3</code>), iar <code>%</code> este restul (<code>7%2 == 1</code>).</li>
+      <li>Operatori relaționali și logici: <code>&lt; &lt;= &gt; &gt;= == !=</code>, <code>&amp;&amp; || !</code>. În C, o condiție este <b>adevărată dacă e nenulă</b> și falsă dacă e 0.</li>
+      <li>Atribuirea <code>=</code> și atribuirea compusă <code>+= -= *= /= %=</code>: <code>x += 3</code> înseamnă <code>x = x + 3</code>. O atribuire este ea însăși o expresie, cu valoarea care a fost memorată.</li>
+    </ul>
+  </div>
+  <div class="lv i">
+    <span class="badge i">Recapitulare – mediu</span>
+    <ul>
+      <li><b>lvalue</b> = o expresie care desemnează o locație de memorie (o variabilă) și poate apărea în stânga lui <code>=</code>. <b>rvalue</b> = o simplă valoare (<code>5</code>, <code>a+b</code>). Distincția este esențială pentru <code>++</code>/<code>--</code>.</li>
+      <li><b>Efect secundar</b> = o modificare a stării programului (de exemplu a valorii unei variabile) produsă în timpul evaluării unei expresii. <code>a = 3</code> și <code>a++</code> au efecte secundare; <code>a + 3</code> nu are.</li>
+      <li><b>Conversii implicite</b>: în <code>2 + 3.5</code> operandul <code>int</code> este convertit automat la <code>double</code>.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ======================================================= CURS 1 ======================================================= -->
+<section class="part" id="c1" data-study="c1">
+  <div class="parthead"><span class="num">1</span><div><h2>Operatorul virgulă <code>,</code></h2><div class="meta">Mai multe expresii acolo unde e permisă una singură</div></div><label class="studied"><input type="checkbox"> Marchează ca studiat</label></div>
+
+  <div class="lv b">
+    <span class="badge b">Începător</span>
+    <p>Uneori, într-un anumit punct al programului, trebuie realizat un calcul complex, exprimat prin <b>mai multe expresii</b>, deși limbajul permite acolo una singură (de exemplu în antetul unei bucle <code>for</code>). Operatorul virgulă unește mai multe expresii într-una singură.</p>
+    <div class="syntax">exp1 , exp2 , ... , expn</div>
+    <div class="box def"><span class="t">Regula</span>Expresiile se evaluează <b>pe rând, de la stânga la dreapta</b>. Întreaga expresie (cele <i>n</i> expresii separate prin virgulă) are <b>valoarea și tipul ultimei expresii</b>, <code>expn</code>. Valorile celorlalte expresii se pierd; ele contează doar prin efectele lor secundare (de obicei atribuiri).</div>
+    <h4>Exemplu rezolvat (din curs)</h4>
+<div class="codewrap"><div class="ctitle"><span>exemplu_virgula.cpp</span><span>C++</span></div><pre class="code">int a = 5, b = 7;
+float c;
+// expresia:
+c = a = b + 3 , a = c + 2 , b = b + 3</pre></div>
+    <table>
+      <tr><th>#</th><th>Subexpresia (stânga → dreapta)</th><th>Calcul</th><th>Starea după ea</th></tr>
+      <tr><td>1</td><td><code>c = a = b + 3</code></td><td><code>b + 3 = 10</code>; <code>a = 10</code>; <code>c = 10.0</code> (atribuirea se asociază de la dreapta la stânga)</td><td>a = 10, b = 7, c = 10.0</td></tr>
+      <tr><td>2</td><td><code>a = c + 2</code></td><td><code>c + 2 = 12.0</code> (float) → convertit la int → <code>a = 12</code></td><td>a = 12, b = 7, c = 10.0</td></tr>
+      <tr><td>3</td><td><code>b = b + 3</code></td><td><code>7 + 3 = 10</code> → <code>b = 10</code></td><td>a = 12, b = 10, c = 10.0</td></tr>
+    </table>
+    <p>Expresia în ansamblu este de <b>tip <code>int</code></b> (tipul lui <code>b = b + 3</code>) și produce <b>valoarea 10</b>.</p>
+    <h4>Unde îl întâlniți cel mai des: bucla <code>for</code></h4>
+<div class="codewrap"><div class="ctitle"><span>for_doua_contoare.cpp</span><span>C++</span></div><pre class="code">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    // i crește, j scade; ambele sunt actualizate în aceeași expresie de "pas"
+    for (int i = 0, j = 10; i &lt; j; i++, j--)
+        cout &lt;&lt; i &lt;&lt; " " &lt;&lt; j &lt;&lt; endl;
+    return 0;
+}</pre></div>
+<pre class="out">0 10
+1 9
+2 8
+3 7
+4 6</pre>
+    <div class="box"><span class="t">Observație</span>În <code>int i = 0, j = 10</code> virgula este un <b>separator</b> într-o declarație. În <code>i++, j--</code> este <b>operatorul virgulă</b>. Același simbol, două roluri (vezi nivelul mediu de mai jos).</div>
+  </div>
+
+  <div class="lv i">
+    <span class="badge i">Mediu</span>
+    <h4>1. Separator sau operator?</h4>
+    <p>Virgula este <b>operator</b> numai acolo unde se așteaptă o expresie. În locurile următoare este doar <b>separator</b>:</p>
+    <ul>
+      <li>în declarații: <code>int a = 1, b = 2;</code></li>
+      <li>între argumentele unei funcții: <code>f(a, b)</code> apelează <code>f</code> cu două argumente. <code>f((a, b))</code> o apelează cu <b>un singur</b> argument, valoarea lui <code>b</code>;</li>
+      <li>în listele de inițializare: <code>int v[3] = {1, 2, 3};</code></li>
+      <li>între parametrii din definiția unei funcții.</li>
+    </ul>
+    <h4>2. Are cea mai mică prioritate dintre toți operatorii</h4>
+    <p>Chiar și atribuirea leagă mai strâns decât virgula. De aici o capcană clasică:</p>
+<div class="codewrap"><div class="ctitle"><span>prioritate_virgula.cpp</span><span>C++</span></div><pre class="code">int x, y;
+x = 1, 2;      // se interpretează (x = 1), 2;   → x == 1 ; valoarea 2 e calculată și pierdută
+y = (1, 2);    // parantezele forțează întâi virgula → y == 2</pre></div>
+    <p>GCC avertizează: <i>„right operand of comma operator has no effect [-Wunused-value]”</i>. <b>Compilați întotdeauna cu avertismentele activate</b> (<code>-Wall -Wextra</code>).</p>
+    <h4>3. Utilizări legitime tipice</h4>
+    <ul>
+      <li>mai multe inițializări/actualizări în antetul unui <code>for</code>;</li>
+      <li>o condiție de <code>while</code> care trebuie întâi să citească o valoare: <code>while (cin >> x, x != 0) { ... }</code>. Bucla se oprește la citirea lui 0. O formă modernă mai clară este <code>while (cin >> x &amp;&amp; x != 0)</code>;</li>
+      <li>în macrodefiniții, pentru a executa mai multe acțiuni ca o singură expresie.</li>
+    </ul>
+    <div class="box warn"><span class="t">Stil</span>În afara antetului lui <code>for</code>, operatorul virgulă face de obicei codul mai greu de citit. Preferați instrucțiuni separate: <code>a = 1; b = 2;</code>, nu <code>a = 1, b = 2;</code>.</div>
+  </div>
+
+  <div class="lv a">
+    <span class="badge a">Avansat</span>
+    <ul>
+      <li><b>Secvențiere.</b> Operatorul virgulă este unul dintre puținii operatori care garantează o ordine: operandul stâng este evaluat complet și <b>toate efectele lui secundare sunt încheiate</b> înainte de evaluarea operandului drept. În C acesta se numește <i>punct de secvență</i> (sequence point); în C++11 și ulterior, operandul stâng este <i>secvențiat înaintea</i> celui drept. Astfel <code>i++, i++</code> este bine definit, dar <code>i++ + i++</code> nu este (vezi §6).</li>
+      <li><b>Valoarea din stânga se pierde.</b> Formal este o <i>expresie cu valoare ignorată</i> (discarded-value expression); compilatorul o poate chiar converti la <code>void</code>. Scrierea <code>(void)expr, alta</code> documentează această intenție.</li>
+      <li><b>C și C++ (categoria valorii).</b> În C rezultatul operatorului virgulă nu este niciodată lvalue. În C++ rezultatul este lvalue dacă operandul drept este lvalue, deci <code>(a, b) = 5;</code> este valid în C++ (atribuie 5 lui <code>b</code>), dar invalid în C.</li>
+      <li><b>Supraîncărcare.</b> În C++ virgula poate fi supraîncărcată pentru tipuri clasă (<code>operator,</code>). Practica este puternic descurajată: înainte de C++17, o virgulă supraîncărcată nu păstra garanția de evaluare stânga → dreapta. Unele biblioteci (Boost.Assign, inițializatorii <code>&lt;&lt;</code> din Eigen) o folosesc pentru sintaxe speciale.</li>
+      <li><b>În expresii constante.</b> O expresie cu virgulă nu poate apărea fără paranteze în anumite contexte, de exemplu în dimensiunea unui tablou în C sau ca argument de șablon în C++: <code>arr[1, 2]</code> este depreciat în C++20 și are alt sens în C++23 (indice multidimensional).</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ======================================================= CURS 2 ======================================================= -->
+<section class="part" id="c2" data-study="c2">
+  <div class="parthead"><span class="num">2</span><div><h2>Operatorul condițional <code>?:</code></h2><div class="meta">Singurul operator ternar: alege una din două valori</div></div><label class="studied"><input type="checkbox"> Marchează ca studiat</label></div>
+
+  <div class="lv b">
+    <span class="badge b">Începător</span>
+    <p>Se folosește atunci când există <b>două variante de obținere a rezultatului</b>, în funcție de îndeplinirea unei condiții.</p>
+    <div class="syntax">exp1 ? exp2 : exp3</div>
+    <ol>
+      <li>Se determină valoarea expresiei <code>exp1</code> (condiția).</li>
+      <li>Dacă aceasta este <b>diferită de 0</b> (adevărată), se evaluează <code>exp2</code>, iar <code>exp3</code> este <b>ignorată</b>.</li>
+      <li>Altfel (0, falsă), se evaluează <code>exp3</code>, iar <code>exp2</code> este <b>ignorată</b>.</li>
+    </ol>
+    <p>În ansamblu, expresia are valoarea (și tipul) aceleia dintre <code>exp2</code> / <code>exp3</code> care a fost aleasă.</p>
+    <div class="figure">
+      <svg viewBox="0 0 560 230" width="560" role="img" aria-label="Schema logică a operatorului condițional">
+        <defs><marker id="ar" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+        <g fill="none" stroke="currentColor" stroke-width="1.6" style="color:var(--ink2)">
+          <rect x="215" y="8" width="130" height="36" rx="18"/>
+          <path d="M280 44 V64" marker-end="url(#ar)"/>
+          <polygon points="280,66 360,106 280,146 200,106"/>
+          <path d="M200 106 H110 V160" marker-end="url(#ar)"/>
+          <path d="M360 106 H450 V160" marker-end="url(#ar)"/>
+          <rect x="40" y="162" width="140" height="40" rx="6"/>
+          <rect x="380" y="162" width="140" height="40" rx="6"/>
+          <path d="M110 202 V218 H450 V202" stroke-dasharray="4 3"/>
+        </g>
+        <g font-family="var(--mono)" font-size="14" fill="currentColor" style="color:var(--ink)" text-anchor="middle">
+          <text x="280" y="31">start</text>
+          <text x="280" y="102">exp1</text><text x="280" y="120" font-size="11">≠ 0 ?</text>
+          <text x="150" y="98" font-size="12" fill="var(--bad)">fals (0)</text>
+          <text x="410" y="98" font-size="12" fill="var(--good)">adevărat (≠0)</text>
+          <text x="110" y="187">evaluează exp3</text>
+          <text x="450" y="187">evaluează exp2</text>
+        </g>
+      </svg>
+      <div class="cap">Figura 2.1 – Doar una dintre cele două ramuri este evaluată.</div>
+    </div>
+    <h4>Exemple din curs</h4>
+<div class="codewrap"><div class="ctitle"><span>maxim.cpp</span><span>C++</span></div><pre class="code">int a, b, max;
+max = (a &gt; b) ? a : b;      // max primește ca valoare maximul dintre a și b</pre></div>
+<div class="codewrap"><div class="ctitle"><span>valoare_absoluta.cpp (C++ modern)</span><span>C++</span></div><pre class="code">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {                 // citește a de tip float și tipărește |a|
+    float a;
+    cout &lt;&lt; "a=";  cin &gt;&gt; a;
+    cout &lt;&lt; (a &gt;= 0 ? a : -a) &lt;&lt; endl;
+    return 0;
+}</pre></div>
+<pre class="out">a=-3.5
+3.5</pre>
+    <p>Aceeași logică scrisă cu <code>if</code>: <code>if (a &gt;= 0) cout &lt;&lt; a; else cout &lt;&lt; -a;</code>. Operatorul condițional este mai scurt și, fiind o <b>expresie</b>, poate fi folosit <b>în interiorul</b> altor expresii: într-o atribuire, ca argument de funcție sau într-o instrucțiune de afișare.</p>
+  </div>
+
+  <div class="lv i">
+    <span class="badge i">Mediu</span>
+    <h4>1. Paranteze în instrucțiunile de afișare</h4>
+    <p><code>?:</code> are <b>prioritate foarte mică</b>: mai mică decât <code>&lt;&lt;</code>, decât operatorii aritmetici și decât cei relaționali. În <code>cout &lt;&lt;</code> el <b>trebuie</b> pus între paranteze:</p>
+<div class="codewrap"><div class="ctitle"><span>paranteze.cpp</span><span>C++</span></div><pre class="code">cout &lt;&lt; (x == y ? " este " : " nu este ");   // corect
+cout &lt;&lt;  x == y ? " este " : " nu este ";    // EROARE: se interpretează ((cout &lt;&lt; x) == y) ? ... : ...</pre></div>
+    <h4>2. Se evaluează o singură ramură, deci vă poate proteja</h4>
+<div class="codewrap"><div class="ctitle"><span>impartire_sigura.cpp</span><span>C++</span></div><pre class="code">double r = (b != 0) ? (double)a / b : 0.0;   // nu se încearcă niciodată împărțirea la zero
+int    v = (n &gt; 0) ? arr[n - 1] : -1;         // niciun acces în afara tabloului când n == 0</pre></div>
+    <h4>3. Imbricare și asociativitate de la dreapta</h4>
+    <p><code>?:</code> se grupează <b>de la dreapta la stânga</b>, așa că un lanț se citește ca <i>dacă / altfel dacă / altfel</i>:</p>
+<div class="codewrap"><div class="ctitle"><span>semn_si_calificativ.cpp</span><span>C++</span></div><pre class="code">int semn = (x &gt; 0) ? 1 : (x &lt; 0) ? -1 : 0;
+// se interpretează  (x &gt; 0) ? 1 : ((x &lt; 0) ? -1 : 0)
+
+char calif = (p &gt;= 90) ? 'A' :
+             (p &gt;= 80) ? 'B' :
+             (p &gt;= 70) ? 'C' : 'F';
+
+int max3 = (a &gt; b) ? (a &gt; c ? a : c) : (b &gt; c ? b : c);   // maximul a trei numere</pre></div>
+    <h4>4. Aplicații scurte clasice</h4>
+    <table>
+      <tr><th>Sarcina</th><th>Expresia</th></tr>
+      <tr><td>Par / impar</td><td><code>(n % 2 == 0) ? "par" : "impar"</code></td></tr>
+      <tr><td>Egalitatea a două numere</td><td><code>x &lt;&lt; (x == y ? " este " : " nu este ") &lt;&lt; "egal cu " &lt;&lt; y</code></td></tr>
+      <tr><td>Dacă x &gt; 10 atunci y = 0, altfel y = 1</td><td><code>y = (x &gt; 10) ? 0 : 1;</code></td></tr>
+      <tr><td>Ordine crescătoare a, b, c</td><td><code>(a &lt;= b &amp;&amp; b &lt;= c) ? "ordine crescatoare" : "ordine oarecare"</code></td></tr>
+      <tr><td>Plural</td><td><code>cout &lt;&lt; n &lt;&lt; (n == 1 ? " fisier" : " fisiere");</code></td></tr>
+      <tr><td>An bisect</td><td><code>(y % 4 == 0 &amp;&amp; y % 100 != 0 || y % 400 == 0) ? 366 : 365</code></td></tr>
+    </table>
+    <div class="box warn"><span class="t">Când NU îl folosiți</span>Dacă ramurile sunt instrucțiuni cu mai multe acțiuni sau dacă imbricarea depășește 2–3 niveluri, folosiți <code>if</code>/<code>else</code>. Lizibilitatea contează mai mult decât economia unui rând.</div>
+    <h4>5. <code>?:</code> față de <code>if</code>: expresie față de instrucțiune</h4>
+    <p><code>if</code> este o <b>instrucțiune</b>: alege <i>ce se execută</i>. <code>?:</code> este o <b>expresie</b>: alege <i>ce valoare se produce</i>. Folosiți <code>?:</code> când ambele ramuri calculează o valoare de tip compatibil.</p>
+  </div>
+
+  <div class="lv a">
+    <span class="badge a">Avansat</span>
+    <h4>1. Tipul unei expresii condiționale</h4>
+    <p>Tipul se stabilește <b>la compilare</b>, înainte ca programul să știe ce ramură se va executa. Dacă <code>exp2</code> și <code>exp3</code> sunt aritmetice, se aplică <b>conversiile aritmetice uzuale</b> pentru a obține un tip comun:</p>
+<div class="codewrap"><div class="ctitle"><span>tip_conditional.cpp</span><span>C++</span></div><pre class="code">bool t = true;
+cout &lt;&lt; (t ? 1 : 2.5);          // afișează 1, dar tipul este double (sizeof == 8)
+cout &lt;&lt; (t ? 'A' : 0);          // afișează 65, nu A: tipul comun pentru char și int este int
+auto  z = (t ? 7u : -1);        // unsigned int!  dacă t ar fi fals, z ar fi 4294967295</pre></div>
+    <p>Alte reguli: dacă ambii operanzi sunt pointeri, rezultatul are un tip pointer comun. Dacă o ramură este o expresie <code>throw</code>, tipul este cel al celeilalte ramuri (C++). Pentru tipuri clasă se încearcă conversii între cele două tipuri.</p>
+    <h4>2. Categoria valorii (C și C++)</h4>
+    <p>În C++, dacă <code>exp2</code> și <code>exp3</code> sunt amândouă lvalue de același tip, rezultatul este un <b>lvalue</b> și i se poate atribui o valoare:</p>
+<div class="codewrap"><div class="ctitle"><span>conditional_lvalue.cpp</span><span>C++</span></div><pre class="code">int p = 1, q = 2;
+(p &gt; q ? p : q) = 10;   // valid în C++: pune 10 în cel mai mare (q) → p == 1, q == 10
+                        // INVALID în C: rezultatul lui ?: nu este niciodată lvalue în C</pre></div>
+    <h4>3. Diferențe de gramatică între C și C++</h4>
+    <p>În C++ al treilea operand este o <i>expresie de atribuire</i>, deci <code>a ? b : c = d</code> se interpretează <code>a ? b : (c = d)</code>. În C, <code>?:</code> are prioritate mai mare decât atribuirea, iar același text este o eroare de compilare: ar însemna <code>(a ? b : c) = d</code>, iar în C acesta nu este lvalue. Puneți paranteze și problema nu mai apare.</p>
+    <h4>4. Secvențiere</h4>
+    <p>După evaluarea lui <code>exp1</code> există un punct de secvență. Toate efectele lui secundare sunt încheiate înainte să înceapă ramura aleasă. Prin urmare <code>i++ ? i : 0</code> este bine definit.</p>
+    <h4>5. Observație despre performanță</h4>
+    <p>Compilatoarele moderne transformă adesea un <code>?:</code> simplu (și un <code>if</code> echivalent) în instrucțiuni mașină <b>fără salt</b> (de ex. <code>cmov</code> pe x86). Alegeți între <code>?:</code> și <code>if</code> după lizibilitate, nu după viteză. În funcțiile <code>constexpr</code> din C++11, <code>?:</code> era singura formă de ramificare.</p>
+    <h4>6. Extensia GNU <code>x ?: y</code></h4>
+    <p>GCC/Clang acceptă <code>x ?: y</code>, adică <code>x ? x : y</code>, cu <code>x</code> evaluat o singură dată. Forma <b>nu este standard</b>. Nu o folosiți în cod portabil sau la examen.</p>
+  </div>
+
+  <div class="widget" id="w-ternary">
+    <div class="wt">Teren de joacă pentru ?: – modificați valorile și urmăriți fiecare expresie</div>
+    <div class="row">
+      <label class="f">a <input type="number" id="ta" value="7" style="width:90px"></label>
+      <label class="f">b <input type="number" id="tb" value="3" style="width:90px"></label>
+      <label class="f">c <input type="number" id="tc" value="12" style="width:90px"></label>
+      <span style="font-size:.85rem;color:var(--muted)">(tratate ca <code>int</code>)</span>
+    </div>
+    <div class="tbl-wrap"><table id="ternTable"></table></div>
+  </div>
+</section>
+
+<!-- ======================================================= CURS 3 ======================================================= -->
+<section class="part" id="c3" data-study="c3">
+  <div class="parthead"><span class="num">3</span><div><h2>Operatorii de incrementare și decrementare <code>++</code> <code>--</code></h2><div class="meta">Adună sau scad 1, înainte sau după folosirea valorii</div></div><label class="studied"><input type="checkbox"> Marchează ca studiat</label></div>
+
+  <div class="lv b">
+    <span class="badge b">Începător</span>
+    <p><code>++</code> <b>incrementează</b> (adună 1) și <code>--</code> <b>decrementează</b> (scade 1) conținutul unei variabile. Fiecare are două forme:</p>
+    <div class="figure">
+      <svg viewBox="0 0 640 190" width="640" role="img" aria-label="Operatorii de incrementare și decrementare: formele prefixată și postfixată">
+        <defs><marker id="ar2" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker></defs>
+        <g stroke="var(--accent)" stroke-width="1.6" fill="none">
+          <path d="M20 30 L95 45" marker-end="url(#ar2)"/>
+          <path d="M260 50 L345 30" marker-end="url(#ar2)"/><path d="M260 50 L345 72" marker-end="url(#ar2)"/>
+          <path d="M20 140 L95 125" marker-end="url(#ar2)"/>
+          <path d="M260 122 L345 104" marker-end="url(#ar2)"/><path d="M260 122 L345 146" marker-end="url(#ar2)"/>
+        </g>
+        <g font-family="var(--sans)" font-size="15" fill="var(--ink)">
+          <text x="100" y="55" font-weight="700"><tspan font-family="var(--mono)">++</tspan>  incrementare</text>
+          <text x="100" y="128" font-weight="700"><tspan font-family="var(--mono)">--</tspan>  decrementare</text>
+          <text x="352" y="35">prefixat (în fața operandului): <tspan font-family="var(--mono)" font-weight="700">++a</tspan></text>
+          <text x="352" y="77">postfixat (după operand): <tspan font-family="var(--mono)" font-weight="700">a++</tspan></text>
+          <text x="352" y="109">prefixat (în fața operandului): <tspan font-family="var(--mono)" font-weight="700">--a</tspan></text>
+          <text x="352" y="151">postfixat (după operand): <tspan font-family="var(--mono)" font-weight="700">a--</tspan></text>
+        </g>
+      </svg>
+      <div class="cap">Figura 3.1 – Cele patru forme.</div>
+    </div>
+    <div class="box def"><span class="t">Regula de bază</span>
+      <b>Prefixat</b> (<code>++a</code>, <code>--a</code>): variabila este incrementată/decrementată <b>înainte</b> ca valoarea reținută de ea să intre în calcul. Expresia produce valoarea <b>nouă</b>.<br>
+      <b>Postfixat</b> (<code>a++</code>, <code>a--</code>): variabila este incrementată/decrementată <b>după</b> ce valoarea ei a intrat în calcul. Expresia produce valoarea <b>veche</b>.<br>
+      În ambele cazuri, după instrucțiune variabila s-a modificat cu exact 1.</div>
+    <p>Un truc de memorare: <i>citiți de la stânga la dreapta</i>. În <code>++a</code> întâlniți întâi <code>++</code>, deci întâi incrementați și apoi folosiți <code>a</code>. În <code>a++</code> întâlniți întâi <code>a</code>, deci întâi îl folosiți și apoi îl incrementați.</p>
+    <p>Dacă operatorul stă singur într-o instrucțiune, cele două forme au același efect: <code>a++;</code> ≡ <code>++a;</code> ≡ <code>a = a + 1;</code> ≡ <code>a += 1;</code></p>
+
+    <div class="widget" id="w-prepost">
+      <div class="wt">Animație pas cu pas: prefixat față de postfixat</div>
+      <div class="row">
+        <label class="f">Instrucțiunea <select id="ppForm"><option value="b = ++a;">b = ++a;</option><option value="b = a++;">b = a++;</option><option value="b = --a;">b = --a;</option><option value="b = a--;">b = a--;</option><option value="b = 5 + (++a);">b = 5 + (++a);</option><option value="b = 5 + (a++);">b = 5 + (a++);</option></select></label>
+        <label class="f">a inițial <input type="number" id="ppA" value="5" style="width:80px"></label>
+        <button class="btn ghost" id="ppPrev">◀ Înapoi</button><button class="btn" id="ppNext">Pasul următor ▶</button><button class="btn ghost" id="ppReset">De la capăt</button>
+      </div>
+      <div class="mem"><div class="cell" id="cA"><div class="n">a</div><div class="v">5</div></div><div class="cell tmp" id="cT"><div class="n">valoare temporară</div><div class="v">–</div></div><div class="cell" id="cB"><div class="n">b</div><div class="v">?</div></div></div>
+      <div class="narr" id="ppNarr"></div>
+    </div>
+
+    <h4>Se pot incrementa doar variabile</h4>
+    <p><code>++</code> și <code>--</code> trebuie să <b>memoreze</b> o valoare nouă, deci se aplică <b>numai variabilelor</b> (mai exact, lvalue-urilor modificabile). Expresiile următoare sunt <b>incorecte</b> și nu se compilează:</p>
+    <p><code>++4;</code> &nbsp; <code>4--;</code> &nbsp; <code>(5+a)++;</code> &nbsp; <code>(5+a)--;</code> &nbsp; <code>++(10+b);</code> &nbsp; <code>--(10+b);</code></p>
+    <p>Nici o variabilă <code>const</code> nu poate fi incrementată: <code>const int k = 3; k++;</code> este o eroare.</p>
+  </div>
+
+  <div class="lv i">
+    <span class="badge i">Mediu</span>
+    <h4>Exemplul din curs, urmărit linie cu linie</h4>
+    <p>Fiecare pereche de linii pornește din nou de la <code>int a = 5, b, c;</code> (perechile sunt independente):</p>
+<div class="codewrap"><div class="ctitle"><span>exemple_incrementare.cpp</span><span>C++</span></div><pre class="code">int a = 5, b, c;
+b = 5 + (++a);   // b = 5 + 6  = 11, a devine 6 ÎNAINTE de folosire
+c = ++b * ++a;   // c = 12 * 7 = 84, apoi a == 7, b == 12
+
+b = 5 + (a++);   // b = 5 + 5  = 10, a devine 6 DUPĂ folosire
+c = b++ * a++;   // c = 10 * 6 = 60, apoi a == 7, b == 11
+
+b = 5 + (--a);   // b = 5 + 4  = 9,  a devine 4
+c = --b * --a;   // c = 8 * 3  = 24, apoi a == 3, b == 8
+
+b = 5 + (a--);   // b = 5 + 5  = 10, a devine 4
+c = b-- * a--;   // c = 10 * 4 = 40, apoi a == 3, b == 9</pre></div>
+    <table>
+      <tr><th>Perechea</th><th>Linia 1</th><th>a, b după linia 1</th><th>Linia 2</th><th>Valori folosite</th><th>c</th><th>a, b după linia 2</th></tr>
+      <tr><td>1</td><td><code>b = 5 + (++a)</code></td><td>6, 11</td><td><code>c = ++b * ++a</code></td><td>12 · 7</td><td><b>84</b></td><td>7, 12</td></tr>
+      <tr><td>2</td><td><code>b = 5 + (a++)</code></td><td>6, 10</td><td><code>c = b++ * a++</code></td><td>10 · 6</td><td><b>60</b></td><td>7, 11</td></tr>
+      <tr><td>3</td><td><code>b = 5 + (--a)</code></td><td>4, 9</td><td><code>c = --b * --a</code></td><td>8 · 3</td><td><b>24</b></td><td>3, 8</td></tr>
+      <tr><td>4</td><td><code>b = 5 + (a--)</code></td><td>4, 10</td><td><code>c = b-- * a--</code></td><td>10 · 4</td><td><b>40</b></td><td>3, 9</td></tr>
+    </table>
+    <p>La seminar există un <a href="#trace">exercițiu de urmărire</a> în care completați singuri acest tabel.</p>
+
+    <h4>Forme echivalente</h4>
+    <table>
+      <tr><th>Expresia</th><th>Secvența echivalentă</th></tr>
+      <tr><td><code>x = ++n;</code></td><td><code>n = n + 1; x = n;</code></td></tr>
+      <tr><td><code>x = n++;</code></td><td><code>x = n; n = n + 1;</code></td></tr>
+      <tr><td><code>val += suma++;</code></td><td><code>val = val + suma; suma = suma + 1;</code></td></tr>
+      <tr><td><code>val += ++suma;</code></td><td><code>suma = suma + 1; val = val + suma;</code></td></tr>
+      <tr><td><code>a[i++] = x;</code></td><td><code>a[i] = x; i = i + 1;</code> (memorează, apoi avansează indicele)</td></tr>
+    </table>
+
+    <h4>Prioritate și interpretare</h4>
+    <ul>
+      <li>Forma <b>postfixată</b> <code>a++</code> are prioritatea cea mai mare (împreună cu <code>()</code> și <code>[]</code>). Forma <b>prefixată</b> <code>++a</code> are aceeași prioritate ca ceilalți operatori unari (<code>-</code>, <code>!</code>, cast, <code>sizeof</code>). Ambele leagă mai strâns decât <code>*</code> și <code>+</code>.</li>
+      <li><code>-5 * i++ - 12 % 5</code> se interpretează <code>((-5) * (i++)) - (12 % 5)</code>.</li>
+      <li>Analizorul lexical este „lacom” (<i>maximal munch</i>): <code>a+++b</code> se citește <code>a++ + b</code>, nu <code>a + ++b</code>. <code>a+++++b</code> se citește <code>a++ ++ +b</code>, ceea ce este o eroare. Folosiți spații: <code>a++ + ++b</code>.</li>
+      <li><code>-a++</code> înseamnă <code>-(a++)</code>: opusul valorii vechi. <code>a</code> este totuși incrementat.</li>
+    </ul>
+
+    <h4>În bucle: <code>i++</code> sau <code>++i</code>?</h4>
+    <p>În <code>for (i = 0; i &lt; n; i++)</code> valoarea lui <code>i++</code> nu este folosită, deci <code>i++</code> și <code>++i</code> se comportă la fel și, pentru <code>int</code>, produc cod mașină identic. Pentru <b>iteratorii</b> C++ și alte tipuri clasă preferați <code>++it</code>: forma postfixată trebuie să creeze o copie a obiectului vechi (vezi nivelul avansat).</p>
+    <h4>Tipuri</h4>
+    <p><code>++</code>/<code>--</code> funcționează pe orice tip aritmetic, nu doar pe <code>int</code>. <code>float f = 1.5; f++;</code> dă 2.5. <code>char c = 'a'; c++;</code> dă <code>'b'</code>. Funcționează și pe pointeri, unde trec la elementul următor sau anterior.</p>
+  </div>
+
+  <div class="lv a">
+    <span class="badge a">Avansat</span>
+    <h4>1. Efecte secundare și secvențiere: cea mai importantă regulă a unității</h4>
+    <p>Standardul spune <i>când</i> se produce valoarea lui <code>a++</code> (valoarea veche). Despre incrementare spune doar că va fi făcută <b>înainte de următorul punct de secvență</b> (C), sau că este <i>nesecvențiată</i> față de ceilalți operanzi ai aceluiași operator (C++11). Pentru majoritatea operatorilor binari (<code>+ - * / % &lt; ==</code>…) și ordinea în care se evaluează cei doi operanzi este <b>nespecificată</b>.</p>
+    <div class="box bad"><span class="t">Comportament nedefinit (UB – undefined behavior)</span>Dacă o variabilă scalară este <b>modificată de două ori</b>, sau <b>modificată și și citită</b> (altfel decât pentru calculul noii valori) fără un punct de secvență între ele, comportamentul este <b>nedefinit</b>: se poate întâmpla orice, iar compilatoare diferite dau, legitim, rezultate diferite.
+<div class="codewrap"><div class="ctitle"><span>comportament_nedefinit.cpp</span><span>C++</span></div><pre class="code">i = i++ + 1;       // UB în C și în C++ înainte de C++17
+x = ++y * --y;     // UB în toate standardele (y modificat de două ori, nesecvențiat)
+x = i + i++;       // UB (i citit și modificat, nesecvențiat)
+f(i++, i);         // UB/nespecificat: ordinea evaluării argumentelor nu este definită
+a[i] = i++;        // UB înainte de C++17; definit din C++17 (întâi partea dreaptă)</pre></div>
+    </div>
+    <p>Testul de autoevaluare din cursul original conține acest program:</p>
+<div class="codewrap"><div class="ctitle"><span>test_autoevaluare_1b.cpp</span><span>C++</span></div><pre class="code">int y = 10, x;
+x = ++y * --y;                                   // UB!
+cout &lt;&lt; "y = " &lt;&lt; y &lt;&lt; ", x = " &lt;&lt; x &lt;&lt; endl;
+cout &lt;&lt; ++y &lt;&lt; " " &lt;&lt; ++y &lt;&lt; " " &lt;&lt; ++y &lt;&lt; endl; // nespecificat înainte de C++17</pre></div>
+    <p>GCC 13 afișează <code>y = 10, x = 100</code>: aplică întâi ambele efecte secundare și apoi înmulțește <code>10 · 10</code>. O citire strictă de la stânga la dreapta ar da <code>11 · 10 = 110</code>. Niciun răspuns nu este „corect”, pentru că programul nu are un sens definit. GCC chiar avertizează: <i>„operation on 'y' may be undefined [-Wsequence-point]”</i>. A doua linie afișează <code>11 12 13</code> cu C++17 sau mai nou, unde operanzii lui <code>&lt;&lt;</code> se evaluează de la stânga la dreapta. Înainte de C++17 rezultatul era nespecificat (unele compilatoare vechi afișau <code>13 12 11</code>).</p>
+    <div class="box good"><span class="t">Regula de aur</span>Într-o singură expresie, <b>nu folosiți nicăieri altundeva o variabilă pe care o incrementați sau decrementați</b> și nu modificați aceeași variabilă de două ori. Împărțiți expresia în mai multe instrucțiuni.</div>
+    <h4>2. Unde există puncte de secvență (garanții de ordine)</h4>
+    <ul>
+      <li>la sfârșitul fiecărei expresii complete (<code>;</code> al unei instrucțiuni, condiția din <code>if</code>/<code>while</code>, fiecare parte din antetul lui <code>for</code>);</li>
+      <li>după operandul stâng al lui <code>&amp;&amp;</code>, <code>||</code> și al <b>operatorului virgulă</b>;</li>
+      <li>după condiția (primul operand) lui <code>?:</code>;</li>
+      <li>înainte de intrarea într-o funcție: toate argumentele sunt evaluate complet, dar într-o ordine nespecificată;</li>
+      <li>doar în C++17: în <code>a = b</code> partea dreaptă se evaluează înaintea celei stângi; în <code>a &lt;&lt; b</code>, <code>a &gt;&gt; b</code>, <code>a[b]</code> și <code>a.b</code> partea stângă se evaluează înaintea celei drepte.</li>
+    </ul>
+    <h4>3. Categoria valorii: C și C++</h4>
+    <ul>
+      <li>În C, atât <code>++a</code> cât și <code>a++</code> produc un rvalue. <code>++ ++a</code> este o eroare.</li>
+      <li>În C++, <code>++a</code> produce un <b>lvalue</b> (variabila însăși), deci <code>++ ++a</code> și <code>(++a) = 7</code> se compilează (primul este bine definit din C++11). <code>a++</code> este întotdeauna un prvalue (o copie temporară), deci <code>a++ ++</code> este o eroare.</li>
+    </ul>
+    <h4>4. Tipuri speciale de operanzi</h4>
+    <ul>
+      <li><b>bool</b>: <code>b++</code> pe un <code>bool</code> a fost depreciat și eliminat în C++17. <code>b--</code> nu a fost permis niciodată.</li>
+      <li><b>Pointeri</b>: <code>p++</code> avansează cu <code>sizeof(*p)</code> octeți, adică la elementul următor. <code>*p++</code> înseamnă <code>*(p++)</code>: citește elementul curent și apoi avansează. Este idiomul clasic din C pentru parcurgerea tablourilor: <code>while (*d++ = *s++);</code> copiază un șir.</li>
+      <li><b>Depășire</b>: <code>INT_MAX + 1</code> prin <code>++</code> este o depășire cu semn, adică <b>UB</b>. Pentru tipurile <code>unsigned</code> valoarea revine la 0, ceea ce este bine definit.</li>
+    </ul>
+    <h4>5. Supraîncărcarea în C++ și de ce se preferă <code>++it</code></h4>
+<div class="codewrap"><div class="ctitle"><span>supraincarcare_incrementare.cpp</span><span>C++</span></div><pre class="code">struct Contor {
+    int v = 0;
+    Contor&amp; operator++()    { ++v; return *this; }               // prefixat: fără copie
+    Contor  operator++(int) { Contor vechi = *this; ++v; return vechi; } // postfixat: parametru int fictiv, întoarce o COPIE
+};</pre></div>
+    <p>Versiunea postfixată trebuie să construiască și să întoarcă o copie a obiectului vechi. Pentru iteratori mari asta costă timp, dacă optimizatorul nu o elimină. De aici obiceiul din C++ de a scrie <code>++it</code> în bucle.</p>
+  </div>
+</section>
+
+<!-- ======================================================= CURS 4 ======================================================= -->
+<section class="part" id="c4" data-study="c4">
+  <div class="parthead"><span class="num">4</span><div><h2>Operatorul <code>sizeof</code> (dimensiune)</h2><div class="meta">Câți octeți ocupă un tip sau o expresie?</div></div><label class="studied"><input type="checkbox"> Marchează ca studiat</label></div>
+
+  <div class="lv b">
+    <span class="badge b">Începător</span>
+    <p><code>sizeof</code> dă <b>dimensiunea în octeți</b> a unui tip de date sau a rezultatului unei expresii. Deși este cuvânt cheie, este un <b>operator</b>, nu o funcție.</p>
+    <div class="syntax">sizeof (tip) &nbsp;&nbsp;&nbsp;&nbsp; sizeof (expresie) &nbsp;&nbsp;&nbsp;&nbsp; sizeof expresie</div>
+    <p>Pentru un <b>tip</b> parantezele sunt obligatorii. Pentru o expresie sunt opționale: <code>sizeof x</code> este valid.</p>
+<div class="codewrap"><div class="ctitle"><span>exemplu_sizeof_curs.cpp</span><span>C++</span></div><pre class="code">int a, b, c, d;
+float e;
+a = sizeof(float);       // a = 4   – float ocupă 4 octeți
+b = sizeof(e);           // b = 4   – e este float
+c = sizeof(int);         // c = 4 pe compilatoarele moderne (2 pe Turbo C, 16 biți)
+d = sizeof(3 + 2*4);     // rezultatul 11 e de tip int → d = sizeof(int) = 4 (2 pe 16 biți)</pre></div>
+    <div class="box warn"><span class="t">Dimensiunile depind de platformă</span>Standardele C/C++ dau doar domenii <b>minime</b>. Ele nu fixează dimensiunile, cu excepția lui <code>sizeof(char) == 1</code>. Cursul original a fost scris pentru compilatorul Borland pe 16 biți, unde <code>int</code> are <b>2 octeți</b>. Pe sistemele actuale de 32/64 de biți, <code>int</code> are <b>4 octeți</b>.</div>
+    <div class="tbl-wrap"><table id="sizeTable">
+      <tr><th>Tip</th><th>Garanția standardului</th><th>DOS 16 biți<br>(Turbo C)</th><th>Windows 64 biți<br>(LLP64)</th><th>Linux / macOS 64 biți<br>(LP64)</th></tr>
+      <tr><td><code>char</code></td><td>exact 1 octet (≥ 8 biți)</td><td>1</td><td>1</td><td>1</td></tr>
+      <tr><td><code>bool</code> (C++)</td><td>definit de implementare</td><td>–</td><td>1</td><td>1</td></tr>
+      <tr><td><code>short</code></td><td>≥ 16 biți</td><td>2</td><td>2</td><td>2</td></tr>
+      <tr><td><code>int</code></td><td>≥ 16 biți, ≥ short</td><td>2</td><td>4</td><td>4</td></tr>
+      <tr><td><code>long</code></td><td>≥ 32 biți, ≥ int</td><td>4</td><td>4</td><td><b>8</b></td></tr>
+      <tr><td><code>long long</code></td><td>≥ 64 biți</td><td>–</td><td>8</td><td>8</td></tr>
+      <tr><td><code>float</code></td><td>de obicei IEEE-754 simplă precizie</td><td>4</td><td>4</td><td>4</td></tr>
+      <tr><td><code>double</code></td><td>≥ float; de obicei IEEE-754 dublă precizie</td><td>8</td><td>8</td><td>8</td></tr>
+      <tr><td><code>long double</code></td><td>≥ double</td><td>10</td><td>8</td><td>16 (x86-64)</td></tr>
+      <tr><td>pointer (<code>int*</code>)</td><td>–</td><td>2 sau 4</td><td>8</td><td>8</td></tr>
+    </table></div>
+    <p>Ordinea garantată este: <code>1 == sizeof(char) ≤ sizeof(short) ≤ sizeof(int) ≤ sizeof(long) ≤ sizeof(long long)</code>.</p>
+  </div>
+
+  <div class="lv i">
+    <span class="badge i">Mediu</span>
+    <h4>1. Tipul rezultatului: <code>size_t</code></h4>
+    <p><code>sizeof</code> întoarce o valoare de tip <code>size_t</code>, un tip întreg <b>fără semn</b> definit în <code>&lt;cstddef&gt;</code>/<code>&lt;stddef.h&gt;</code>. Cu <code>printf</code> folosiți formatul <code>%zu</code>: <code>printf("%zu\n", sizeof(double));</code>. Amestecarea lui cu <code>int</code>-uri negative în comparații este periculoasă (vezi §5, nivelul avansat).</p>
+    <h4>2. Dimensiunea unei expresii este dimensiunea <i>tipului</i> ei</h4>
+    <p><code>sizeof(3 + 2*4)</code> nu depinde de valoarea 11, ci de tipul expresiei (<code>int</code>). La fel, <code>sizeof(3.0f + 1)</code> = 4 (<code>float</code>), <code>sizeof(1 + 2.0)</code> = 8 (<code>double</code>), <code>sizeof('a' + 'b')</code> = 4 (ambele <code>char</code> sunt promovate la <code>int</code>).</p>
+    <h4>3. Numărul de elemente al unui tablou</h4>
+<div class="codewrap"><div class="ctitle"><span>lungime_tablou.cpp</span><span>C++</span></div><pre class="code">int v[10];
+size_t total = sizeof(v);              // 40 de octeți (10 * 4)
+size_t n     = sizeof(v) / sizeof(v[0]); // 10 elemente – merge pentru orice tip de element</pre></div>
+    <p>Metoda funcționează <b>doar</b> acolo unde tabloul însuși este vizibil. Într-o funcție care primește tabloul ca parametru, parametrul este un pointer, deci <code>sizeof</code> dă dimensiunea unui pointer (vezi nivelul avansat). În C++ modern folosiți <code>std::size(v)</code> (C++17) sau <code>std::array</code>.</p>
+    <h4>4. Constantele caracter: C și C++</h4>
+    <p>În C, <code>'a'</code> are tipul <code>int</code>, deci <code>sizeof('a')</code> este 4. În C++, <code>'a'</code> are tipul <code>char</code>, deci rezultatul este 1. O întrebare clasică de examen.</p>
+    <h4>5. De ce să folosim <code>sizeof</code>?</h4>
+    <ul>
+      <li><b>Portabilitate</b>: nu scrieți niciodată direct 2 sau 4. Scrieți <code>sizeof(int)</code>.</li>
+      <li><b>Memorie dinamică</b>: <code>malloc(n * sizeof(double))</code> (C). Și mai bine: <code>malloc(n * sizeof *p)</code>, care rămâne corect dacă se schimbă tipul lui <code>p</code>.</li>
+      <li><b>Fișiere binare și zone tampon</b>: <code>fwrite(&amp;x, sizeof x, 1, f)</code>.</li>
+    </ul>
+  </div>
+
+  <div class="lv a">
+    <span class="badge a">Avansat</span>
+    <h4>1. Operandul nu este evaluat</h4>
+    <p><code>sizeof</code> se calculează <b>la compilare</b>, doar din tip. Operandul său este un <i>operand neevaluat</i>, așa că efectele secundare din interior nu se produc niciodată:</p>
+<div class="codewrap"><div class="ctitle"><span>sizeof_neevaluat.cpp</span><span>C++</span></div><pre class="code">int i = 3;
+size_t s = sizeof(i++);   // s == 4, dar i este ÎNCĂ 3 – i++ nu se execută niciodată
+size_t t = sizeof(f());   // f NU este apelată; se folosește doar tipul întors</pre></div>
+    <p>Excepție (doar C99): pentru un <b>tablou de lungime variabilă</b> <code>int v[n];</code>, <code>sizeof v</code> se calculează la execuție. Tablourile de lungime variabilă (VLA) nu fac parte din C++ standard.</p>
+    <h4>2. Transformarea tabloului în pointer</h4>
+<div class="codewrap"><div class="ctitle"><span>sizeof_pointer.cpp</span><span>C++</span></div><pre class="code">void f(int v[10]) {                 // de fapt: void f(int *v)
+    cout &lt;&lt; sizeof(v);              // 8 pe 64 de biți: dimensiunea unui POINTER, nu 40!
+}                                   // GCC avertizează: -Wsizeof-array-argument</pre></div>
+    <h4>3. Structuri și octeți de aliniere (padding)</h4>
+    <p>Dimensiunea unei <code>struct</code> poate fi <b>mai mare decât suma membrilor</b>, pentru că compilatorul inserează octeți de completare ca să alinieze fiecare membru:</p>
+<div class="codewrap"><div class="ctitle"><span>padding.cpp</span><span>C++</span></div><pre class="code">struct S { char c; int i; char d; };   // sizeof(S) == 12 : 1 + 3(compl.) + 4 + 1 + 3(compl.)
+struct T { int i; char c; char d; };   // sizeof(T) ==  8 : 4 + 1 + 1 + 2(compl.)</pre></div>
+    <p>Ordonați membrii de la cel mai mare la cel mai mic pentru a economisi memorie. <code>alignof(T)</code> (C++11 / C11 <code>_Alignof</code>) dă alinierea cerută.</p>
+    <h4>4. Biți, nu octeți</h4>
+    <p>Un „octet” (byte) în C are <code>CHAR_BIT</code> biți (<code>&lt;climits&gt;</code>). Pe tot hardware-ul obișnuit sunt 8, dar formal doar ≥ 8. Pentru domenii exacte folosiți <code>std::numeric_limits&lt;int&gt;::max()</code> sau <code>INT_MAX</code>. Pentru dimensiuni exacte folosiți tipurile cu lățime fixă <code>int8_t</code>, <code>int16_t</code>, <code>int32_t</code>, <code>int64_t</code> din <code>&lt;cstdint&gt;</code>.</p>
+    <h4>5. Restricții și operatori înrudiți</h4>
+    <ul>
+      <li><code>sizeof</code> nu se poate aplica unui tip funcție, unui tip incomplet (<code>void</code>, o structură doar declarată) sau unui câmp de biți.</li>
+      <li><code>sizeof</code> pentru o clasă vidă în C++ este cel puțin 1, ca obiectele distincte să aibă adrese distincte.</li>
+      <li><code>sizeof...(Args)</code> (C++11) numără elementele unui pachet de parametri; este alt operator.</li>
+      <li>Fiind o expresie constantă, poate fi folosit în <code>static_assert(sizeof(int) == 4, "int trebuie sa aiba 32 de biti");</code>.</li>
+    </ul>
+  </div>
+
+  <div class="widget" id="w-sizeof">
+    <div class="wt">Simulator de platformă: ieșirea programului „dimensiunile tipurilor fundamentale”</div>
+    <div class="row"><label class="f">Compilator / model de date <select id="szModel"><option value="IP16">DOS 16 biți (Turbo C++ 3.1)</option><option value="ILP32">32 biți (ILP32)</option><option value="LLP64">Windows 64 biți (LLP64, MSVC/MinGW)</option><option value="LP64" selected>Linux/macOS 64 biți (LP64, GCC/Clang)</option></select></label></div>
+    <pre class="out" id="szOut"></pre>
+  </div>
+</section>
+
+<!-- ======================================================= CURS 5 ======================================================= -->
+<section class="part" id="c5" data-study="c5">
+  <div class="parthead"><span class="num">5</span><div><h2>Operatorul de conversie explicită (de forțare a tipului)</h2><div class="meta">Operandul intră în calcul cu tipul dorit de noi</div></div><label class="studied"><input type="checkbox"> Marchează ca studiat</label></div>
+
+  <div class="lv b">
+    <span class="badge b">Începător</span>
+    <p>În expresiile mixte, compilatorul convertește operanzii <b>implicit</b>, după reguli fixe. Uneori avem nevoie ca anumiți operanzi să intre în calcul convertiți <b>așa cum dorim noi</b>, nu implicit. Pentru asta există operatorul de <b>conversie explicită</b> (cast, de forțare a tipului):</p>
+    <div class="syntax">(tip_conversie) operand</div>
+    <p><b>Valoarea</b> operandului se convertește spre <code>tip_conversie</code>. Variabila însăși nu se modifică: <code>(int)x</code> nu îl schimbă pe <code>x</code>, ci produce o valoare temporară nouă.</p>
+    <table>
+      <tr><th>Declarația</th><th>Expresia</th><th>Rezultat</th><th>Explicație</th></tr>
+      <tr><td><code>float a;</code></td><td><code>a = (float) 5;</code></td><td><code>5.000000</code></td><td>întregul 5 devine numărul real 5.0</td></tr>
+      <tr><td><code>int b;</code></td><td><code>b = (int) 5.35;</code></td><td><code>5</code></td><td>conversia la int <b>trunchiază</b>: partea fracționară se pierde (nu se rotunjește)</td></tr>
+      <tr><td><code>int c;</code></td><td><code>c = (int) (3.78 + 7);</code></td><td><code>10</code></td><td>întâi 3.78 + 7 = 10.78, apoi trunchiat la 10</td></tr>
+      <tr class="hlrow"><td><code>float d;</code></td><td><code>d = (float) (1/2);</code></td><td><code>0.000000</code></td><td><b>capcană!</b> <code>1/2</code> este împărțire întreagă = 0; conversia vine prea târziu</td></tr>
+      <tr><td><code>float d;</code></td><td><code>d = 1 / (float) 2;</code></td><td><code>0.500000</code></td><td>2 devine 2.0f, deci împărțirea este reală</td></tr>
+      <tr><td><code>float d;</code></td><td><code>d = 5 + ((float)3 + 4);</code></td><td><code>12.000000</code></td><td>3.0f + 4 → 7.0f; 5 + 7.0f → 12.0f</td></tr>
+    </table>
+    <p>(Rezultatele sunt scrise cum le afișează <code>printf("%f")</code>. <code>cout</code> ar afișa <code>5</code>, <code>0.5</code>, <code>12</code>.)</p>
+    <div class="box def"><span class="t">De reținut</span>Cast-ul leagă foarte strâns. El se aplică <b>operandului imediat din dreapta</b>. <code>(float)1/2</code> înseamnă <code>((float)1)/2</code> = 0.5. <code>(float)(1/2)</code> convertește întregul 0, deja calculat.</div>
+  </div>
+
+  <div class="lv i">
+    <span class="badge i">Mediu</span>
+    <h4>1. Conversii implicite: ce se întâmplă fără cast</h4>
+    <p><b>Promovarea întregilor</b>: operanzii <code>char</code>, <code>short</code> (și <code>bool</code>) sunt convertiți întâi la <code>int</code>.<br>
+    <b>Conversiile aritmetice uzuale</b>: când cei doi operanzi ai unui operator binar au tipuri diferite, cel „mai mic” este convertit la cel „mai mare”. Simplificat, ierarhia este:</p>
+    <p style="text-align:center"><span class="pill">int</span> → <span class="pill">unsigned</span> → <span class="pill">long</span> → <span class="pill">unsigned long</span> → <span class="pill">long long</span> → <span class="pill">float</span> → <span class="pill">double</span> → <span class="pill">long double</span></p>
+    <p><b>La atribuire</b>, valoarea se convertește la tipul variabilei din stânga, chiar dacă se pierde informație: <code>int k = 3.99;</code> dă <code>k == 3</code>.</p>
+    <h4>2. Capcana împărțirii întregi și cum o evitați</h4>
+<div class="codewrap"><div class="ctitle"><span>media.cpp</span><span>C++</span></div><pre class="code">int suma = 17, n = 4;
+double m1 = suma / n;            // 4.0   – GREȘIT: împărțirea întreagă se face prima
+double m2 = (double) suma / n;   // 4.25  – corect: suma e convertită, n urmează automat
+double m3 = (double)(suma / n);  // 4.0   – GREȘIT: cast aplicat rezultatului 4
+double m4 = suma * 1.0 / n;      // 4.25  – corect, fără cast explicit
+double m5 = static_cast&lt;double&gt;(suma) / n;   // 4.25 – corect, stil C++ modern</pre></div>
+    <div class="widget" id="w-div">
+      <div class="wt">Exploratorul împărțirii</div>
+      <div class="row"><label class="f">int a <input type="number" id="dvA" value="17" style="width:90px"></label><label class="f">int b <input type="number" id="dvB" value="4" style="width:90px"></label></div>
+      <div class="tbl-wrap"><table id="divTable"></table></div>
+    </div>
+    <h4>3. Rotunjire în loc de trunchiere</h4>
+<div class="codewrap"><div class="ctitle"><span>rotunjire.cpp</span><span>C++</span></div><pre class="code">double x = 2.7, y = -2.7;
+int t1 = (int) x;            //  2   trunchiere spre zero
+int t2 = (int) y;            // -2   (NU -3!)
+int r1 = (int)(x + 0.5);     //  3   truc de rotunjire – corect doar pentru x &gt;= 0
+int r2 = (int) round(y);     // -3   std::round din &lt;cmath&gt; tratează și negativele</pre></div>
+    <h4>4. Caracterele sunt întregi mici</h4>
+<div class="codewrap"><div class="ctitle"><span>cast_char.cpp</span><span>C++</span></div><pre class="code">char c = 'A';
+cout &lt;&lt; c &lt;&lt; " " &lt;&lt; (int)c &lt;&lt; " " &lt;&lt; (char)(c + 2) &lt;&lt; endl;   // A 65 C
+int cifra = '7' - '0';                                        // 7: caracter cifră → valoarea numerică</pre></div>
+    <h4>5. Sintaxe de cast în C++</h4>
+    <p>C++ acceptă și <b>notația funcțională</b> <code>int(x)</code>, <code>double(suma)</code>, echivalentă cu <code>(int)x</code> pentru nume simple de tip. Oferă și <b>cast-uri cu nume</b>, mai sigure; cel mai folosit este <code>static_cast&lt;double&gt;(suma)</code> (vezi nivelul avansat).</p>
+  </div>
+
+  <div class="lv a">
+    <span class="badge a">Avansat</span>
+    <h4>1. Conversii care pierd informație sau sunt nedefinite</h4>
+    <table>
+      <tr><th>Conversia</th><th>Regula</th><th>Exemplu</th></tr>
+      <tr><td>real → întreg, valoarea încape</td><td>trunchiere spre zero</td><td><code>(int)-3.7 == -3</code></td></tr>
+      <tr><td>real → întreg, valoarea <b>nu</b> încape</td><td><b>comportament nedefinit</b></td><td><code>(int)1e10</code>, <code>(unsigned)-1.0</code></td></tr>
+      <tr><td>întreg → întreg <b>fără semn</b></td><td>întotdeauna definit: valoarea modulo 2<sup>N</sup></td><td><code>(unsigned char)300 == 44</code>, <code>(unsigned)-1 == 4294967295</code></td></tr>
+      <tr><td>întreg → întreg <b>cu semn</b>, nu încape</td><td>definit de implementare în C (practic modulo 2<sup>N</sup>); definit ca modulo 2<sup>N</sup> din C++20</td><td><code>(signed char)200 == -56</code></td></tr>
+      <tr><td>double → float</td><td>rotunjit la cel mai apropiat float; în afara domeniului → UB / inf</td><td><code>(float)0.1</code> ≈ 0.100000001</td></tr>
+      <tr><td>întreg → real</td><td>exact dacă este reprezentabil, altfel rotunjit</td><td><code>(float)16777217 == 16777216</code></td></tr>
+      <tr><td>orice scalar → bool</td><td>0 → false, orice altceva → true</td><td><code>(bool)0.3 == true</code></td></tr>
+    </table>
+    <h4>2. Capcana comparației cu semn / fără semn</h4>
+<div class="codewrap"><div class="ctitle"><span>cu_semn_fara_semn.cpp</span><span>C++</span></div><pre class="code">int n = -1;
+unsigned u = 1;
+if (n &lt; u) cout &lt;&lt; "mai mic"; else cout &lt;&lt; "NU e mai mic";   // afișează NU e mai mic!
+// n se convertește la unsigned: 4294967295 &lt; 1 este fals.  Corect: if (n &lt; (int)u)  sau  if (n &lt; 0 || n &lt; u)
+for (int i = 0; i &lt; v.size() - 1; i++)   // dacă v e vid: v.size()-1 == număr uriaș → acces în afara vectorului</pre></div>
+    <h4>3. Cast-urile cu nume din C++</h4>
+    <table>
+      <tr><th>Cast</th><th>Scop</th><th>Exemplu</th></tr>
+      <tr><td><code>static_cast&lt;T&gt;(e)</code></td><td>conversii „normale”, verificate la compilare: conversii numerice, <code>void*</code> → <code>T*</code>, conversii în sus/jos într-o ierarhie de clase</td><td><code>static_cast&lt;double&gt;(suma) / n</code></td></tr>
+      <tr><td><code>const_cast&lt;T&gt;(e)</code></td><td>adaugă sau elimină doar <code>const</code>/<code>volatile</code></td><td>apelul unei funcții vechi care cere <code>char*</code></td></tr>
+      <tr><td><code>reinterpret_cast&lt;T&gt;(e)</code></td><td>reinterpretează biții: pointer ↔ întreg, tipuri pointer neînrudite. Periculos.</td><td><code>reinterpret_cast&lt;std::uintptr_t&gt;(p)</code></td></tr>
+      <tr><td><code>dynamic_cast&lt;T&gt;(e)</code></td><td>conversie în jos verificată la execuție, în ierarhii polimorfice; întoarce <code>nullptr</code> sau aruncă o excepție la eșec</td><td><code>dynamic_cast&lt;Cerc*&gt;(forma)</code></td></tr>
+    </table>
+    <p>Un cast în stil C <code>(T)e</code> încearcă, în ordine, <code>const_cast</code>, <code>static_cast</code>, <code>static_cast</code> + <code>const_cast</code>, <code>reinterpret_cast</code>… și îl alege în tăcere pe primul care funcționează. Cast-urile cu nume fac intenția vizibilă, se caută ușor în cod și sunt respinse dacă conversia nu este de tipul așteptat. Majoritatea ghidurilor de stil C++ le recomandă.</p>
+    <h4>4. Inițializarea cu acolade împiedică îngustarea tăcută (C++11)</h4>
+<div class="codewrap"><div class="ctitle"><span>ingustare.cpp</span><span>C++</span></div><pre class="code">int a = 3.7;      // se compilează, a == 3 (trunchiere tăcută)
+int b{3.7};       // EROARE: conversie cu îngustare (narrowing) de la double la int
+int c{static_cast&lt;int&gt;(3.7)};   // OK – îngustarea este făcută explicit</pre></div>
+  </div>
+
+  <div class="widget" id="w-cast">
+    <div class="wt">Calculator de conversii: cât dă <code>(tip) valoare</code>?</div>
+    <div class="row">
+      <label class="f">valoare (constantă întreagă sau reală) <input type="text" id="cvVal" value="300.75" style="width:150px"></label>
+      <label class="f">tipul conversiei <select id="cvType">
+        <option>int</option><option>short</option><option>char</option><option>unsigned char</option><option>unsigned int</option><option>long long</option><option>float</option><option>double</option><option>bool</option></select></label>
+    </div>
+    <div id="cvOut"></div>
+  </div>
+</section>
+
+<!-- ======================================================= CURS 6 ======================================================= -->
+<section class="part" id="c6" data-study="c6">
+  <div class="parthead"><span class="num">6</span><div><h2>Prioritate, asociativitate și ordine de evaluare</h2><div class="meta">Cum pune compilatorul parantezele pe care nu le-ați scris</div></div><label class="studied"><input type="checkbox"> Marchează ca studiat</label></div>
+
+  <div class="lv b">
+    <span class="badge b">Începător</span>
+    <p>Când o expresie are mai mulți operatori, apar trei întrebări diferite:</p>
+    <ol>
+      <li><b>Prioritatea</b> (precedența): ce operator se aplică primul? <code>*</code> înaintea lui <code>+</code>, deci <code>2 + 3 * 4</code> = 14.</li>
+      <li><b>Asociativitatea</b>: pentru operatori cu <i>aceeași</i> prioritate, grupăm de la stânga sau de la dreapta? <code>10 - 4 - 3</code> = <code>(10 - 4) - 3</code> = 3 (de la stânga la dreapta). <code>a = b = 5</code> = <code>a = (b = 5)</code> (de la dreapta la stânga).</li>
+      <li><b>Ordinea de evaluare</b>: în ce ordine se calculează efectiv operanzii? Pentru majoritatea operatorilor, ea <b>nu este specificată</b>. Contează doar când operanzii au efecte secundare (vezi nivelul avansat).</li>
+    </ol>
+    <p>Prioritatea și asociativitatea spun doar <b>unde se pun parantezele implicite</b>. Când aveți dubii, <b>scrieți voi parantezele</b>: nu costă nimic și fac codul mai clar.</p>
+  </div>
+
+  <div class="lv i">
+    <span class="badge i">Mediu</span>
+    <h4>Tabelul priorităților operatorilor C/C++ (de la cea mai mare la cea mai mică)</h4>
+    <div class="tbl-wrap"><table>
+      <tr><th>Nivel</th><th>Operatori</th><th>Descriere</th><th>Asociativitate</th></tr>
+      <tr><td>1</td><td><code>::</code></td><td>rezoluția domeniului (doar C++)</td><td>—</td></tr>
+      <tr><td>2</td><td><code>a++ a--</code> &nbsp;<code>f()</code> <code>a[i]</code> <code>.</code> <code>-&gt;</code> &nbsp;<code>T(x)</code></td><td><b>incrementare/decrementare postfixată</b>, apel, indexare, acces la membru, cast funcțional</td><td>stânga → dreapta</td></tr>
+      <tr><td>3</td><td><code>++a --a</code> &nbsp;<code>+a -a</code> <code>!</code> <code>~</code> <code>(tip)</code> <code>*p</code> <code>&amp;x</code> <code>sizeof</code> <code>new</code> <code>delete</code></td><td><b>incrementare/decrementare prefixată</b>, plus/minus unar, negație logică/pe biți, <b>cast</b>, dereferențiere, adresă, <b>sizeof</b></td><td><b>dreapta → stânga</b></td></tr>
+      <tr><td>4</td><td><code>.*</code> <code>-&gt;*</code></td><td>pointer la membru (C++)</td><td>stânga → dreapta</td></tr>
+      <tr><td>5</td><td><code>*</code> <code>/</code> <code>%</code></td><td>multiplicativi</td><td>stânga → dreapta</td></tr>
+      <tr><td>6</td><td><code>+</code> <code>-</code></td><td>aditivi</td><td>stânga → dreapta</td></tr>
+      <tr><td>7</td><td><code>&lt;&lt;</code> <code>&gt;&gt;</code></td><td>deplasare pe biți (în C++ și inserare/extragere din fluxuri)</td><td>stânga → dreapta</td></tr>
+      <tr><td>8</td><td><code>&lt;=&gt;</code></td><td>comparație în trei căi (C++20)</td><td>stânga → dreapta</td></tr>
+      <tr><td>9</td><td><code>&lt;</code> <code>&lt;=</code> <code>&gt;</code> <code>&gt;=</code></td><td>relaționali</td><td>stânga → dreapta</td></tr>
+      <tr><td>10</td><td><code>==</code> <code>!=</code></td><td>de egalitate</td><td>stânga → dreapta</td></tr>
+      <tr><td>11</td><td><code>&amp;</code></td><td>ȘI pe biți</td><td>stânga → dreapta</td></tr>
+      <tr><td>12</td><td><code>^</code></td><td>SAU exclusiv pe biți</td><td>stânga → dreapta</td></tr>
+      <tr><td>13</td><td><code>|</code></td><td>SAU pe biți</td><td>stânga → dreapta</td></tr>
+      <tr><td>14</td><td><code>&amp;&amp;</code></td><td>ȘI logic (scurtcircuitat)</td><td>stânga → dreapta</td></tr>
+      <tr><td>15</td><td><code>||</code></td><td>SAU logic (scurtcircuitat)</td><td>stânga → dreapta</td></tr>
+      <tr><td>16</td><td><code>? :</code> &nbsp;<code>= += -= *= /= %= &lt;&lt;= &gt;&gt;= &amp;= ^= |=</code> &nbsp;<code>throw</code></td><td><b>condițional</b>, atribuire, atribuire compusă</td><td><b>dreapta → stânga</b></td></tr>
+      <tr><td>17</td><td><code>,</code></td><td><b>virgulă</b> (cea mai mică dintre toate)</td><td>stânga → dreapta</td></tr>
+    </table></div>
+    <p style="font-size:.9rem;color:var(--muted)">În C, <code>?:</code> se află cu un nivel deasupra operatorilor de atribuire. În C++ au același nivel. Ambii se asociază de la dreapta la stânga.</p>
+    <div class="box"><span class="t">Ordinea de reținut (de la mare la mic)</span><b>unari</b> → <b>aritmetici</b> (<code>* / %</code>, apoi <code>+ -</code>) → <b>deplasări</b> → <b>relaționali</b> → <b>egalitate</b> → <b>pe biți</b> (<code>&amp; ^ |</code>) → <b>logici</b> (<code>&amp;&amp;</code>, apoi <code>||</code>) → <b>condițional</b> → <b>atribuire</b> → <b>virgulă</b>. Doar operatorii unari, <code>?:</code> și atribuirile se grupează de la dreapta la stânga.</div>
+    <h4>Exemplu rezolvat: inserarea parantezelor implicite</h4>
+    <p><b>Expresia:</b> <code>a = -5 * i++ - 12 % 5</code>, cu <code>i = -5</code>.</p>
+    <ol>
+      <li><code>i++</code> postfixat (nivelul 2) se leagă primul: <code>(i++)</code>.</li>
+      <li>Minusul unar (nivelul 3): <code>(-5)</code>.</li>
+      <li>Multiplicativii, de la stânga la dreapta: <code>((-5) * (i++))</code> și <code>(12 % 5)</code>.</li>
+      <li>Aditivii: <code>(((-5) * (i++)) - (12 % 5))</code>.</li>
+      <li>Atribuirea (cea mai mică prioritate aici): <code>a = ( ((-5) * (i++)) - (12 % 5) )</code>.</li>
+    </ol>
+    <p><b>Valoarea:</b> <code>i++</code> produce valoarea veche −5, deci (−5)·(−5) = 25; 12 % 5 = 2; a = 25 − 2 = <b>23</b>. După aceea, <code>i == -4</code>.</p>
+    <h4>Capcane frecvente de prioritate</h4>
+    <table>
+      <tr><th>Scrieți</th><th>Compilatorul citește</th><th>Probabil ați vrut</th></tr>
+      <tr><td><code>x &amp; 1 == 0</code></td><td><code>x &amp; (1 == 0)</code> → mereu 0</td><td><code>(x &amp; 1) == 0</code></td></tr>
+      <tr><td><code>cout &lt;&lt; a &gt; b ? a : b;</code></td><td><code>(cout &lt;&lt; a) &gt; b ? ...</code> → eroare</td><td><code>cout &lt;&lt; (a &gt; b ? a : b);</code></td></tr>
+      <tr><td><code>x = 1, 2;</code></td><td><code>(x = 1), 2;</code></td><td><code>x = (1, 2);</code> sau simplu <code>x = 2;</code></td></tr>
+      <tr><td><code>*p++</code></td><td><code>*(p++)</code></td><td>(dacă voiați să incrementați valoarea indicată) <code>(*p)++</code></td></tr>
+      <tr><td><code>(float) a / b</code></td><td><code>((float)a) / b</code></td><td>(corect pentru împărțire reală; <code>(float)(a/b)</code> nu ar fi)</td></tr>
+      <tr><td><code>a &lt; b &lt; c</code></td><td><code>(a &lt; b) &lt; c</code> → compară 0/1 cu c</td><td><code>a &lt; b &amp;&amp; b &lt; c</code></td></tr>
+      <tr><td><code>a &lt;= b &amp;&amp; b &lt;&lt; c</code> (greșeală de tipar)</td><td><code>a &lt;= b &amp;&amp; (b &lt;&lt; c)</code> – deplasare!</td><td><code>a &lt;= b &amp;&amp; b &lt;= c</code></td></tr>
+    </table>
+  </div>
+
+  <div class="lv a">
+    <span class="badge a">Avansat</span>
+    <h4>Prioritatea nu este ordinea de evaluare</h4>
+    <p>În <code>f() + g() * h()</code>, prioritatea spune că <code>g()*h()</code> se înmulțește întâi și produsul se adună apoi la <code>f()</code>. Ea <b>nu</b> spune că <code>g</code> este apelată înaintea lui <code>f</code>. Cele trei apeluri pot avea loc în <b>orice ordine</b>. Dacă funcțiile afișează ceva sau modifică variabile comune, rezultatul poate diferi de la un compilator la altul.</p>
+    <p>Operatori cu ordine de evaluare <b>garantată</b>: <code>&amp;&amp;</code>, <code>||</code>, <code>,</code>, <code>?:</code> (întâi condiția) și, din C++17, <code>=</code> și formele compuse (întâi partea dreaptă), <code>&lt;&lt;</code>, <code>&gt;&gt;</code>, <code>[]</code>, <code>.</code>, <code>-&gt;</code> (întâi partea stângă).</p>
+    <h4>Nespecificat, nedefinit, definit de implementare</h4>
+    <table>
+      <tr><th>Categoria</th><th>Semnificație</th><th>Exemplu</th></tr>
+      <tr><td><b>definit de implementare</b></td><td>compilatorul alege și <b>documentează</b> alegerea</td><td><code>sizeof(int)</code>, deplasarea la dreapta a unui număr negativ (înainte de C++20)</td></tr>
+      <tr><td><b>nespecificat</b></td><td>unul dintre mai multe comportamente valide, nu neapărat documentat sau constant</td><td>ordinea evaluării în <code>f() + g()</code></td></tr>
+      <tr><td><b>nedefinit (UB)</b></td><td>nicio cerință; optimizatorul poate presupune că nu se întâmplă niciodată</td><td><code>i = i++ + i++;</code>, depășire cu semn, împărțire la zero</td></tr>
+    </table>
+    <p>Instrumente care detectează UB la execuție: <code>g++ -fsanitize=undefined,address</code>. La compilare: <code>-Wall -Wextra -Wsequence-point -Wconversion</code>.</p>
+  </div>
+
+  <div class="widget" id="lab-tool">
+    <div class="wt">Laboratorul de expresii: pune parantezele, stabilește tipurile și evaluează pas cu pas orice expresie C</div>
+    <p style="margin:.2rem 0 .6rem;font-size:.92rem">Declarați variabilele (sintaxă C), scrieți o expresie și apăsați <b>Evaluează</b>. Laboratorul afișează forma complet parantezată, arborele sintactic cu tipul static al fiecărui nod, fiecare pas al evaluării (conversii, efecte secundare, puncte de secvență, ramuri ignorate) și eventualul comportament nedefinit. Sunt acceptate: constante întregi și reale, caractere <code>'c'</code>, toți operatorii aritmetici/relaționali/logici/pe biți, <code>++ --</code>, <code>?:</code>, operatorul virgulă, <code>sizeof</code>, cast-uri, <code>= += -= …</code></p>
+    <div class="row">
+      <label class="f">Încărcați un exemplu <select id="elEx"></select></label>
+      <label class="f">Platforma <select id="elModel"><option value="LP64">LP64 – Linux/macOS 64 biți</option><option value="LLP64">LLP64 – Windows 64 biți</option><option value="ILP32">ILP32 – 32 biți</option><option value="IP16">DOS 16 biți (Turbo C)</option></select></label>
+    </div>
+    <label class="f">Declarații<textarea id="elDecl" rows="2">int a = 5, b = 7; float c;</textarea></label>
+    <div class="row" style="align-items:flex-end">
+      <label class="f" style="flex:1">Expresie<input type="text" id="elExpr" value="c = a = b + 3 , a = c + 2, b = b + 3" style="width:100%"></label>
+      <button class="btn" id="elRun">Evaluează</button>
+    </div>
+    <div id="elOut"></div>
+  </div>
+</section>
+
+<!-- ======================================================= CURS 7 ======================================================= -->
+<section class="part" id="c7" data-study="c7">
+  <div class="parthead"><span class="num">7</span><div><h2>Rezumat și fișă recapitulativă</h2></div><label class="studied"><input type="checkbox"> Marchează ca studiat</label></div>
+  <div class="sumgrid">
+    <div class="card"><h4><code>,</code> virgulă</h4><p><code>e1, e2, …, en</code>: evaluate stânga → dreapta; valoarea și tipul sunt ale lui <code>en</code>. Cea mai mică prioritate. Garantează ordinea (punct de secvență). A nu se confunda cu separatorul din declarații și din lista de argumente.</p></div>
+    <div class="card"><h4><code>?:</code> condițional</h4><p><code>c ? e2 : e3</code>: dacă <code>c ≠ 0</code> se evaluează <code>e2</code>, altfel <code>e3</code>; cealaltă ramură este ignorată. Se asociază de la dreapta, are prioritate mică, deci în <code>cout</code> se pune între paranteze. Tipul este tipul comun al lui <code>e2</code> și <code>e3</code>.</p></div>
+    <div class="card"><h4><code>++ --</code></h4><p>Prefixat: întâi modifică, apoi folosește (valoarea nouă). Postfixat: întâi folosește, apoi modifică (valoarea veche). Doar pentru variabile (lvalue). Nu folosiți aceeași variabilă de două ori într-o expresie care o incrementează.</p></div>
+    <div class="card"><h4><code>sizeof</code></h4><p><code>sizeof(tip)</code> / <code>sizeof expr</code> → octeți, de tip <code>size_t</code>. Calculat la compilare, iar operandul nu este evaluat. <code>sizeof(char) == 1</code>; celelalte dimensiuni depind de platformă. Lungimea unui tablou: <code>sizeof v / sizeof v[0]</code>.</p></div>
+    <div class="card"><h4><code>(tip)</code> cast</h4><p><code>(T) operand</code> convertește valoarea, nu variabila. float → int trunchiază. <code>(float)(1/2) == 0</code>, dar <code>(float)1/2 == 0.5</code>. În C++ preferați <code>static_cast&lt;T&gt;(e)</code>.</p></div>
+    <div class="card"><h4>Prioritate</h4><p>postfixați &gt; unari (++/-- prefixat, cast, sizeof) &gt; <code>* / %</code> &gt; <code>+ -</code> &gt; deplasări &gt; relaționali &gt; egalitate &gt; pe biți &gt; <code>&amp;&amp;</code> &gt; <code>||</code> &gt; <code>?:</code> / atribuire &gt; <code>,</code></p></div>
+  </div>
+</section>
+
+<!-- ======================================================= SEMINAR ======================================================= -->
+<section class="part" id="seminar" data-study="sem">
+  <div class="parthead"><span class="num">S</span><div><h2>Seminar: probleme rezolvate</h2><div class="meta">Rezolvați întâi pe hârtie, apoi deschideți soluția</div></div><label class="studied"><input type="checkbox"> Marchează ca studiat</label></div>
+  <p>Problemele sunt ordonate după dificultate. Problemele 1–5 sunt exercițiile din cursul original, corectate și actualizate. Problemele 6–11 le extind.</p>
+
+  <div class="ex lv b"><div class="h"><span class="no">S1</span><span class="badge b">Începător</span> Ordine crescătoare cu operatorul condițional</div>
+    <p>Folosind operatorul condițional, scrieți o secvență de cod care testează dacă trei numere naturale <code>a, b, c</code>, citite de la tastatură, sunt în ordine crescătoare.</p>
+    <details><summary>Soluție</summary>
+<div class="codewrap"><div class="ctitle"><span>s1.cpp</span><span>C++</span></div><pre class="code">int a, b, c;
+cin &gt;&gt; a &gt;&gt; b &gt;&gt; c;
+cout &lt;&lt; (a &lt;= b &amp;&amp; b &lt;= c ? "ordine crescatoare" : "ordine oarecare") &lt;&lt; endl;</pre></div>
+    <p><b>Atenție:</b> unele versiuni tipărite ale acestei soluții conțin greșeala de tipar <code>b &lt;&lt; c</code> în loc de <code>b &lt;= c</code>. Codul se compilează și așa, pentru că <code>b &lt;&lt; c</code> este o deplasare pe biți, dar programul este greșit. Întregul <code>?:</code> trebuie pus între paranteze, pentru că <code>&lt;&lt;</code> are prioritate mai mare decât <code>?:</code>. Parantezele în jurul lui <code>a &lt;= b &amp;&amp; b &lt;= c</code> sunt opționale, pentru că <code>&amp;&amp;</code> leagă mai strâns decât <code>?:</code>.</p>
+    </details>
+  </div>
+
+  <div class="ex lv b"><div class="h"><span class="no">S2</span><span class="badge b">Începător</span> Sunt două numere egale?</div>
+    <p>Folosind operatorul condițional, testați dacă două numere sunt egale.</p>
+    <details><summary>Soluție</summary>
+<div class="codewrap"><div class="ctitle"><span>s2_egal.cpp</span><span>C++</span></div><pre class="code">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int x, y;
+    cout &lt;&lt; "Introduceti cele doua numere: ";
+    cin &gt;&gt; x &gt;&gt; y;
+    cout &lt;&lt; x &lt;&lt; (x == y ? " este " : " nu este ") &lt;&lt; "egal cu " &lt;&lt; y &lt;&lt; endl;
+    return 0;
+}</pre></div>
+<pre class="out">Introduceti cele doua numere: 4 7
+4 nu este egal cu 7</pre>
+    </details>
+  </div>
+
+  <div class="ex lv b"><div class="h"><span class="no">S3</span><span class="badge b">Începător</span> Memoria cerută de fiecare tip fundamental</div>
+    <p>Scrieți un program C++ care afișează spațiul de memorie cerut de fiecare tip fundamental.</p>
+    <details><summary>Soluție</summary>
+<div class="codewrap"><div class="ctitle"><span>s3_dimensiuni.cpp</span><span>C++</span></div><pre class="code">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; "Dimensiune tipuri fundamentale (octeti):" &lt;&lt; endl;
+    cout &lt;&lt; " char:        " &lt;&lt; sizeof(char)        &lt;&lt; endl;
+    cout &lt;&lt; " bool:        " &lt;&lt; sizeof(bool)        &lt;&lt; endl;
+    cout &lt;&lt; " short:       " &lt;&lt; sizeof(short)       &lt;&lt; endl;
+    cout &lt;&lt; " int:         " &lt;&lt; sizeof(int)         &lt;&lt; endl;
+    cout &lt;&lt; " long:        " &lt;&lt; sizeof(long)        &lt;&lt; endl;
+    cout &lt;&lt; " long long:   " &lt;&lt; sizeof(long long)   &lt;&lt; endl;
+    cout &lt;&lt; " float:       " &lt;&lt; sizeof(float)       &lt;&lt; endl;
+    cout &lt;&lt; " double:      " &lt;&lt; sizeof(double)      &lt;&lt; endl;
+    cout &lt;&lt; " long double: " &lt;&lt; sizeof(long double) &lt;&lt; endl;
+    return 0;
+}</pre></div>
+<pre class="out">Dimensiune tipuri fundamentale (octeti):
+ char:        1
+ bool:        1
+ short:       2
+ int:         4
+ long:        8
+ long long:   8
+ float:       4
+ double:      8
+ long double: 16</pre>
+    <p>Ieșirea este de pe Linux x86-64 (GCC). Pe Windows, <code>long</code> are 4 octeți, iar <code>long double</code> are 8 (MSVC) sau 16 (MinGW). Folosiți <a href="#w-sizeof">simulatorul de platformă</a> pentru comparație.</p>
+    </details>
+  </div>
+
+  <div class="ex lv i"><div class="h"><span class="no">S4</span><span class="badge i">Mediu</span> Puneți parantezele și evaluați</div>
+    <p>Explicați cum sunt asociați operanzii și operatorii în expresia <code>a = -5 * i++ - 12 % 5</code>. Inserați paranteze pentru a genera expresia echivalentă. Ce valoare ia <code>a</code> pentru <code>i = -5</code>?</p>
+    <details><summary>Soluție</summary>
+    <p><code>a = ( ((-5) * (i++)) - (12 % 5) )</code></p>
+    <p><code>++</code> postfixat are prioritatea cea mai mare, apoi minusul unar, apoi <code>*</code> și <code>%</code> (de la stânga la dreapta), apoi <code>-</code> binar și, la final, <code>=</code>. Valoarea: <code>(-5)·(-5) - 2 = 25 - 2 = 23</code>. Forma postfixată folosește valoarea veche, −5. După instrucțiune, <code>i == -4</code>. Verificați în <a href="#lab-tool">Laboratorul de expresii</a> (exemplul „Curs: -5 * i++ - 12 % 5”).</p>
+    </details>
+  </div>
+
+  <div class="ex lv i"><div class="h"><span class="no">S5</span><span class="badge i">Mediu</span> Separarea unui număr de cinci cifre în cifre</div>
+    <p>Scrieți un program care preia de la tastatură un număr întreg de cinci cifre, separă întregul în cifre individuale și afișează cifrele separate prin spații. De exemplu, pentru <code>82537</code> programul afișează <code>8 2 5 3 7</code>.</p>
+    <details><summary>Soluție și urmărire</summary>
+<div class="codewrap"><div class="ctitle"><span>s5_cifre.cpp</span><span>C++</span></div><pre class="code">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int nr;
+    cout &lt;&lt; "Introduceti numarul de cinci cifre: ";
+    cin &gt;&gt; nr;
+    cout &lt;&lt; nr / 10000 &lt;&lt; " ";  nr = nr % 10000;
+    cout &lt;&lt; nr / 1000  &lt;&lt; " ";  nr = nr % 1000;
+    cout &lt;&lt; nr / 100   &lt;&lt; " ";  nr = nr % 100;
+    cout &lt;&lt; nr / 10    &lt;&lt; " ";  nr = nr % 10;
+    cout &lt;&lt; nr &lt;&lt; endl;
+    return 0;
+}</pre></div>
+    <table>
+      <tr><th>Pas</th><th>nr înainte</th><th>Afișat (nr / p)</th><th>nr = nr % p</th></tr>
+      <tr><td>p = 10000</td><td>82537</td><td>8</td><td>2537</td></tr>
+      <tr><td>p = 1000</td><td>2537</td><td>2</td><td>537</td></tr>
+      <tr><td>p = 100</td><td>537</td><td>5</td><td>37</td></tr>
+      <tr><td>p = 10</td><td>37</td><td>3</td><td>7</td></tr>
+      <tr><td>ultimul</td><td>7</td><td>7</td><td>–</td></tr>
+    </table>
+    <p><code>/</code> întreg extrage prima cifră, iar <code>%</code> o elimină. Cu atribuire compusă: <code>nr %= 10000;</code>. O versiune generală, cu buclă, este în <a href="#lab">Laboratorul L6</a>.</p>
+    </details>
+    <div class="widget" id="w-digits" style="margin-top:12px">
+      <div class="wt">Simulator de separare a cifrelor</div>
+      <div class="row"><label class="f">număr <input type="number" id="dgN" value="82537" style="width:130px"></label></div>
+      <div id="dgOut"></div>
+    </div>
+  </div>
+
+  <div class="ex lv b"><div class="h"><span class="no">S6</span><span class="badge b">Începător</span> Expresii cu virgulă</div>
+    <p>Pentru <code>int x = 2, y;</code> (pornind de fiecare dată de la aceste valori), aflați <code>x</code> și <code>y</code> după:
+    (a) <code>y = (x += 3, x * 2);</code> &nbsp; (b) <code>y = x += 3, x * 2;</code> &nbsp; (c) <code>y = (x++, x++, x);</code></p>
+    <details><summary>Soluție</summary>
+    <ul>
+      <li>(a) Parantezele grupează virgula: <code>x = 5</code>, apoi <code>x*2 = 10</code> este valoarea parantezei → <b>x = 5, y = 10</b>.</li>
+      <li>(b) Virgula are prioritatea cea mai mică: <code>(y = (x += 3)), x * 2</code> → <b>x = 5, y = 5</b>. Produsul 10 se calculează și se pierde.</li>
+      <li>(c) De la stânga la dreapta, cu punct de secvență după fiecare operand: x devine 3, apoi 4, iar ultimul operand dă 4 → <b>x = 4, y = 4</b>. Este bine definit, spre deosebire de <code>x++ + x++</code>.</li>
+    </ul></details>
+  </div>
+
+  <div class="ex lv i"><div class="h"><span class="no">S7</span><span class="badge i">Mediu</span> Găsiți expresiile incorecte</div>
+    <p>Cu <code>int a = 1, b = 2, x; const int k = 5;</code>, care dintre expresiile următoare nu se compilează? De ce?</p>
+    <p><code>++4</code> · <code>(a+b)++</code> · <code>a+++b</code> · <code>--a--</code> · <code>- -a</code> · <code>k++</code> · <code>sizeof int</code> · <code>sizeof a</code> · <code>(int)x++</code> · <code>x = (a++)++</code> · <code>a ? b : 0 = 7</code></p>
+    <details><summary>Soluție</summary>
+    <table>
+      <tr><th>Expresia</th><th>Verdict</th></tr>
+      <tr><td><code>++4</code></td><td>✗ o constantă nu este lvalue</td></tr>
+      <tr><td><code>(a+b)++</code></td><td>✗ <code>a+b</code> este o valoare, nu o variabilă</td></tr>
+      <tr><td><code>a+++b</code></td><td>✓ se citește <code>(a++) + b</code> (maximal munch) = 3, apoi <code>a == 2</code></td></tr>
+      <tr><td><code>--a--</code></td><td>✗ se interpretează <code>--(a--)</code>; <code>a--</code> nu este lvalue (nici în C++)</td></tr>
+      <tr><td><code>- -a</code></td><td>✓ dublă negație = <code>a</code> (spațiul contează: <code>--a</code> ar fi o decrementare)</td></tr>
+      <tr><td><code>k++</code></td><td>✗ <code>k</code> este <code>const</code></td></tr>
+      <tr><td><code>sizeof int</code></td><td>✗ un nume de tip cere paranteze: <code>sizeof(int)</code></td></tr>
+      <tr><td><code>sizeof a</code></td><td>✓ parantezele sunt opționale pentru expresii</td></tr>
+      <tr><td><code>(int)x++</code></td><td>✓ înseamnă <code>(int)(x++)</code> (postfixatul leagă mai strâns decât cast-ul). Observați că <code>x</code> nu este inițializat, deci valoarea lui este „gunoi”.</td></tr>
+      <tr><td><code>x = (a++)++</code></td><td>✗ <code>a++</code> nu este lvalue</td></tr>
+      <tr><td><code>a ? b : 0 = 7</code></td><td>✗ în C++ înseamnă <code>a ? b : (0 = 7)</code>, iar 0 nu este lvalue; în C înseamnă <code>(a ? b : 0) = 7</code>, tot eroare</td></tr>
+    </table></details>
+  </div>
+
+  <div class="ex lv i"><div class="h"><span class="no">S8</span><span class="badge i">Mediu</span> Conversii</div>
+    <p>Fie <code>int a = 7, b = 2; float f; char c; int k;</code>. Calculați rezultatul fiecărei instrucțiuni (independent una de alta):</p>
+    <p>(1) <code>f = a / b;</code> (2) <code>f = (float)a / b;</code> (3) <code>f = (float)(a / b);</code> (4) <code>f = a / (float)b + a % b;</code> (5) <code>k = (int)3.99 + (int)-3.99;</code> (6) <code>c = 'a' + 2;</code> (7) <code>k = 'z' - 'a';</code> (8) <code>k = (int)(0.1 + 0.7) * 10;</code></p>
+    <details><summary>Soluție</summary>
+    <ol>
+      <li><code>3.0</code>: împărțirea întreagă are loc înaintea conversiei de la atribuire.</li>
+      <li><code>3.5</code>: <code>a</code> devine 7.0f, deci și <code>b</code> este convertit.</li>
+      <li><code>3.0</code>: cast-ul se aplică câtului întreg 3.</li>
+      <li><code>3.5 + 1 = 4.5</code>.</li>
+      <li><code>3 + (-3) = 0</code>: trunchiere spre zero pentru ambele semne.</li>
+      <li><code>'c'</code>: caracterele sunt întregi; <code>'a' + 2</code> = 97 + 2 = 99.</li>
+      <li><code>25</code>.</li>
+      <li><code>0</code>: cast-ul se aplică lui <code>(0.1 + 0.7)</code> = 0.7999…, care dă 0, iar 0 · 10 = 0. Comparați cu <code>(int)((0.1 + 0.7) * 10)</code> = <code>(int)7.9999999</code> = <b>7</b>, nu 8, din cauza reprezentării binare a numerelor reale.</li>
+    </ol></details>
+  </div>
+
+  <div class="ex lv i"><div class="h"><span class="no">S9</span><span class="badge i">Mediu</span> Secvențe echivalente</div>
+    <p>Care secvență este echivalentă cu <code>val += suma++;</code>?<br>
+    a) <code>val = val + suma; suma = suma + 1;</code> &nbsp; b) <code>suma = suma + 1; val = val + suma;</code> &nbsp; c) <code>val = val + suma;</code> &nbsp; d) <code>val = val + ++suma;</code></p>
+    <details><summary>Soluție</summary><p><b>a)</b>. Forma postfixată adună lui <code>val</code> valoarea <b>veche</b> a lui <code>suma</code> și apoi îl incrementează pe <code>suma</code>. Variantele b) și d) sunt echivalente cu <code>val += ++suma;</code>. Varianta c) uită incrementarea.</p></details>
+  </div>
+
+  <div class="ex lv a"><div class="h"><span class="no">S10</span><span class="badge a">Avansat</span> Definit, nespecificat sau nedefinit?</div>
+    <p>Clasificați (C++17, <code>int i = 1, x; int a[5] = {0};</code>):
+    (1) <code>i = i + 1;</code> (2) <code>i = i++;</code> (3) <code>x = i++ + i;</code> (4) <code>x = (i++, i + 1);</code> (5) <code>x = i++ &amp;&amp; i;</code> (6) <code>a[i] = i++;</code> (7) <code>x = f(i) + g(i);</code>, unde f și g afișează ceva (8) <code>x = i++ * i++;</code></p>
+    <details><summary>Soluție</summary>
+    <ol>
+      <li>Definit: o singură modificare, iar citirea servește la calculul ei.</li>
+      <li>Definit din C++17 (partea dreaptă este secvențiată înaintea atribuirii), iar <code>i</code> își păstrează valoarea. UB în C și în C++ înainte de C++17. Oricum, nu are niciun rost.</li>
+      <li><b>UB</b>: <code>i</code> este modificat și citit fără secvențiere.</li>
+      <li>Definit: virgula este punct de secvență. <code>i</code> devine 2, iar <code>x = 3</code>.</li>
+      <li>Definit: <code>&amp;&amp;</code> este punct de secvență. 1 &amp;&amp; 2 → <code>x = 1</code>.</li>
+      <li>Definit din C++17 (întâi partea dreaptă: <code>a[2] = 1</code>); UB înainte.</li>
+      <li><b>Nespecificat</b>: textele afișate pot apărea în orice ordine, dar suma este aceeași.</li>
+      <li><b>UB</b> în toate standardele.</li>
+    </ol></details>
+  </div>
+
+  <div class="ex lv a"><div class="h"><span class="no">S11</span><span class="badge a">Avansat</span> Tipurile unor expresii înșelătoare</div>
+    <p>Dați tipul și valoarea (Linux, 64 de biți): (1) <code>sizeof(1 ? 1 : 2.0)</code> (2) <code>true ? 'A' : 0</code> (3) <code>sizeof('a')</code> în C și în C++ (4) <code>-1 &lt; 1u</code> (5) <code>sizeof(short) + sizeof 'x'</code> în C++ (6) <code>(unsigned char)-1</code></p>
+    <details><summary>Soluție</summary>
+    <ol>
+      <li><code>size_t</code>, 8: expresia condițională are tipul <code>double</code>.</li>
+      <li><code>int</code>, 65.</li>
+      <li>C: 4 (<code>int</code>). C++: 1 (<code>char</code>).</li>
+      <li><code>bool</code>, false: −1 se convertește la <code>unsigned</code> = 4294967295.</li>
+      <li><code>size_t</code>, 2 + 1 = 3.</li>
+      <li><code>unsigned char</code>, 255.</li>
+    </ol></details>
+  </div>
+
+  <h3 id="trace">Exercițiu de urmărire: incrementare / decrementare</h3>
+  <div class="lv i">
+    <p>Fiecare pereche pornește de la <code>int a = 5, b, c;</code>. Completați valorile după fiecare linie, apoi apăsați <b>Verifică</b>. Celulele greșite devin roșii, iar cele corecte verzi.</p>
+    <div class="tbl-wrap"><table class="trace" id="traceTbl"></table></div>
+    <div class="row"><button class="btn" id="trCheck">Verifică</button><button class="btn ghost" id="trShow">Arată răspunsurile</button><button class="btn ghost" id="trClear">Șterge</button><span id="trScore" style="font-weight:600"></span></div>
+  </div>
+
+  <h3 id="predict">Ghiciți rezultatul</h3>
+  <p>Fiecare fragment de program este complet, cu excepția lui <code>#include &lt;iostream&gt;</code>, <code>using namespace std;</code> și a funcției <code>main</code>. Toate sunt bine definite în C++17.</p>
+  <div class="grid2">
+    <div class="lv b"><span class="badge b">P1</span>
+<div class="codewrap"><pre class="code">int a = 3, b;
+b = a++ + 10;
+cout &lt;&lt; a &lt;&lt; " " &lt;&lt; b;</pre></div>
+<details><summary>Răspuns</summary><pre class="out">4 13</pre>Se folosește valoarea veche 3, deci b = 13, apoi a devine 4.</details></div>
+    <div class="lv b"><span class="badge b">P2</span>
+<div class="codewrap"><pre class="code">int a = 3, b;
+b = ++a * 2;
+cout &lt;&lt; a &lt;&lt; " " &lt;&lt; b;</pre></div>
+<details><summary>Răspuns</summary><pre class="out">4 8</pre></details></div>
+    <div class="lv b"><span class="badge b">P3</span>
+<div class="codewrap"><pre class="code">double d = 7 / 2;
+double e = 7 / 2.0;
+cout &lt;&lt; d &lt;&lt; " " &lt;&lt; e;</pre></div>
+<details><summary>Răspuns</summary><pre class="out">3 3.5</pre><code>7/2</code> este împărțire întreagă; conversia la double vine prea târziu.</details></div>
+    <div class="lv b"><span class="badge b">P4</span>
+<div class="codewrap"><pre class="code">char c = 'A';
+cout &lt;&lt; c + 1 &lt;&lt; " " &lt;&lt; (char)(c + 1);</pre></div>
+<details><summary>Răspuns</summary><pre class="out">66 B</pre><code>c + 1</code> este <code>int</code>, deci <code>cout</code> afișează un număr.</details></div>
+    <div class="lv i"><span class="badge i">P5</span>
+<div class="codewrap"><pre class="code">int x = 10;
+int y = (x &gt; 5) ? x-- : x++;
+cout &lt;&lt; x &lt;&lt; " " &lt;&lt; y;</pre></div>
+<details><summary>Răspuns</summary><pre class="out">9 10</pre>Se execută doar <code>x--</code>: produce 10, apoi x devine 9. <code>x++</code> este ignorat.</details></div>
+    <div class="lv i"><span class="badge i">P6</span>
+<div class="codewrap"><pre class="code">int i = 1, s;
+s = (i++, i++, i * 10);
+cout &lt;&lt; i &lt;&lt; " " &lt;&lt; s;</pre></div>
+<details><summary>Răspuns</summary><pre class="out">3 30</pre></details></div>
+    <div class="lv i"><span class="badge i">P7</span>
+<div class="codewrap"><pre class="code">int n = 4;
+int r = n-- &gt; 3 ? n : -n;
+cout &lt;&lt; n &lt;&lt; " " &lt;&lt; r;</pre></div>
+<details><summary>Răspuns</summary><pre class="out">3 3</pre>Condiția folosește 4 (adevărat). Punctul de secvență de după condiție face ca decrementarea să fie deja aplicată, deci în ramura aleasă <code>n</code> este 3.</details></div>
+    <div class="lv i"><span class="badge i">P8</span>
+<div class="codewrap"><pre class="code">int a = 5;
+int b = a &gt; 3 ? a &lt; 10 ? 1 : 2 : 3;
+cout &lt;&lt; b;</pre></div>
+<details><summary>Răspuns</summary><pre class="out">1</pre>Se citește <code>a &gt; 3 ? (a &lt; 10 ? 1 : 2) : 3</code>.</details></div>
+    <div class="lv a"><span class="badge a">P9</span>
+<div class="codewrap"><pre class="code">int i = 3;
+cout &lt;&lt; sizeof(i++) &lt;&lt; " " &lt;&lt; i;</pre></div>
+<details><summary>Răspuns</summary><pre class="out">4 3</pre>Operandul lui <code>sizeof</code> nu este evaluat niciodată.</details></div>
+    <div class="lv a"><span class="badge a">P10</span>
+<div class="codewrap"><pre class="code">unsigned u = 0;
+u--;
+bool t = true;
+cout &lt;&lt; u &lt;&lt; " " &lt;&lt; (t ? 1 : 2.5) &lt;&lt; " " &lt;&lt; sizeof(t ? 1 : 2.5);</pre></div>
+<details><summary>Răspuns</summary><pre class="out">4294967295 1 8</pre>Aritmetica fără semn se face modulo 2<sup>32</sup>. Expresia condițională are tipul <code>double</code>, dar <code>cout</code> afișează 1.0 ca <code>1</code>.</details></div>
+  </div>
+</section>
+
+<!-- ======================================================= LABORATOR ======================================================= -->
+<section class="part" id="lab" data-study="lab">
+  <div class="parthead"><span class="num">L</span><div><h2>Lucrări de laborator</h2><div class="meta">Scrieți, compilați, rulați, modificați. Fiecare program a fost testat cu g++ 13 (-std=c++17 -Wall)</div></div><label class="studied"><input type="checkbox"> Marchează ca studiat</label></div>
+
+  <div class="box"><span class="t">Pregătire</span>Merge orice compilator C++: Code::Blocks / Dev-C++ (MinGW), Visual Studio, CLion, VS Code + g++ sau un compilator online (de ex. Compiler Explorer, OnlineGDB). Din terminal:
+  <code>g++ -std=c++17 -Wall -Wextra program.cpp -o program</code>, apoi <code>./program</code>. <b>Citiți fiecare avertisment</b>: în această unitate, multe dintre ele indică erori reale (operanzi de virgulă nefolosiți, puncte de secvență, conversii).</div>
+
+  <!-- L1 -->
+  <div class="ex lv b"><div class="h"><span class="no">L1</span><span class="badge b">Începător</span> Operatorul virgulă în practică</div>
+<div class="codewrap"><div class="ctitle"><span>L1_virgula.cpp</span><span>C++</span></div><pre class="code">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int a = 5, b = 7;          // separator, nu operator
+    float c;
+    int r = (c = a = b + 3, a = c + 2, b = b + 3);   // exemplul din curs
+    cout &lt;&lt; "a=" &lt;&lt; a &lt;&lt; " b=" &lt;&lt; b &lt;&lt; " c=" &lt;&lt; c &lt;&lt; " r=" &lt;&lt; r &lt;&lt; endl;
+
+    int x, y;
+    x = (1, 2);                // operatorul virgula, x = 2 (GCC avertizeaza: operandul stang nu are efect)
+    y = (x++, x++, x * 10);    // stanga -&gt; dreapta, valoarea ultimului operand
+    cout &lt;&lt; "x=" &lt;&lt; x &lt;&lt; " y=" &lt;&lt; y &lt;&lt; endl;
+
+    for (int i = 1, j = 5; i &lt;= j; i++, j--)          // doua contoare
+        cout &lt;&lt; i &lt;&lt; "+" &lt;&lt; j &lt;&lt; "=" &lt;&lt; i + j &lt;&lt; "  ";
+    cout &lt;&lt; endl;
+    return 0;
+}</pre></div>
+<pre class="out">a=12 b=10 c=10 r=10
+x=4 y=40
+1+5=6  2+4=6  3+3=6</pre>
+    <p><b>Sarcini</b></p>
+    <ol>
+      <li>Înainte de rulare, scrieți pe hârtie valorile așteptate pentru <code>a, b, c, r</code>. Comparați.</li>
+      <li>Eliminați parantezele din <code>x = (1, 2);</code>. Ce avertisment dă compilatorul? Cât este acum <code>x</code>?</li>
+      <li>Eliminați parantezele exterioare din linia lui <code>r</code>: <code>int r = c = a = b + 3, a = c + 2 ...</code>. De ce nu se mai compilează? (Indiciu: într-o declarație virgula este separator.)</li>
+      <li>Scrieți o buclă cu operatorul virgulă care afișează perechile (i, i²) pentru i = 1..5, folosind două variabile <code>i</code> și <code>patrat</code>, ambele actualizate în antetul lui <code>for</code>.</li>
+    </ol>
+  </div>
+
+  <!-- L2 -->
+  <div class="ex lv b"><div class="h"><span class="no">L2</span><span class="badge b">Începător</span> Decizii cu <code>?:</code></div>
+<div class="codewrap"><div class="ctitle"><span>L2_conditional.cpp</span><span>C++</span></div><pre class="code">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int a, b, c;
+    cout &lt;&lt; "a b c = ";
+    cin &gt;&gt; a &gt;&gt; b &gt;&gt; c;
+
+    int max2 = (a &gt; b) ? a : b;
+    int max3 = (a &gt; b) ? (a &gt; c ? a : c) : (b &gt; c ? b : c);
+    int semn = (a &gt; 0) ? 1 : (a &lt; 0) ? -1 : 0;
+
+    cout &lt;&lt; "max(a,b)   = " &lt;&lt; max2 &lt;&lt; endl;
+    cout &lt;&lt; "max(a,b,c) = " &lt;&lt; max3 &lt;&lt; endl;
+    cout &lt;&lt; "|a|        = " &lt;&lt; (a &gt;= 0 ? a : -a) &lt;&lt; endl;
+    cout &lt;&lt; "semn(a)    = " &lt;&lt; semn &lt;&lt; endl;
+    cout &lt;&lt; "a este " &lt;&lt; (a % 2 == 0 ? "par" : "impar") &lt;&lt; endl;
+    cout &lt;&lt; a &lt;&lt; (a == b ? " este " : " nu este ") &lt;&lt; "egal cu " &lt;&lt; b &lt;&lt; endl;
+    cout &lt;&lt; (a &lt;= b &amp;&amp; b &lt;= c ? "ordine crescatoare" : "ordine oarecare") &lt;&lt; endl;
+    int y = (a &gt; 10) ? 0 : 1;
+    cout &lt;&lt; "y = " &lt;&lt; y &lt;&lt; endl;
+    return 0;
+}</pre></div>
+<pre class="out">a b c = -7 3 12
+max(a,b)   = 3
+max(a,b,c) = 12
+|a|        = 7
+semn(a)    = -1
+a este impar
+-7 nu este egal cu 3
+ordine crescatoare
+y = 1</pre>
+    <p><b>Sarcini</b></p>
+    <ol>
+      <li>Rulați cu mai multe triplete: <code>5 5 5</code>, <code>9 2 4</code>, <code>0 -1 1</code>. Verificați de mână fiecare linie.</li>
+      <li>Adăugați minimul celor trei numere, folosind un singur <code>?:</code> imbricat.</li>
+      <li>Eliminați parantezele din jurul unui <code>?:</code> dintr-o linie cu <code>cout</code>. Citiți cu atenție eroarea de compilare și explicați-o cu ajutorul tabelului de priorități.</li>
+      <li>Citiți un punctaj 0–100 și afișați calificativul A/B/C/D/F cu un singur lanț de <code>?:</code> (≥90 A, ≥80 B, ≥70 C, ≥60 D).</li>
+      <li>Afișați corect „1 mar” / „n mere” pentru orice <code>n</code>.</li>
+    </ol>
+  </div>
+
+  <!-- L3 -->
+  <div class="ex lv b"><div class="h"><span class="no">L3</span><span class="badge b">Începător</span> Prefixat și postfixat: observarea diferenței</div>
+<div class="codewrap"><div class="ctitle"><span>L3_incrementare.cpp</span><span>C++</span></div><pre class="code">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int x = 50, y;
+    y = ++x;                       // x este incrementat intai
+    cout &lt;&lt; "x = " &lt;&lt; x &lt;&lt; ", y = " &lt;&lt; y &lt;&lt; endl;
+    y = x++;                       // se copiaza valoarea veche, apoi x e incrementat
+    cout &lt;&lt; "x = " &lt;&lt; x &lt;&lt; ", y = " &lt;&lt; y &lt;&lt; endl;
+    cout &lt;&lt; "x = " &lt;&lt; x++ &lt;&lt; endl; // afiseaza valoarea veche
+    cout &lt;&lt; "x = " &lt;&lt; x &lt;&lt; endl;
+    cout &lt;&lt; "x = " &lt;&lt; ++x &lt;&lt; endl; // afiseaza valoarea noua
+
+    // perechile din curs (fiecare pereche reporneste de la a = 5)
+    int a = 5, b, c;
+    b = 5 + (++a);  c = ++b * ++a;
+    cout &lt;&lt; "perechea 1: a=" &lt;&lt; a &lt;&lt; " b=" &lt;&lt; b &lt;&lt; " c=" &lt;&lt; c &lt;&lt; endl;
+    a = 5;
+    b = 5 + (a++);  c = b++ * a++;
+    cout &lt;&lt; "perechea 2: a=" &lt;&lt; a &lt;&lt; " b=" &lt;&lt; b &lt;&lt; " c=" &lt;&lt; c &lt;&lt; endl;
+    a = 5;
+    b = 5 + (--a);  c = --b * --a;
+    cout &lt;&lt; "perechea 3: a=" &lt;&lt; a &lt;&lt; " b=" &lt;&lt; b &lt;&lt; " c=" &lt;&lt; c &lt;&lt; endl;
+    a = 5;
+    b = 5 + (a--);  c = b-- * a--;
+    cout &lt;&lt; "perechea 4: a=" &lt;&lt; a &lt;&lt; " b=" &lt;&lt; b &lt;&lt; " c=" &lt;&lt; c &lt;&lt; endl;
+    return 0;
+}</pre></div>
+<pre class="out">x = 51, y = 51
+x = 52, y = 51
+x = 52
+x = 53
+x = 54
+perechea 1: a=7 b=12 c=84
+perechea 2: a=7 b=11 c=60
+perechea 3: a=3 b=8 c=24
+perechea 4: a=3 b=9 c=40</pre>
+    <p><b>Sarcini</b></p>
+    <ol>
+      <li>Preziceți toate cele nouă linii înainte de rulare. Notați-vă scorul.</li>
+      <li>Rescrieți <code>c = b-- * a--;</code> ca trei instrucțiuni separate care nu folosesc <code>--</code> în interiorul unei expresii.</li>
+      <li>Scrieți un al doilea program care numără descrescător de la 10 la 1 într-o buclă <code>while</code>, întâi cu <code>while (n--)</code>, apoi cu <code>while (--n)</code>. Explicați de ce cele două bucle se execută de un număr diferit de ori.</li>
+      <li>Aplicați <code>++</code> unui <code>float</code> (1.5) și unui <code>char</code> (<code>'a'</code>) și afișați rezultatele.</li>
+    </ol>
+  </div>
+
+  <!-- L4 -->
+  <div class="ex lv i"><div class="h"><span class="no">L4</span><span class="badge i">Mediu</span> Explorarea lui <code>sizeof</code></div>
+<div class="codewrap"><div class="ctitle"><span>L4_sizeof.cpp</span><span>C++</span></div><pre class="code">#include &lt;iostream&gt;
+#include &lt;climits&gt;
+using namespace std;
+
+struct S { char c; int i; char d; };
+struct T { int i; char c; char d; };
+
+int main() {
+    int v[10];
+    double w[] = {1.5, 2.5, 3.5};
+    cout &lt;&lt; "int: " &lt;&lt; sizeof(int) &lt;&lt; " octeti, domeniu " &lt;&lt; INT_MIN &lt;&lt; " .. " &lt;&lt; INT_MAX &lt;&lt; endl;
+    cout &lt;&lt; "sizeof(3 + 2*4) = " &lt;&lt; sizeof(3 + 2 * 4) &lt;&lt; "   (tip int)" &lt;&lt; endl;
+    cout &lt;&lt; "sizeof(3.0f + 1) = " &lt;&lt; sizeof(3.0f + 1) &lt;&lt; "  (tip float)" &lt;&lt; endl;
+    cout &lt;&lt; "sizeof(1 + 2.0) = " &lt;&lt; sizeof(1 + 2.0) &lt;&lt; "   (tip double)" &lt;&lt; endl;
+    cout &lt;&lt; "sizeof('a') = " &lt;&lt; sizeof('a') &lt;&lt; "   (char in C++)" &lt;&lt; endl;
+    cout &lt;&lt; "v: " &lt;&lt; sizeof(v) &lt;&lt; " octeti, " &lt;&lt; sizeof(v) / sizeof(v[0]) &lt;&lt; " elemente" &lt;&lt; endl;
+    cout &lt;&lt; "w: " &lt;&lt; sizeof w / sizeof w[0] &lt;&lt; " elemente" &lt;&lt; endl;
+    cout &lt;&lt; "struct S: " &lt;&lt; sizeof(S) &lt;&lt; ", struct T: " &lt;&lt; sizeof(T) &lt;&lt; endl;
+
+    int i = 3;
+    size_t s = sizeof(i++);
+    cout &lt;&lt; "dupa sizeof(i++): i = " &lt;&lt; i &lt;&lt; ", s = " &lt;&lt; s &lt;&lt; endl;
+    return 0;
+}</pre></div>
+<pre class="out">int: 4 octeti, domeniu -2147483648 .. 2147483647
+sizeof(3 + 2*4) = 4   (tip int)
+sizeof(3.0f + 1) = 4  (tip float)
+sizeof(1 + 2.0) = 8   (tip double)
+sizeof('a') = 1   (char in C++)
+v: 40 octeti, 10 elemente
+w: 3 elemente
+struct S: 12, struct T: 8
+dupa sizeof(i++): i = 3, s = 4</pre>
+    <p><b>Sarcini</b></p>
+    <ol>
+      <li>Salvați fișierul ca <code>dimensiuni.c</code>, treceți afișarea la <code>printf("%zu\n", ...)</code> și compilați-l ca program C (<code>gcc</code>). Cât dă acum <code>sizeof('a')</code>? De ce?</li>
+      <li>Scrieți o funcție <code>void arata(int a[]) { cout &lt;&lt; sizeof(a); }</code>, apelați-o cu <code>v</code> și explicați rezultatul. Citiți avertismentul compilatorului.</li>
+      <li>Reordonați membrii lui <code>S</code> astfel încât structura să fie cât mai mică.</li>
+      <li>Adăugați <code>static_assert(sizeof(int) &gt;= 4, "int prea mic");</code> la începutul lui <code>main</code>. Când ar eșua compilarea?</li>
+    </ol>
+  </div>
+
+  <!-- L5 -->
+  <div class="ex lv i"><div class="h"><span class="no">L5</span><span class="badge i">Mediu</span> Cast-uri și conversii</div>
+<div class="codewrap"><div class="ctitle"><span>L5_conversii.cpp</span><span>C++</span></div><pre class="code">#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+#include &lt;cstdio&gt;
+using namespace std;
+
+int main() {
+    float a = (float) 5;
+    int   b = (int) 5.35;
+    int   c = (int) (3.78 + 7);
+    float d1 = (float) (1 / 2);
+    float d2 = 1 / (float) 2;
+    float d3 = 5 + ((float) 3 + 4);
+    printf("a=%f b=%d c=%d d1=%f d2=%f d3=%f\n", a, b, c, d1, d2, d3);
+
+    int suma = 17, n = 4;
+    cout &lt;&lt; "media gresita: " &lt;&lt; suma / n &lt;&lt; endl;
+    cout &lt;&lt; "media corecta: " &lt;&lt; (double) suma / n &lt;&lt; endl;
+    cout &lt;&lt; "static_cast  : " &lt;&lt; static_cast&lt;double&gt;(suma) / n &lt;&lt; endl;
+
+    double x = -2.7;
+    cout &lt;&lt; "(int)x = " &lt;&lt; (int) x &lt;&lt; ", round(x) = " &lt;&lt; round(x)
+         &lt;&lt; ", floor(x) = " &lt;&lt; floor(x) &lt;&lt; ", ceil(x) = " &lt;&lt; ceil(x) &lt;&lt; endl;
+
+    for (char ch = 'A'; ch &lt;= 'E'; ch++)
+        cout &lt;&lt; ch &lt;&lt; "=" &lt;&lt; (int) ch &lt;&lt; " ";
+    cout &lt;&lt; endl;
+    cout &lt;&lt; "(unsigned char)300 = " &lt;&lt; (int)(unsigned char) 300 &lt;&lt; endl;
+    return 0;
+}</pre></div>
+<pre class="out">a=5.000000 b=5 c=10 d1=0.000000 d2=0.500000 d3=12.000000
+media gresita: 4
+media corecta: 4.25
+static_cast  : 4.25
+(int)x = -2, round(x) = -3, floor(x) = -3, ceil(x) = -2
+A=65 B=66 C=67 D=68 E=69
+(unsigned char)300 = 44</pre>
+    <p><b>Sarcini</b></p>
+    <ol>
+      <li>Citiți 3 note întregi și afișați media lor cu 2 zecimale (<code>printf("%.2f")</code> sau <code>cout &lt;&lt; fixed &lt;&lt; setprecision(2)</code> din <code>&lt;iomanip&gt;</code>). Verificați că 7, 8, 8 dă 7.67, nu 7.00.</li>
+      <li>Citiți un număr real și afișați-l rotunjit la cel mai apropiat întreg <b>fără</b> <code>round()</code>. Trebuie să funcționeze și pentru numere negative. (Indiciu: <code>?:</code>.)</li>
+      <li>Transformați o literă mică în literă mare folosind doar aritmetică pe <code>char</code> și un cast.</li>
+      <li>Compilați cu <code>-Wconversion</code> și eliminați fiecare avertisment cu un <code>static_cast</code> explicit.</li>
+    </ol>
+  </div>
+
+  <!-- L6 -->
+  <div class="ex lv i"><div class="h"><span class="no">L6</span><span class="badge i">Mediu</span> Cifrele unui număr: <code>/</code>, <code>%</code>, <code>++</code> și <code>?:</code> împreună</div>
+<div class="codewrap"><div class="ctitle"><span>L6_cifre.cpp</span><span>C++</span></div><pre class="code">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int nr;
+    cout &lt;&lt; "Introduceti un numar natural: ";
+    cin &gt;&gt; nr;
+    nr = nr &gt;= 0 ? nr : -nr;               // lucram cu |nr|
+
+    int p = 1, nrCifre = 0;
+    for (int t = nr; t &gt;= 10; t /= 10)      // p = 10^(cifre-1)
+        p *= 10;
+
+    int suma = 0, invers = 0;
+    for (int t = nr; p &gt; 0; t %= p, p /= 10) {   // operatorul virgula in pas
+        int cifra = t / p;
+        cout &lt;&lt; cifra &lt;&lt; (p &gt; 1 ? " " : "\n");
+        suma += cifra;
+        nrCifre++;
+    }
+    for (int t = nr; t &gt; 0; t /= 10)
+        invers = invers * 10 + t % 10;
+
+    cout &lt;&lt; "cifre: " &lt;&lt; nrCifre &lt;&lt; ", suma: " &lt;&lt; suma &lt;&lt; ", invers: " &lt;&lt; invers &lt;&lt; endl;
+    return 0;
+}</pre></div>
+<pre class="out">Introduceti un numar natural: 82537
+8 2 5 3 7
+cifre: 5, suma: 25, invers: 73528</pre>
+    <p><b>Sarcini</b></p>
+    <ol>
+      <li>Urmăriți de mână a doua buclă <code>for</code> pentru 82537 (coloane: <code>t</code>, <code>p</code>, <code>cifra</code>).</li>
+      <li>Rulați cu <code>0</code>, <code>7</code> și <code>-305</code>. Urmăriți buclele pentru a explica de ce 0 afișează totuși o cifră și care instrucțiune face ca intrările negative să funcționeze.</li>
+      <li>Afișați, cu <code>?:</code>, dacă numărul este palindrom.</li>
+      <li>Afișați cifra maximă folosind <code>max = cifra &gt; max ? cifra : max;</code></li>
+    </ol>
+  </div>
+
+  <!-- L7 -->
+  <div class="ex lv i"><div class="h"><span class="no">L7</span><span class="badge i">Mediu</span> Mini-proiect: convertor de timp</div>
+<div class="codewrap"><div class="ctitle"><span>L7_timp.cpp</span><span>C++</span></div><pre class="code">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    long total;
+    cout &lt;&lt; "Secunde: ";
+    cin &gt;&gt; total;
+    long z = total / 86400, h = total % 86400 / 3600,
+         m = total % 3600 / 60, s = total % 60;
+    cout &lt;&lt; z &lt;&lt; (z == 1 ? " zi, " : " zile, ")
+         &lt;&lt; h &lt;&lt; (h == 1 ? " ora, " : " ore, ")
+         &lt;&lt; m &lt;&lt; (m == 1 ? " minut, " : " minute, ")
+         &lt;&lt; s &lt;&lt; (s == 1 ? " secunda" : " secunde") &lt;&lt; endl;
+    cout &lt;&lt; (h &lt; 10 ? "0" : "") &lt;&lt; h &lt;&lt; ":" &lt;&lt; (m &lt; 10 ? "0" : "") &lt;&lt; m &lt;&lt; ":"
+         &lt;&lt; (s &lt; 10 ? "0" : "") &lt;&lt; s &lt;&lt; endl;
+    return 0;
+}</pre></div>
+<pre class="out">Secunde: 93784
+1 zi, 2 ore, 3 minute, 4 secunde
+02:03:04</pre>
+    <p><b>Sarcini</b></p>
+    <ol>
+      <li>Explicați de ce <code>total % 86400 / 3600</code> nu are nevoie de paranteze. Scrieți forma complet parantezată.</li>
+      <li>Nu afișați componentele egale cu 0 (de ex. „3 minute, 4 secunde”).</li>
+      <li>Extindere: citiți un an și afișați numărul de zile al anului (365/366) cu un singur <code>?:</code>.</li>
+    </ol>
+  </div>
+
+  <!-- L8 -->
+  <div class="ex lv a"><div class="h"><span class="no">L8</span><span class="badge a">Avansat</span> Vânătoarea de comportament nedefinit cu ajutorul compilatorului</div>
+<div class="codewrap"><div class="ctitle"><span>L8_ub.cpp</span><span>C++</span></div><pre class="code">#include &lt;iostream&gt;
+#include &lt;climits&gt;
+using namespace std;
+
+int main() {
+    int y = 10, x;
+    x = ++y * --y;                                   // (1) modificari nesecventiate
+    cout &lt;&lt; "y = " &lt;&lt; y &lt;&lt; ", x = " &lt;&lt; x &lt;&lt; endl;
+
+    int i = 1;
+    int z = i + i++;                                 // (2) citire + modificare
+    cout &lt;&lt; "z = " &lt;&lt; z &lt;&lt; endl;
+
+    int mare = INT_MAX;
+    mare++;                                          // (3) depasire cu semn
+    cout &lt;&lt; "mare = " &lt;&lt; mare &lt;&lt; endl;
+
+    int n = -1; unsigned u = 1;
+    cout &lt;&lt; (n &lt; u ? "n &lt; u" : "n &gt;= u ?!") &lt;&lt; endl; // (4) comparatie cu semn / fara semn
+    return 0;
+}</pre></div>
+<pre class="out">y = 10, x = 100
+z = 3
+mare = -2147483648
+n &gt;= u ?!</pre>
+    <p>Ieșirea de mai sus este ce a afișat g++ 13 pe un anumit calculator. Alte compilatoare (sau același compilator cu <code>-O2</code>) pot afișa altceva, pentru că liniile (1)–(3) <b>nu au un sens definit</b>.</p>
+    <p><b>Sarcini</b></p>
+    <ol>
+      <li>Compilați cu <code>-Wall -Wextra</code>. Ce linii primesc avertismente (<code>-Wsequence-point</code>, <code>-Wsign-compare</code>)?</li>
+      <li>Compilați cu <code>-fsanitize=undefined</code> și rulați. Ce linie raportează sanitizer-ul?</li>
+      <li>Dacă puteți, compilați și cu <code>clang++</code> și comparați rezultatele pentru (1) și (2).</li>
+      <li>Rescrieți fiecare linie astfel încât programul să fie bine definit și să facă ceea ce s-ar aștepta un cititor.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ======================================================= TEST ======================================================= -->
+<section class="part" id="selftest" data-study="test">
+  <div class="parthead"><span class="num">T</span><div><h2>Test de autoevaluare – Unitatea de învățare nr. 8</h2><div class="meta">Scrieți întâi răspunsurile, apoi comparați-le cu răspunsurile și comentariile</div></div><label class="studied"><input type="checkbox"> Marchează ca studiat</label></div>
+  <ol>
+    <li><b>Scrieți două programe C++ în care să exemplificați modul de lucru cu operatorii de incrementare/decrementare.</b></li>
+    <li><b>Folosind operatorul condițional, testați dacă un număr este par sau nu.</b></li>
+    <li><b>Folosind operatorul condițional, exprimați următoarea condiție: dacă x este mai mare decât 10, atunci y ia valoarea 0, altfel y ia valoarea 1.</b></li>
+    <li><b>Care dintre expresiile de mai jos este echivalentă cu expresia <code>val += suma++;</code>?</b><br>
+      a) <code>val = val + suma; suma = suma + 1;</code> &nbsp;&nbsp; b) <code>suma = suma + 1; val = val + suma;</code><br>
+      c) <code>val = val + suma;</code> &nbsp;&nbsp; d) <code>val = val + ++suma;</code></li>
+  </ol>
+  <details><summary>Răspunsuri și comentarii</summary>
+    <p><b>1.</b> Programul (a): demonstrația clasică prefixat/postfixat (vezi <a href="#lab">Laboratorul L3</a> pentru ieșirea <code>x = 51, y = 51 / x = 52, y = 51 / x = 52 / x = 53 / x = 54</code>):</p>
+<div class="codewrap"><div class="ctitle"><span>test1a.cpp</span><span>C++</span></div><pre class="code">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int x = 50, y;
+    y = ++x;  cout &lt;&lt; "x = " &lt;&lt; x &lt;&lt; ", y = " &lt;&lt; y &lt;&lt; endl;
+    y = x++;  cout &lt;&lt; "x = " &lt;&lt; x &lt;&lt; ", y = " &lt;&lt; y &lt;&lt; endl;
+    cout &lt;&lt; "x = " &lt;&lt; x++ &lt;&lt; endl;
+    cout &lt;&lt; "x = " &lt;&lt; x &lt;&lt; endl;
+    cout &lt;&lt; "x = " &lt;&lt; ++x &lt;&lt; endl;
+    return 0;
+}</pre></div>
+    <p>Programul (b). Răspunsul din cursul original folosea <code>x = ++y * --y;</code>, care are <b>comportament nedefinit</b> (vezi §3, nivelul avansat). O versiune bine definită, care arată aceeași idee:</p>
+<div class="codewrap"><div class="ctitle"><span>test1b_corectat.cpp</span><span>C++</span></div><pre class="code">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int y = 10, x;
+    int p = ++y;           // y = 11, p = 11
+    int q = --y;           // y = 10, q = 10
+    x = p * q;             // 110
+    cout &lt;&lt; "y = " &lt;&lt; y &lt;&lt; ", x = " &lt;&lt; x &lt;&lt; endl;
+    cout &lt;&lt; ++y &lt;&lt; " ";    // 11
+    cout &lt;&lt; ++y &lt;&lt; " ";    // 12
+    cout &lt;&lt; ++y &lt;&lt; endl;   // 13
+    return 0;
+}</pre></div>
+<pre class="out">y = 10, x = 110
+11 12 13</pre>
+    <p><b>2.</b></p>
+<div class="codewrap"><div class="ctitle"><span>test2.cpp</span><span>C++</span></div><pre class="code">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int nr;
+    cout &lt;&lt; "Introduceti numarul: ";  cin &gt;&gt; nr;
+    cout &lt;&lt; (nr % 2 == 0 ? "par" : "impar") &lt;&lt; endl;
+    // și forma din curs funcționează, pentru că ambele ramuri au tipul ostream&amp;:
+    // (nr % 2 == 0) ? cout &lt;&lt; "par" : cout &lt;&lt; "impar";
+    return 0;
+}</pre></div>
+    <p><b>3.</b> <code>int y = (x &gt; 10) ? 0 : 1;</code> &nbsp; (Echivalent: <code>y = !(x &gt; 10);</code> sau <code>y = x &lt;= 10;</code>, pentru că o comparație produce deja 1 sau 0.)</p>
+    <p><b>4.</b> <b>a)</b>. Forma postfixată folosește valoarea veche a lui <code>suma</code>, apoi îl incrementează.</p>
+  </details>
+</section>
+
+<!-- ======================================================= CHESTIONAR ======================================================= -->
+<section class="part" id="quiz" data-study="quiz">
+  <div class="parthead"><span class="num">Q</span><div><h2>Chestionar interactiv</h2><div class="meta">Răspuns imediat, cu explicație. Filtrul de nivel din partea de sus filtrează și întrebările.</div></div><label class="studied"><input type="checkbox"> Marchează ca studiat</label></div>
+  <div class="row"><button class="btn ghost" id="qzReset">Reia chestionarul</button></div>
+  <div id="quizBox"></div>
+  <div class="score" id="qzScore">Scor: 0 / 0</div>
+</section>
+
+<!-- ======================================================= GLOSAR ======================================================= -->
+<section class="part" id="glossary">
+  <div class="parthead"><span class="num">G</span><div><h2>Glosar</h2></div></div>
+  <div class="tbl-wrap"><table>
+    <tr><th>Termen</th><th>Semnificație</th></tr>
+    <tr><td>operand / operator</td><td>Valorile asupra cărora se face o operație / simbolul operației.</td></tr>
+    <tr><td>unar, binar, ternar</td><td>Operator cu 1, 2 sau 3 operanzi. <code>?:</code> este singurul operator ternar.</td></tr>
+    <tr><td>prioritate (precedență)</td><td>Ce operator își leagă primul operanzii când se întâlnesc operatori diferiți.</td></tr>
+    <tr><td>asociativitate</td><td>Sensul de grupare pentru operatori cu aceeași prioritate (stânga → dreapta sau dreapta → stânga).</td></tr>
+    <tr><td>ordine de evaluare</td><td>Ordinea în care se calculează efectiv operanzii. În cele mai multe cazuri, nespecificată.</td></tr>
+    <tr><td>efect secundar</td><td>O modificare a stării programului în timpul evaluării unei expresii (atribuire, <code>++</code>, intrare/ieșire).</td></tr>
+    <tr><td>punct de secvență / secvențiat înainte</td><td>Un punct în care toate efectele secundare anterioare sunt garantat încheiate (C), respectiv relația de ordine dintre evaluări din C++11.</td></tr>
+    <tr><td>lvalue / rvalue</td><td>O expresie care desemnează o locație de memorie (o variabilă) / o simplă valoare, fără identitate.</td></tr>
+    <tr><td>prefixat / postfixat</td><td>Operatorul este scris înaintea (<code>++a</code>) sau după (<code>a++</code>) operandul său.</td></tr>
+    <tr><td>cast (conversie explicită)</td><td>Conversie cerută explicit: <code>(T)e</code>, <code>T(e)</code>, <code>static_cast&lt;T&gt;(e)</code>…</td></tr>
+    <tr><td>promovarea întregilor</td><td>Conversia automată a lui <code>char</code>/<code>short</code>/<code>bool</code> la <code>int</code> în expresii.</td></tr>
+    <tr><td>conversii aritmetice uzuale</td><td>Regulile care aduc operanzii unui operator binar la un tip comun.</td></tr>
+    <tr><td>trunchiere</td><td>Eliminarea părții fracționare la conversia unui număr real în întreg (spre zero).</td></tr>
+    <tr><td><code>size_t</code></td><td>Tipul întreg fără semn întors de <code>sizeof</code>.</td></tr>
+    <tr><td>padding (octeți de completare)</td><td>Octeți nefolosiți inserați într-o structură pentru aliniere.</td></tr>
+    <tr><td>comportament nedefinit (UB)</td><td>O construcție pentru care standardul nu impune nicio cerință. Programul poate face orice.</td></tr>
+    <tr><td>nespecificat / definit de implementare</td><td>Unul dintre mai multe comportamente permise, nedocumentat, respectiv documentat de compilator.</td></tr>
+    <tr><td>evaluare scurtcircuitată</td><td><code>&amp;&amp;</code>/<code>||</code> nu mai evaluează operandul drept dacă cel stâng decide deja rezultatul.</td></tr>
+    <tr><td>maximal munch</td><td>Analizorul lexical ia întotdeauna cel mai lung simbol posibil: <code>a+++b</code> → <code>a ++ + b</code>.</td></tr>
+  </table></div>
+</section>
+
+<section class="part" id="biblio">
+  <div class="parthead"><span class="num">B</span><div><h2>Bibliografie</h2></div></div>
+  <ol>
+    <li>Dinu, S., Pomazan, C. – <i>Programarea calculatoarelor</i>, Ed. Nautica, 2013.</li>
+    <li>Kernighan, B. W., Ritchie, D. M. – <i>Limbajul C</i>, Ed. Teora, 2003 (traducerea ediției a 2-a, <i>The C Programming Language</i>, Prentice Hall, 1988) – capitolul 2, „Tipuri, operatori și expresii”.</li>
+    <li>Năstac, I. – <i>Programarea calculatoarelor în limbajul C – Elemente fundamentale</i>, Ed. Printech, București, 2006.</li>
+    <li>Negrescu, L. – <i>Limbajele C și C++ pentru începători</i>, vol. 1 și 2, Ed. Albastră, 2000.</li>
+    <li>Dinu, S., Vulcu, V. – <i>Programarea calculatoarelor – culegere de probleme</i>, Ed. Nautica, Constanța, 2019.</li>
+    <li>Stroustrup, B. – <i>Programming: Principles and Practice Using C++</i>, ed. a 3-a, Addison-Wesley, 2024.</li>
+    <li>cppreference.com – „C++ Operator Precedence”, „Order of evaluation”, „sizeof operator”, „Explicit type conversion” (referință online pentru standardele C și C++).</li>
+    <li>ISO/IEC 9899:2018 (C17) și ISO/IEC 14882:2020 (C++20) – secțiunile despre expresii.</li>
+  </ol>
+</section>
+<footer>Unitatea de învățare 8 · Operatori și expresii în limbajul C/C++ (continuare) · Curs – Seminar – Laborator · Ediție interactivă</footer>
+</main>
+</div>
+<script>
+/* ===================== Expression Lab engine (pure JS, no DOM) ===================== */
+const ExprEngine = (() => {
+  const MODELS = {
+    'LP64': { label: 'LP64 – Linux / macOS, 64-bit', char: 1, short: 2, int: 4, long: 8, float: 4, double: 8, size_t: 8 },
+    'LLP64': { label: 'LLP64 – Windows, 64-bit', char: 1, short: 2, int: 4, long: 4, float: 4, double: 8, size_t: 8 },
+    'ILP32': { label: 'ILP32 – classic 32-bit', char: 1, short: 2, int: 4, long: 4, float: 4, double: 8, size_t: 4 },
+    'IP16': { label: '16-bit DOS (Turbo C / Borland C++ 3.1)', char: 1, short: 2, int: 2, long: 4, float: 4, double: 8, size_t: 2 }
+  };
+  const TYPES = ['char', 'short', 'int', 'long', 'float', 'double', 'size_t'];
+  const INTEGRAL = new Set(['char', 'short', 'int', 'long', 'size_t']);
+  const RANK = { char: 1, short: 2, int: 3, long: 4, size_t: 4.5, float: 5, double: 6 };
+  const ASSIGN = new Set(['=', '+=', '-=', '*=', '/=', '%=', '<<=', '>>=', '&=', '|=', '^=']);
+  const LEVELS = [['||'], ['&&'], ['|'], ['^'], ['&'], ['==', '!='], ['<', '>', '<=', '>='], ['<<', '>>'], ['+', '-'], ['*', '/', '%']];
+  const OPS = ['<<=', '>>=', '++', '--', '+=', '-=', '*=', '/=', '%=', '&=', '|=', '^=', '==', '!=', '<=', '>=', '&&', '||', '<<', '>>',
+    '+', '-', '*', '/', '%', '<', '>', '=', '!', '~', '&', '|', '^', '?', ':', ',', '(', ')'];
+
+  class CError extends Error { constructor(msg, kind) { super(msg); this.kind = kind || 'error'; } }
+
+  /* ---------- tokenizer ---------- */
+  function tokenize(s) {
+    const toks = []; let i = 0;
+    while (i < s.length) {
+      const c = s[i];
+      if (/\s/.test(c)) { i++; continue; }
+      const rest = s.slice(i);
+      let m = /^(\d+\.\d*|\.\d+|\d+)([eE][+-]?\d+)?([fFlLuU]*)/.exec(rest);
+      if (m && /[\d.]/.test(c)) {
+        const body = m[1] + (m[2] || ''); const suf = (m[3] || '').toLowerCase();
+        const isFloat = /[.eE]/.test(body);
+        let t = isFloat ? (suf.includes('f') ? 'float' : 'double') : (suf.includes('l') ? 'long' : 'int');
+        if (!isFloat && suf.includes('f')) throw new CError(`Constantă invalidă "${m[0]}": sufixul f cere punct zecimal (scrieți ${m[1]}.0f).`);
+        let v = parseFloat(body); if (t === 'float') v = Math.fround(v);
+        toks.push({ k: 'num', v, t, raw: m[0], pos: i, end: i + m[0].length }); i += m[0].length; continue;
+      }
+      m = /^'(\\?.)'/.exec(rest);
+      if (m) {
+        const map = { '\\n': 10, '\\t': 9, '\\0': 0, "\\'": 39, '\\\\': 92 };
+        const v = m[1].length === 2 ? (map[m[1]] ?? m[1].charCodeAt(1)) : m[1].charCodeAt(0);
+        toks.push({ k: 'num', v, t: 'char', raw: m[0], pos: i, end: i + m[0].length }); i += m[0].length; continue;
+      }
+      m = /^[A-Za-z_]\w*/.exec(rest);
+      if (m) { toks.push({ k: 'id', v: m[0], pos: i, end: i + m[0].length }); i += m[0].length; continue; }
+      const op = OPS.find(o => rest.startsWith(o));
+      if (op) { toks.push({ k: 'op', v: op, pos: i, end: i + op.length }); i += op.length; continue; }
+      throw new CError(`Caracter neașteptat "${c}" la poziția ${i + 1}.`);
+    }
+    toks.push({ k: 'eof', v: '<end>', pos: s.length, end: s.length });
+    return toks;
+  }
+
+  /* ---------- parser ---------- */
+  function parse(src) {
+    const toks = tokenize(src); let p = 0;
+    const peek = (o = 0) => toks[p + o];
+    const isOp = (v, o = 0) => peek(o).k === 'op' && peek(o).v === v;
+    const next = () => toks[p++];
+    const expect = v => { if (!isOp(v)) throw new CError(`Se aștepta "${v}", dar s-a găsit "${peek().v}".`); return next(); };
+    const mk = (node, startTok) => { node.pos = startTok.pos; node.end = toks[p - 1].end; node.s = src.slice(node.pos, node.end); return node; };
+    const isLval = n => n.k === 'id' || (n.k === 'paren' && isLval(n.x));
+    const isTypeAt = o => peek(o).k === 'id' && (TYPES.includes(peek(o).v) || peek(o).v === 'unsigned' || peek(o).v === 'signed');
+    function parseType() {
+      const words = [];
+      while (isTypeAt(0)) words.push(next().v);
+      let w = words.filter(x => x !== 'signed' && x !== 'unsigned');
+      let j = w.join(' ');
+      if (j === 'long long' || j === 'long int') return 'long';
+      if (j === 'long double') return 'double';
+      if (j === '' && words.length) return 'int';
+      if (w.length !== 1) throw new CError(`Tipul "${words.join(' ')}" nu este acceptat în acest laborator (folosiți char, short, int, long, float, double, size_t).`);
+      return w[0];
+    }
+    function comma() {
+      const st = peek(); let n = assign();
+      while (isOp(',')) { next(); n = mk({ k: 'comma', l: n, r: assign() }, st); }
+      return n;
+    }
+    function assign() {
+      const st = peek(); const l = cond();
+      if (peek().k === 'op' && ASSIGN.has(peek().v)) {
+        const op = next().v;
+        if (!isLval(l)) throw new CError(`Operandul stâng al lui "${op}" trebuie să fie un lvalue modificabil (o variabilă). "${l.s}" nu este lvalue.`, 'lvalue');
+        return mk({ k: 'assign', op, l, r: assign() }, st);
+      }
+      return l;
+    }
+    function cond() {
+      const st = peek(); const c = bin(0);
+      if (isOp('?')) { next(); const a = comma(); expect(':'); const b = assign(); return mk({ k: 'cond', c, a, b }, st); }
+      return c;
+    }
+    function bin(lv) {
+      if (lv === LEVELS.length) return unary();
+      const st = peek(); let l = bin(lv + 1);
+      while (peek().k === 'op' && LEVELS[lv].includes(peek().v)) { const op = next().v; l = mk({ k: 'bin', op, l, r: bin(lv + 1) }, st); }
+      return l;
+    }
+    function unary() {
+      const st = peek();
+      if (isOp('++') || isOp('--')) {
+        const op = next().v; const x = unary();
+        if (!isLval(x)) throw new CError(`Operandul lui "${op}" prefixat trebuie să fie o variabilă (lvalue modificabil). "${op}${x.s}" este invalid (aceeași eroare ca la ++4 sau ++(10+b)): doar variabilele pot fi incrementate/decrementate.`, 'lvalue');
+        return mk({ k: 'pre', op, x }, st);
+      }
+      if (isOp('+') || isOp('-') || isOp('!') || isOp('~')) { const op = next().v; return mk({ k: 'un', op, x: unary() }, st); }
+      if (peek().k === 'id' && peek().v === 'sizeof') {
+        next();
+        if (isOp('(') && isTypeAt(1)) { next(); const t = parseType(); expect(')'); return mk({ k: 'sizeofT', t }, st); }
+        return mk({ k: 'sizeofE', x: unary() }, st);
+      }
+      if (isOp('(') && isTypeAt(1)) { next(); const t = parseType(); expect(')'); return mk({ k: 'cast', t, x: unary() }, st); }
+      return postfix();
+    }
+    function postfix() {
+      const st = peek(); let x = primary();
+      while (isOp('++') || isOp('--')) {
+        const op = next().v;
+        if (!isLval(x)) throw new CError(`Operandul lui "${op}" postfixat trebuie să fie o variabilă (lvalue modificabil). "${x.s}${op}" este invalid (aceeași eroare ca la 4-- sau (5+a)++): doar variabilele pot fi incrementate/decrementate.`, 'lvalue');
+        x = mk({ k: 'post', op, x }, st);
+      }
+      return x;
+    }
+    function primary() {
+      const st = peek();
+      if (st.k === 'num') { next(); return mk({ k: 'num', v: st.v, t: st.t, raw: st.raw }, st); }
+      if (st.k === 'id') {
+        if (TYPES.includes(st.v)) throw new CError(`Nume de tip neașteptat "${st.v}". Ați uitat parantezele unui cast, de ex. (${st.v})x ?`);
+        next(); return mk({ k: 'id', name: st.v }, st);
+      }
+      if (isOp('(')) { next(); const x = comma(); expect(')'); return mk({ k: 'paren', x }, st); }
+      throw new CError(st.k === 'eof' ? 'Expresia se termină neașteptat – lipsește un operand.' : `"${st.v}" neașteptat – aici se aștepta un operand.`);
+    }
+    const tree = comma();
+    if (peek().k !== 'eof') throw new CError(`"${peek().v}" neașteptat după sfârșitul expresiei.`);
+    return tree;
+  }
+
+  /* ---------- printing ---------- */
+  function pp(n) {
+    switch (n.k) {
+      case 'num': return n.raw;
+      case 'id': return n.name;
+      case 'paren': return pp(n.x);
+      case 'bin': return `(${pp(n.l)} ${n.op} ${pp(n.r)})`;
+      case 'un': case 'pre': return `(${n.op}${pp(n.x)})`;
+      case 'post': return `(${pp(n.x)}${n.op})`;
+      case 'cast': return `((${n.t}) ${pp(n.x)})`;
+      case 'sizeofT': return `sizeof(${n.t})`;
+      case 'sizeofE': return `sizeof(${pp(n.x)})`;
+      case 'assign': return `(${pp(n.l)} ${n.op} ${pp(n.r)})`;
+      case 'cond': return `(${pp(n.c)} ? ${pp(n.a)} : ${pp(n.b)})`;
+      case 'comma': return `(${pp(n.l)} , ${pp(n.r)})`;
+    }
+  }
+  const stripOuter = s => (s.startsWith('(') && matchingClose(s) === s.length - 1) ? s.slice(1, -1) : s;
+  function matchingClose(s) { let d = 0; for (let i = 0; i < s.length; i++) { if (s[i] === '(') d++; else if (s[i] === ')') { d--; if (d === 0) return i; } } return -1; }
+
+  /* ---------- types ---------- */
+  function promote(t) { return (t === 'char' || t === 'short') ? 'int' : t; }
+  function common(a, b) {
+    if (a === 'double' || b === 'double') return 'double';
+    if (a === 'float' || b === 'float') return 'float';
+    a = promote(a); b = promote(b);
+    return RANK[a] >= RANK[b] ? a : b;
+  }
+  function typeOf(n, vars) {
+    switch (n.k) {
+      case 'num': return n.t;
+      case 'id': { const V = vars[n.name]; if (!V) throw new CError(`'${n.name}' nu a fost declarată. Adăugați-o în caseta de declarații.`); return V.t; }
+      case 'paren': return typeOf(n.x, vars);
+      case 'un': return n.op === '!' ? 'int' : promote(typeOf(n.x, vars));
+      case 'pre': case 'post': return typeOf(n.x, vars);
+      case 'cast': return n.t;
+      case 'sizeofT': case 'sizeofE': return 'size_t';
+      case 'assign': return typeOf(n.l, vars);
+      case 'comma': return typeOf(n.r, vars);
+      case 'cond': return common(typeOf(n.a, vars), typeOf(n.b, vars));
+      case 'bin':
+        if (['<', '>', '<=', '>=', '==', '!=', '&&', '||'].includes(n.op)) return 'int';
+        if (n.op === '<<' || n.op === '>>') return promote(typeOf(n.l, vars));
+        return common(typeOf(n.l, vars), typeOf(n.r, vars));
+    }
+  }
+
+  /* ---------- values ---------- */
+  function fmtNum(v, t) {
+    if (v === undefined || v === null || Number.isNaN(v)) return '?';
+    if (!Number.isFinite(v)) return v > 0 ? 'inf' : '-inf';
+    if (INTEGRAL.has(t)) return String(v);
+    let s = Number(v.toPrecision(6)).toString();
+    if (/e/.test(s)) return s;
+    return s;
+  }
+  function printfF(v, t) { if (INTEGRAL.has(t)) return String(v); if (!Number.isFinite(v)) return fmtNum(v, t); return v.toFixed(6); }
+
+  function makeCtx(model) {
+    const M = MODELS[model] || MODELS.LP64;
+    const ctx = { M, vars: {}, log: [], warns: [], segs: [{}], step: 0 };
+    ctx.size = t => M[t];
+    ctx.wrap = (t, v, why) => {
+      if (!INTEGRAL.has(t)) return t === 'float' ? Math.fround(v) : v;
+      const bits = M[t] * 8;
+      if (bits > 32) { return Math.trunc(v); }
+      const mod = 2 ** bits; let w = ((Math.trunc(v) % mod) + mod) % mod;
+      const signed = t !== 'size_t';
+      if (signed && w >= mod / 2) w -= mod;
+      return w;
+    };
+    ctx.range = t => {
+      const bits = M[t] * 8;
+      if (t === 'size_t') return [0, 2 ** bits - 1];
+      return [-(2 ** (bits - 1)), 2 ** (bits - 1) - 1];
+    };
+    return ctx;
+  }
+  const fmt = x => `${fmtNum(x.v, x.t)} <i>(${x.t})</i>`;
+  const truthy = x => x.v !== 0;
+
+  function convert(ctx, x, t, how, node) {
+    if (x.t === t) return x;
+    let v = x.v; let note = '';
+    if (INTEGRAL.has(t)) {
+      if (!INTEGRAL.has(x.t)) {
+        const tr = Math.trunc(v);
+        if (tr !== v) note = ` – partea fracționară se pierde (trunchiere spre zero)`;
+        const [lo, hi] = ctx.range(t);
+        if (tr < lo || tr > hi || !Number.isFinite(v)) {
+          ctx.warns.push({ k: 'ub', m: `Conversia lui ${fmtNum(v, x.t)} la ${t}: valoarea nu încape în ${t} → <b>comportament nedefinit</b>.` });
+        }
+        v = tr;
+      }
+      const w = ctx.wrap(t, v);
+      if (w !== v && INTEGRAL.has(x.t)) {
+        note += ` – în afara domeniului lui ${t} (${ctx.M[t]} octeți), redusă modulo 2<sup>${ctx.M[t] * 8}</sup>`;
+        ctx.warns.push({ k: 'warn', m: `${fmtNum(v, x.t)} nu încape în ${t} pe această platformă; a devenit ${w} (reducere modulară).` });
+      }
+      v = w;
+    } else if (t === 'float') {
+      const f = Math.fround(v);
+      if (x.t === 'double' && f !== v) note = ' – rotunjit la cel mai apropiat float (≈7 cifre semnificative)';
+      v = f;
+    }
+    const r = { v, t };
+    if (how) log(ctx, `${how}: ${fmt(x)} → ${fmt(r)}${note}`, node);
+    return r;
+  }
+  function log(ctx, html, node) { ctx.log.push({ n: ++ctx.step, html, src: node ? node.s : '' }); }
+  function seg(ctx, why) { ctx.segs.push({}); log(ctx, `<span class="sp">● punct de secvență</span> (${why}): toate efectele secundare anterioare sunt acum încheiate`); }
+  function touch(ctx, name, kind) {
+    const S = ctx.segs[ctx.segs.length - 1];
+    const r = S[name] || (S[name] = { reads: 0, mods: 0, incdec: 0 });
+    if (kind === 'read') r.reads++; else { r.mods++; if (kind === 'incdec') r.incdec++; }
+  }
+  function getVar(ctx, name) { const V = ctx.vars[name]; if (!V) throw new CError(`'${name}' nu a fost declarată. Adăugați-o în caseta de declarații (de ex. int ${name} = 0;).`); return V; }
+  function target(n) { return n.k === 'paren' ? target(n.x) : n.name; }
+  function readVar(ctx, name, node) {
+    const V = getVar(ctx, name);
+    if (!V.init) {
+      ctx.warns.push({ k: 'ub', m: `'${name}' este folosită înainte de a primi o valoare: conținutul ei este <b>nedeterminat</b> („gunoi”). Laboratorul continuă cu 0.` });
+      V.init = true; V.v = 0;
+    }
+    return { v: V.v, t: V.t };
+  }
+
+  function arith(ctx, op, a, b, node) {
+    if (op === '%' && (!INTEGRAL.has(a.t) || !INTEGRAL.has(b.t)))
+      throw new CError(`Operatorul % cere operanzi întregi, dar a primit ${a.t} și ${b.t} (pentru numere reale folosiți fmod() din &lt;cmath&gt;).`);
+    if (['<<', '>>', '&', '|', '^'].includes(op) && (!INTEGRAL.has(a.t) || !INTEGRAL.has(b.t)))
+      throw new CError(`Operatorul ${op} cere operanzi întregi, dar a primit ${a.t} și ${b.t}.`);
+    if (op === '<<' || op === '>>') {
+      const t = promote(a.t); const A = convert(ctx, a, t, 'promovarea întregilor', node);
+      const bits = ctx.M[t] * 8;
+      if (b.v < 0 || b.v >= bits) ctx.warns.push({ k: 'ub', m: `Numărul de poziții de deplasare ${b.v} este negativ sau ≥ ${bits} biți → comportament nedefinit.` });
+      const raw = op === '<<' ? A.v * 2 ** b.v : Math.floor(A.v / 2 ** b.v);
+      const w = ctx.wrap(t, raw);
+      return { v: w, t };
+    }
+    const t = common(a.t, b.t);
+    const A = convert(ctx, a, t, a.t !== t ? `conversie aritmetică uzuală (operandul stâng)` : '', node);
+    const B = convert(ctx, b, t, b.t !== t ? `conversie aritmetică uzuală (operandul drept)` : '', node);
+    let v;
+    if (['<', '>', '<=', '>=', '==', '!='].includes(op)) {
+      v = { '<': A.v < B.v, '>': A.v > B.v, '<=': A.v <= B.v, '>=': A.v >= B.v, '==': A.v === B.v, '!=': A.v !== B.v }[op] ? 1 : 0;
+      return { v, t: 'int' };
+    }
+    const isInt = INTEGRAL.has(t);
+    switch (op) {
+      case '+': v = A.v + B.v; break;
+      case '-': v = A.v - B.v; break;
+      case '*': v = A.v * B.v; break;
+      case '/':
+        if (isInt && B.v === 0) throw new CError('Împărțire întreagă la zero → comportament nedefinit (de obicei programul se oprește brusc).', 'ub');
+        v = isInt ? Math.trunc(A.v / B.v) : A.v / B.v; break;
+      case '%':
+        if (B.v === 0) throw new CError('Rest la împărțirea la zero (x % 0) → comportament nedefinit.', 'ub');
+        v = A.v % B.v; break;
+      case '&': v = A.v & B.v; break;
+      case '|': v = A.v | B.v; break;
+      case '^': v = A.v ^ B.v; break;
+    }
+    if (isInt) {
+      const w = ctx.wrap(t, v);
+      if (w !== v) ctx.warns.push({ k: t === 'size_t' ? 'warn' : 'ub', m: `${fmtNum(A.v, t)} ${op} ${fmtNum(B.v, t)} = ${v} nu încape în ${t} → ${t === 'size_t' ? 'reducere modulară fără semn' : '<b>depășire întreagă cu semn = comportament nedefinit</b>'} (afișat redus: ${w}).` });
+      v = w;
+    } else if (t === 'float') v = Math.fround(v);
+    return { v, t };
+  }
+
+  function ev(ctx, n) {
+    switch (n.k) {
+      case 'num': return { v: n.v, t: n.t };
+      case 'paren': return ev(ctx, n.x);
+      case 'id': { touch(ctx, n.name, 'read'); return readVar(ctx, n.name, n); }
+      case 'un': {
+        const x = ev(ctx, n.x); let r;
+        if (n.op === '!') r = { v: x.v === 0 ? 1 : 0, t: 'int' };
+        else {
+          if (n.op === '~' && !INTEGRAL.has(x.t)) throw new CError('Operatorul ~ cere un operand întreg.');
+          const t = promote(x.t); const X = convert(ctx, x, t, '', n);
+          r = { v: n.op === '-' ? -X.v : n.op === '+' ? X.v : ~X.v, t };
+          if (INTEGRAL.has(t)) r.v = ctx.wrap(t, r.v);
+          if (r.v === 0) r.v = 0;
+        }
+        log(ctx, `<code>${n.op}</code> unar aplicat lui ${fmt(x)} → ${fmt(r)}`, n);
+        return r;
+      }
+      case 'bin': {
+        if (n.op === '&&' || n.op === '||') {
+          const l = ev(ctx, n.l);
+          log(ctx, `operandul stâng al lui <code>${n.op}</code> este ${fmt(l)} → ${truthy(l) ? 'adevărat' : 'fals'}`, n.l);
+          seg(ctx, `după operandul stâng al lui ${n.op}`);
+          if (n.op === '&&' && !truthy(l)) { log(ctx, `scurtcircuit: <code>&&</code> este deja fals – operandul drept <code>${esc(n.r.s)}</code> <b>nu se evaluează</b>`, n); return { v: 0, t: 'int' }; }
+          if (n.op === '||' && truthy(l)) { log(ctx, `scurtcircuit: <code>||</code> este deja adevărat – operandul drept <code>${esc(n.r.s)}</code> <b>nu se evaluează</b>`, n); return { v: 1, t: 'int' }; }
+          const r = ev(ctx, n.r); const res = { v: truthy(r) ? 1 : 0, t: 'int' };
+          log(ctx, `<code>${esc(n.s)}</code> → ${fmt(res)}`, n); return res;
+        }
+        const l = ev(ctx, n.l); const r = ev(ctx, n.r);
+        const res = arith(ctx, n.op, l, r, n);
+        log(ctx, `<code>${esc(n.s)}</code>: ${fmt(l)} <b>${esc(n.op)}</b> ${fmt(r)} = ${fmt(res)}`, n);
+        return res;
+      }
+      case 'pre': case 'post': {
+        const name = target(n.x); const V = getVar(ctx, name);
+        const old = readVar(ctx, name, n); touch(ctx, name, 'incdec');
+        const delta = n.op === '++' ? 1 : -1;
+        const nv = convert(ctx, arith(ctx, delta > 0 ? '+' : '-', old, { v: 1, t: 'int' }, n), V.t, '', n);
+        V.v = nv.v;
+        const word = delta > 0 ? 'incrementat' : 'decrementat';
+        if (n.k === 'pre') {
+          log(ctx, `<b>prefixat</b> <code>${esc(n.s)}</code>: ${name} este ${word} ÎNTÂI (${fmtNum(old.v, old.t)} → ${fmtNum(nv.v, nv.t)}); expresia produce valoarea NOUĂ ${fmt(nv)}`, n);
+          return nv;
+        }
+        log(ctx, `<b>postfixat</b> <code>${esc(n.s)}</code>: expresia produce valoarea VECHE ${fmt(old)}; ${name} este ${word} ca efect secundar (${fmtNum(old.v, old.t)} → ${fmtNum(nv.v, nv.t)})`, n);
+        return old;
+      }
+      case 'cast': {
+        const x = ev(ctx, n.x);
+        const r = convert(ctx, x, n.t, `cast explicit <code>(${n.t})</code>`, n);
+        if (r === x) log(ctx, `cast explicit <code>(${n.t})</code> aplicat lui ${fmt(x)} – este deja de tip ${n.t}, nu se schimbă nimic`, n);
+        return r;
+      }
+      case 'sizeofT': {
+        const r = { v: ctx.size(n.t), t: 'size_t' };
+        log(ctx, `<code>sizeof(${n.t})</code> = ${r.v} ${r.v > 1 ? 'octeți' : 'octet'} pe această platformă (calculat la compilare)`, n); return r;
+      }
+      case 'sizeofE': {
+        const t = typeOf(n.x, ctx.vars);
+        const r = { v: ctx.size(t), t: 'size_t' };
+        log(ctx, `<code>${esc(n.s)}</code>: operandul are tipul <b>${t}</b> → ${r.v} octeți. Operandul <b>NU este evaluat</b> (în interiorul lui sizeof nu au loc efecte secundare)`, n);
+        return r;
+      }
+      case 'assign': {
+        const name = target(n.l); const V = getVar(ctx, name);
+        let r;
+        if (n.op === '=') { r = ev(ctx, n.r); }
+        else {
+          const cur = readVar(ctx, name, n); const rhs = ev(ctx, n.r);
+          r = arith(ctx, n.op.slice(0, -1), cur, rhs, n);
+          log(ctx, `atribuire compusă <code>${n.op}</code>: ${name} ${n.op.slice(0, -1)} ${fmtNum(rhs.v, rhs.t)} = ${fmtNum(cur.v, cur.t)} ${n.op.slice(0, -1)} ${fmtNum(rhs.v, rhs.t)} = ${fmt(r)}`, n);
+        }
+        const c = convert(ctx, r, V.t, r.t !== V.t ? `conversie implicită la atribuirea către ${name} (${V.t})` : '', n);
+        V.v = c.v; V.init = true; touch(ctx, name, 'assign');
+        log(ctx, `atribuire: <b>${name} = ${fmtNum(c.v, c.t)}</b>; expresia de atribuire are ea însăși valoarea ${fmt(c)}`, n);
+        return c;
+      }
+      case 'cond': {
+        const c = ev(ctx, n.c);
+        const tt = typeOf(n, ctx.vars);
+        log(ctx, `condiția <code>${esc(n.c.s)}</code> = ${fmt(c)} → <b>${truthy(c) ? 'nenulă (adevărată)' : 'zero (falsă)'}</b>`, n.c);
+        seg(ctx, 'după condiția lui ?:');
+        const chosen = truthy(c) ? n.a : n.b; const skipped = truthy(c) ? n.b : n.a;
+        log(ctx, `se evaluează doar <code>${esc(chosen.s)}</code>; <code>${esc(skipped.s)}</code> este <b>ignorată</b>`, n);
+        const x = ev(ctx, chosen);
+        const r = convert(ctx, x, tt, x.t !== tt ? `rezultatul lui ?: are tipul comun ${tt}` : '', n);
+        log(ctx, `<code>?:</code> produce ${fmt(r)}`, n);
+        return r;
+      }
+      case 'comma': {
+        const l = ev(ctx, n.l);
+        log(ctx, `operatorul virgulă: valoarea ${fmt(l)} a lui <code>${esc(n.l.s)}</code> se <b>pierde</b>`, n);
+        seg(ctx, 'operatorul virgulă');
+        const r = ev(ctx, n.r);
+        return r;
+      }
+    }
+  }
+  function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+  function checkSequencing(ctx) {
+    ctx.segs.forEach(S => {
+      for (const [name, r] of Object.entries(S)) {
+        if (r.mods >= 2 || (r.incdec >= 1 && r.reads >= 1)) {
+          ctx.warns.unshift({
+            k: 'ub', m: `<b>Comportament nedefinit:</b> variabila <code>${name}</code> este ${r.mods >= 2 ? 'modificată de mai multe ori' : 'și modificată (++/--), și citită'} între două puncte de secvență. ` +
+              `Compilatorul poate evalua operanzii în orice ordine, așa că alte compilatoare (sau alte niveluri de optimizare) pot afișa rezultate diferite. Pașii de mai jos arată doar UNA dintre ordinile posibile, de la stânga la dreapta. ` +
+              `(C++17 a făcut bine definite câteva forme, precum <code>i = i++</code>, dar expresii ca <code>++y * --y</code> sau <code>i + i++</code> rămân nedefinite în toate standardele.)`
+          });
+        }
+      }
+    });
+  }
+
+  function declare(ctx, text) {
+    const stmts = text.split(';').map(s => s.trim()).filter(Boolean);
+    for (const st of stmts) {
+      const m = /^((?:(?:unsigned|signed|const)\s+)*)(long\s+long|long\s+double|long\s+int|char|short|int|long|float|double|size_t|bool)\s+([\s\S]+)$/.exec(st);
+      if (!m) throw new CError(`Nu pot interpreta declarația "${st}". Folosiți de ex.  int a = 5, b;  float c;`, 'decl');
+      let t = m[2].replace(/\s+/g, ' ');
+      if (t === 'long long' || t === 'long int') t = 'long'; if (t === 'long double') t = 'double'; if (t === 'bool') t = 'char';
+      // split by top-level commas
+      const parts = []; let d = 0, cur = '';
+      for (const ch of m[3]) { if (ch === '(') d++; if (ch === ')') d--; if (ch === ',' && d === 0) { parts.push(cur); cur = ''; } else cur += ch; }
+      parts.push(cur);
+      for (let part of parts) {
+        part = part.trim();
+        const mm = /^([A-Za-z_]\w*)\s*(?:=\s*([\s\S]+))?$/.exec(part);
+        if (!mm) throw new CError(`Declarator greșit "${part}".`, 'decl');
+        if (TYPES.includes(mm[1]) || mm[1] === 'sizeof') throw new CError(`"${mm[1]}" este cuvânt cheie și nu poate fi nume de variabilă.`, 'decl');
+        const V = { t, v: undefined, init: false };
+        if (mm[2] !== undefined) {
+          const sub = makeCtx(ctx.modelName); sub.vars = ctx.vars;
+          const x = ev(sub, parse(mm[2]));
+          const c = convert(sub, x, t, '');
+          V.v = c.v; V.init = true;
+        }
+        ctx.vars[mm[1]] = V;
+      }
+    }
+  }
+
+  function run(declText, exprText, model) {
+    const ctx = makeCtx(model); ctx.modelName = model;
+    const out = { ok: false };
+    try {
+      declare(ctx, declText);
+      out.before = JSON.parse(JSON.stringify(ctx.vars));
+      if (!exprText.trim()) throw new CError('Scrieți întâi o expresie.');
+      const tree = parse(exprText.replace(/;\s*$/, ''));
+      out.tree = tree;
+      out.paren = stripOuter(pp(tree));
+      out.type = typeOf(tree, ctx.vars);
+      const r = ev(ctx, tree);
+      checkSequencing(ctx);
+      out.result = r; out.after = ctx.vars; out.log = ctx.log; out.warns = ctx.warns; out.ok = true;
+      out.fmt = fmtNum; out.printfF = printfF;
+    } catch (e) {
+      out.error = e.message; out.kind = e.kind; out.log = ctx.log; out.warns = ctx.warns;
+      if (!(e instanceof CError)) { out.error = 'Eroare internă: ' + e.message; }
+    }
+    return out;
+  }
+  return { run, parse, pp, MODELS, fmtNum, printfF, typeOf };
+})();
+if (typeof module !== 'undefined') module.exports = ExprEngine;
+
+/* ===================== UI ===================== */
+(function () {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem('ui08ro_' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem('ui08ro_' + k, JSON.stringify(v)); } catch (e) { } }
+  };
+
+  /* ---------- syntax highlighting ---------- */
+  const KW = new Set('if else for while do switch case break continue default return sizeof struct class typedef using namespace const static constexpr auto true false new delete operator public private template typename static_cast const_cast reinterpret_cast dynamic_cast static_assert alignof nullptr throw void'.split(' '));
+  const TY = new Set('int float double char short long unsigned signed bool size_t'.split(' '));
+  const LIB = new Set('std cout cin endl printf scanf main round floor ceil fixed setprecision malloc INT_MAX INT_MIN'.split(' '));
+  function highlight(code) {
+    const re = /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|("(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*')|(^[ \t]*#[^\n]*)|(\b\d+(?:\.\d*)?(?:[eE][+-]?\d+)?[fFuUlL]*\b)|([A-Za-z_]\w*)/gm;
+    let out = '', last = 0, m;
+    while ((m = re.exec(code))) {
+      out += esc(code.slice(last, m.index)); last = re.lastIndex;
+      const t = m[0];
+      if (m[1]) out += `<span class="tk-com">${esc(t)}</span>`;
+      else if (m[2]) out += `<span class="tk-str">${esc(t)}</span>`;
+      else if (m[3]) out += `<span class="tk-pp">${esc(t)}</span>`;
+      else if (m[4]) out += `<span class="tk-num">${esc(t)}</span>`;
+      else if (KW.has(t)) out += `<span class="tk-kw">${t}</span>`;
+      else if (TY.has(t)) out += `<span class="tk-ty">${t}</span>`;
+      else if (LIB.has(t)) out += `<span class="tk-lib">${t}</span>`;
+      else out += esc(t);
+    }
+    return out + esc(code.slice(last));
+  }
+  $$('pre.code').forEach(pre => {
+    const raw = pre.textContent;
+    pre.innerHTML = highlight(raw);
+    const wrap = pre.parentElement;
+    const b = document.createElement('button'); b.className = 'copy'; b.textContent = 'copiază';
+    b.onclick = () => {
+      const done = () => { b.textContent = 'copiat ✓'; setTimeout(() => b.textContent = 'copiază', 1300); };
+      if (navigator.clipboard) navigator.clipboard.writeText(raw).then(done, () => fallback());
+      else fallback();
+      function fallback() { const t = document.createElement('textarea'); t.value = raw; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); done(); } catch (e) { } t.remove(); }
+    };
+    wrap.appendChild(b);
+  });
+
+  /* ---------- theme ---------- */
+  if (store.get('dark', false)) document.body.classList.add('dark');
+  $('#themeBtn').onclick = () => { document.body.classList.toggle('dark'); store.set('dark', document.body.classList.contains('dark')); };
+
+  /* ---------- level filter ---------- */
+  function setLevel(l) {
+    document.body.classList.remove('f-b', 'f-i', 'f-a'); document.body.classList.add('f-' + l);
+    $$('.lvlbtn').forEach(b => b.classList.toggle('on', b.dataset.l === l));
+    store.set('level', l); updateScore();
+  }
+  $$('.lvlbtn').forEach(b => b.onclick = () => setLevel(b.dataset.l));
+
+  /* ---------- progress ---------- */
+  const parts = $$('section[data-study]');
+  function updateProgress() {
+    let done = 0;
+    parts.forEach(s => {
+      const on = s.querySelector('.studied input').checked; if (on) done++;
+      const a = $(`nav.toc a[href="#${s.id}"]`); if (a) a.classList.toggle('done', on);
+    });
+    $('#progTxt').textContent = `${done} / ${parts.length} studiate`;
+    $('#progBar').style.width = (100 * done / parts.length) + '%';
+  }
+  const studied = store.get('studied', {});
+  parts.forEach(s => {
+    const cb = s.querySelector('.studied input'); cb.checked = !!studied[s.dataset.study];
+    cb.onchange = () => { studied[s.dataset.study] = cb.checked; store.set('studied', studied); updateProgress(); };
+  });
+  updateProgress();
+
+  /* ---------- scrollspy ---------- */
+  const links = $$('nav.toc a');
+  const targets = links.map(a => document.getElementById(a.getAttribute('href').slice(1))).filter(Boolean);
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(es => {
+      es.forEach(e => { if (e.isIntersecting) { links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id)); } });
+    }, { rootMargin: '-60px 0px -70% 0px' });
+    targets.forEach(t => io.observe(t));
+  }
+
+  /* ---------- ternary playground ---------- */
+  function ternary() {
+    const a = parseInt($('#ta').value) || 0, b = parseInt($('#tb').value) || 0, c = parseInt($('#tc').value) || 0;
+    const rows = [
+      ['max = (a > b) ? a : b', `(${a} > ${b}) este ${a > b ? 'adevărat → a' : 'fals → b'}`, a > b ? a : b],
+      ['(a >= 0 ? a : -a)', `|a|`, a >= 0 ? a : -a],
+      ['(a > b) ? (a > c ? a : c) : (b > c ? b : c)', 'maximul a trei numere', (a > b) ? (a > c ? a : c) : (b > c ? b : c)],
+      ['(a < b) ? (a < c ? a : c) : (b < c ? b : c)', 'minimul a trei numere', (a < b) ? (a < c ? a : c) : (b < c ? b : c)],
+      ['(a > 0) ? 1 : (a < 0) ? -1 : 0', 'semnul lui a (imbricat, asoc. la dreapta)', a > 0 ? 1 : a < 0 ? -1 : 0],
+      ['(a % 2 == 0) ? "par" : "impar"', `a % 2 = ${a % 2 === 0 ? 0 : a % 2}`, '"' + (a % 2 === 0 ? 'par' : 'impar') + '"'],
+      ['x << (x == y ? " este " : " nu este ") << "egal cu " << y', 'cu x = a, y = b', `${a}${a === b ? ' este ' : ' nu este '}egal cu ${b}`],
+      ['(a <= b && b <= c) ? "ordine crescatoare" : "ordine oarecare"', '', '"' + ((a <= b && b <= c) ? 'ordine crescatoare' : 'ordine oarecare') + '"'],
+      ['y = (x > 10) ? 0 : 1', 'cu x = a', (a > 10) ? 0 : 1],
+      ['(b != 0) ? a / b : 0', 'împărțire sigură – a/b nu se evaluează când b == 0', b !== 0 ? Math.trunc(a / b) : 0],
+    ];
+    $('#ternTable').innerHTML = '<tr><th>Expresia</th><th>Observație</th><th>Valoarea</th></tr>' +
+      rows.map(r => `<tr><td><code>${esc(r[0])}</code></td><td>${esc(r[1])}</td><td><b><code>${esc(r[2])}</code></b></td></tr>`).join('');
+  }
+  ['#ta', '#tb', '#tc'].forEach(s => $(s).addEventListener('input', ternary)); ternary();
+
+  /* ---------- prefix/postfix animator ---------- */
+  let ppStep = 0, ppFrames = [];
+  function ppBuild() {
+    const f = $('#ppForm').value, a0 = parseInt($('#ppA').value) || 0;
+    const inc = f.includes('++') ? 1 : -1, op = inc > 0 ? '++' : '--', word = inc > 0 ? 'incrementat' : 'decrementat';
+    const pre = f.includes(op + 'a'); const plus5 = f.includes('5 +');
+    const a1 = a0 + inc; const used = pre ? a1 : a0; const b = plus5 ? 5 + used : used;
+    const F = [];
+    F.push({ a: a0, t: '–', b: '?', hot: '', txt: `Start: <code>a = ${a0}</code>, <code>b</code> nu are încă valoare. Instrucțiunea: <code>${f}</code>` });
+    if (pre) {
+      F.push({ a: a1, t: '–', b: '?', hot: 'cA', txt: `<b>Prefixat</b> <code>${op}a</code>: a este ${word} <b>întâi</b>: ${a0} → <b>${a1}</b>.` });
+      F.push({ a: a1, t: a1, b: '?', hot: 'cT', txt: `Expresia <code>${op}a</code> produce valoarea <b>nouă</b>: ${a1}.` });
+    } else {
+      F.push({ a: a0, t: a0, b: '?', hot: 'cT', txt: `<b>Postfixat</b> <code>a${op}</code>: se ia valoarea <b>veche</b> ${a0} (o copie temporară). Aceasta este valoarea expresiei.` });
+      F.push({ a: a1, t: a0, b: '?', hot: 'cA', txt: `Efect secundar: a este ${word} <b>după</b> ce valoarea lui a fost folosită: ${a0} → <b>${a1}</b>. Copia temporară păstrează ${a0}.` });
+    }
+    if (plus5) F.push({ a: a1, t: used, b: '?', hot: 'cT', txt: `Adunare: <code>5 + ${used}</code> = ${5 + used}.` });
+    F.push({ a: a1, t: used, b, hot: 'cB', txt: `Atribuire: <code>b = ${b}</code>. Starea finală: <b>a = ${a1}, b = ${b}</b>. ${pre ? 'Prefixat → b a primit valoarea NOUĂ.' : 'Postfixat → b a primit valoarea VECHE.'}` });
+    ppFrames = F; ppStep = 0; ppRender();
+  }
+  function ppRender() {
+    const F = ppFrames[ppStep];
+    $('#cA .v').textContent = F.a; $('#cT .v').textContent = F.t; $('#cB .v').textContent = F.b;
+    ['cA', 'cT', 'cB'].forEach(id => $('#' + id).classList.toggle('hot', F.hot === id));
+    $('#ppNarr').innerHTML = `<b>Pasul ${ppStep + 1}/${ppFrames.length}.</b> ` + F.txt;
+    $('#ppPrev').disabled = ppStep === 0; $('#ppNext').disabled = ppStep === ppFrames.length - 1;
+  }
+  $('#ppNext').onclick = () => { if (ppStep < ppFrames.length - 1) { ppStep++; ppRender(); } };
+  $('#ppPrev').onclick = () => { if (ppStep > 0) { ppStep--; ppRender(); } };
+  $('#ppReset').onclick = ppBuild; $('#ppForm').onchange = ppBuild; $('#ppA').oninput = ppBuild; ppBuild();
+
+  /* ---------- sizeof simulator ---------- */
+  const SZ = {
+    IP16: { char: 1, short: 2, int: 2, long: 4, 'long long': null, float: 4, double: 8, 'long double': 10, bool: null, ptr: 2 },
+    ILP32: { char: 1, short: 2, int: 4, long: 4, 'long long': 8, float: 4, double: 8, 'long double': 12, bool: 1, ptr: 4 },
+    LLP64: { char: 1, short: 2, int: 4, long: 4, 'long long': 8, float: 4, double: 8, 'long double': 8, bool: 1, ptr: 8 },
+    LP64: { char: 1, short: 2, int: 4, long: 8, 'long long': 8, float: 4, double: 8, 'long double': 16, bool: 1, ptr: 8 }
+  };
+  function sizeSim() {
+    const m = SZ[$('#szModel').value];
+    let s = 'Dimensiune tipuri fundamentale (octeti):\n';
+    for (const t of ['char', 'bool', 'short', 'int', 'long', 'long long', 'float', 'double', 'long double']) {
+      s += ` ${(t + ':').padEnd(13)}${m[t] === null ? '(tip inexistent pe acest compilator)' : m[t]}\n`;
+    }
+    s += ` ${'int*:'.padEnd(13)}${m.ptr}`;
+    $('#szOut').textContent = s;
+  }
+  $('#szModel').onchange = sizeSim; sizeSim();
+
+  /* ---------- division explorer ---------- */
+  function fmtC(v) { return Number.isFinite(v) ? String(Number(v.toPrecision(6))) : (Number.isNaN(v) ? 'nan' : (v > 0 ? 'inf' : '-inf')); }
+  function divEx() {
+    const a = parseInt($('#dvA').value) || 0, b = parseInt($('#dvB').value) || 0;
+    const ib = b === 0 ? 'UB: împărțire la zero!' : String(Math.trunc(a / b));
+    const rows = [
+      ['a / b', ib, 'int / int → împărțire întreagă (trunchiată spre zero)'],
+      ['a % b', b === 0 ? 'UB: împărțire la zero!' : String(a % b), 'restul; semnul este cel al lui a'],
+      ['(float) a / b', fmtC(Math.fround(a / b)), 'întâi a devine float → împărțire reală'],
+      ['a / (float) b', fmtC(Math.fround(a / b)), 'întâi b devine float → împărțire reală'],
+      ['(float) (a / b)', b === 0 ? 'UB' : fmtC(Math.trunc(a / b)), 'prea târziu: se convertește câtul întreg'],
+      ['a * 1.0 / b', fmtC(a / b), 'înmulțirea cu 1.0 (double) forțează împărțirea reală'],
+      ['(double) a / b', fmtC(a / b), 'împărțire în double (≈15 cifre semnificative; cout afișează 6)'],
+    ];
+    $('#divTable').innerHTML = '<tr><th>Expresia</th><th>Rezultat (cum îl afișează cout)</th><th>De ce</th></tr>' + rows.map(r => `<tr><td><code>${esc(r[0])}</code></td><td><b><code>${esc(r[1])}</code></b></td><td>${esc(r[2])}</td></tr>`).join('');
+  }
+  $('#dvA').oninput = divEx; $('#dvB').oninput = divEx; divEx();
+
+  /* ---------- cast calculator ---------- */
+  function castCalc() {
+    const raw = $('#cvVal').value.trim(), T = $('#cvType').value;
+    const out = $('#cvOut');
+    if (!/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(raw)) { out.innerHTML = '<div class="err">Scrieți o constantă numerică, de ex. 300, -3.7, 1e10</div>'; return; }
+    const isReal = /[.eE]/.test(raw); const v = parseFloat(raw);
+    const srcT = isReal ? 'double' : 'int';
+    const ints = { 'int': [32, true], 'short': [16, true], 'char': [8, true], 'unsigned char': [8, false], 'unsigned int': [32, false], 'long long': [64, true] };
+    let res, expl = [], cls = 'result';
+    if (T === 'bool') { res = v !== 0 ? 'true (1)' : 'false (0)'; expl.push('Orice valoare nenulă devine true; 0 devine false.'); }
+    else if (T === 'float') {
+      const f = Math.fround(v); res = fmtC(f) + `   (printf %f: ${f.toFixed(6)})`;
+      if (f !== v) expl.push(`Valoarea float memorată exact este ${f.toPrecision(12)}. Un float păstrează doar circa 7 cifre semnificative.`);
+      else expl.push('Valoarea se poate reprezenta exact ca float.');
+      if (!Number.isFinite(f)) { expl.push('În afara domeniului float → comportament nedefinit (practic ±inf).'); cls = 'err'; }
+    } else if (T === 'double') { res = fmtC(v) + `   (printf %f: ${v.toFixed(6)})`; expl.push(isReal ? 'Este deja double: nu se schimbă nimic.' : 'Întreg → double este exact pentru |v| < 2^53.'); }
+    else {
+      const [bits, signed] = ints[T];
+      let t = Math.trunc(v);
+      if (isReal && t !== v) expl.push(`Real → întreg: partea fracționară se <b>pierde</b> (trunchiere spre zero): ${raw} → ${t}.`);
+      const lo = signed ? -(2 ** (bits - 1)) : 0, hi = signed ? 2 ** (bits - 1) - 1 : 2 ** bits - 1;
+      if (t < lo || t > hi) {
+        if (isReal) { res = 'nedefinit'; cls = 'err'; expl.push(`${t} nu încape în ${T} [${lo} .. ${hi}]. Conversia unui număr <b>real</b> din afara domeniului la un tip întreg este <b>comportament nedefinit</b>.`); }
+        else {
+          const mod = 2 ** bits; let w = ((t % mod) + mod) % mod; if (signed && w > hi) w -= mod;
+          res = String(w);
+          expl.push(`${t} nu încape în ${T} [${lo} .. ${hi}]; se reduce modulo 2<sup>${bits}</sup> = ${mod}. ` + (signed ? 'Pentru tipuri cu semn, în C acest lucru este definit de implementare (toate compilatoarele uzuale fac reducerea modulară) și este garantat din C++20.' : 'Pentru tipuri fără semn este întotdeauna bine definit.'));
+        }
+      } else res = String(t);
+      if ((T === 'char' || T === 'unsigned char') && cls !== 'err') {
+        const n = parseInt(res); if (n >= 32 && n <= 126) res += `   → ca și caracter: '${String.fromCharCode(n)}'`;
+      }
+      expl.push(`${T} ocupă ${bits / 8} ${bits > 8 ? 'octeți' : 'octet'} (pe o platformă modernă tipică).`);
+    }
+    out.innerHTML = `<div class="${cls}">(${T}) ${esc(raw)} &nbsp;=&nbsp; ${esc(res)}</div><div style="font-size:.9rem">Tipul constantei sursă: <code>${srcT}</code>. ${expl.join(' ')}</div>`;
+  }
+  $('#cvVal').oninput = castCalc; $('#cvType').onchange = castCalc; castCalc();
+
+  /* ---------- digits ---------- */
+  function digits() {
+    const s = $('#dgN').value.trim(); const n = parseInt(s);
+    const o = $('#dgOut');
+    if (!/^\d{5}$/.test(s) || s[0] === '0') { o.innerHTML = '<div class="err">Programul din curs așteaptă exact cinci cifre (10000–99999). Pentru alte valori rezultatul este greșit. Încercați în minte 7 sau 123456 și vedeți de ce.</div>'; return; }
+    let nr = n, rows = '', outp = [];
+    for (const p of [10000, 1000, 100, 10]) {
+      const d = Math.trunc(nr / p); const after = nr % p;
+      rows += `<tr><td><code>cout &lt;&lt; nr / ${p}</code></td><td>${nr} / ${p} = <b>${d}</b></td><td><code>nr = nr % ${p}</code> → ${after}</td></tr>`;
+      outp.push(d); nr = after;
+    }
+    rows += `<tr><td><code>cout &lt;&lt; nr</code></td><td><b>${nr}</b></td><td></td></tr>`; outp.push(nr);
+    o.innerHTML = `<table><tr><th>Instrucțiunea</th><th>Afișat</th><th>Actualizare</th></tr>${rows}</table><pre class="out">${outp.join(' ')}</pre>`;
+  }
+  $('#dgN').oninput = digits; digits();
+
+  /* ---------- tracing drill ---------- */
+  const TR = [
+    ['b = 5 + (++a);', 'c = ++b * ++a;', [6, 11], [7, 12, 84]],
+    ['b = 5 + (a++);', 'c = b++ * a++;', [6, 10], [7, 11, 60]],
+    ['b = 5 + (--a);', 'c = --b * --a;', [4, 9], [3, 8, 24]],
+    ['b = 5 + (a--);', 'c = b-- * a--;', [4, 10], [3, 9, 40]]
+  ];
+  let th = '<tr><th>Perechea</th><th>Linia 1</th><th>a</th><th>b</th><th>Linia 2</th><th>a</th><th>b</th><th>c</th></tr>';
+  TR.forEach((r, i) => {
+    th += `<tr><td>${i + 1}</td><td><code>${r[0]}</code></td>` + [0, 1].map(k => `<td><input type="number" data-ans="${r[2][k]}"></td>`).join('') +
+      `<td><code>${r[1]}</code></td>` + [0, 1, 2].map(k => `<td><input type="number" data-ans="${r[3][k]}"></td>`).join('') + '</tr>';
+  });
+  $('#traceTbl').innerHTML = th;
+  $('#trCheck').onclick = () => {
+    let ok = 0, tot = 0;
+    $$('#traceTbl input').forEach(inp => { tot++; const good = inp.value !== '' && +inp.value === +inp.dataset.ans; if (good) ok++; inp.parentElement.className = good ? 'okc' : 'noc'; });
+    $('#trScore').textContent = `${ok} / ${tot} corecte` + (ok === tot ? ' 🎉' : '');
+  };
+  $('#trShow').onclick = () => { $$('#traceTbl input').forEach(i => { i.value = i.dataset.ans; i.parentElement.className = ''; }); $('#trScore').textContent = ''; };
+  $('#trClear').onclick = () => { $$('#traceTbl input').forEach(i => { i.value = ''; i.parentElement.className = ''; }); $('#trScore').textContent = ''; };
+
+  /* ---------- Expression Lab UI ---------- */
+  const EX = [
+    ['Curs: operatorul virgulă', 'int a = 5, b = 7; float c;', 'c = a = b + 3 , a = c + 2, b = b + 3'],
+    ['Curs: maximul cu ?:', 'int a = 4, b = 9, max;', 'max = (a > b) ? a : b'],
+    ['Curs: |a| cu ?:', 'float a = -3.5;', 'a >= 0 ? a : -a'],
+    ['Curs: perechea 1 (++ prefixat)', 'int a = 5, b, c;', 'b = 5 + (++a), c = ++b * ++a'],
+    ['Curs: perechea 2 (++ postfixat)', 'int a = 5, b, c;', 'b = 5 + (a++), c = b++ * a++'],
+    ['Curs: perechea 3 (-- prefixat)', 'int a = 5, b, c;', 'b = 5 + (--a), c = --b * --a'],
+    ['Curs: perechea 4 (-- postfixat)', 'int a = 5, b, c;', 'b = 5 + (a--), c = b-- * a--'],
+    ['Curs: -5 * i++ - 12 % 5', 'int i = -5, a;', 'a = -5 * i++ - 12 % 5'],
+    ['Curs: sizeof(float)', 'int a;', 'a = sizeof(float)'],
+    ['Curs: sizeof(3 + 2*4)', 'int d;', 'd = sizeof(3 + 2*4)'],
+    ['Curs: (int)(3.78 + 7)', 'int c;', 'c = (int) (3.78 + 7)'],
+    ['Curs: (float)(1/2)  – capcană', 'float d;', 'd = (float) (1/2)'],
+    ['Curs: 1/(float)2', 'float d;', 'd = 1/(float) 2'],
+    ['Curs: 5+((float)3+4)', 'float d;', 'd = 5+((float)3+4)'],
+    ['Autoevaluare: val += suma++', 'int val = 10, suma = 3;', 'val += suma++'],
+    ['Autoevaluare: y = (x > 10) ? 0 : 1', 'int x = 12, y;', 'y = (x > 10) ? 0 : 1'],
+    ['Capcană: x = 1, 2', 'int x;', 'x = 1, 2'],
+    ['Capcană: media întreagă', 'int suma = 17, n = 4; double m;', 'm = suma / n'],
+    ['Corect: media reală', 'int suma = 17, n = 4; double m;', 'm = (double) suma / n'],
+    ['Avansat: tipul lui ?:', 'int t = 1;', 't ? 1 : 2.5'],
+    ['Avansat: sizeof nu evaluează', 'int i = 3; int s;', 's = sizeof(i++)'],
+    ['Avansat: scurtcircuitul protejează', 'int a = 5, b = 0;', 'b != 0 && a / b > 2'],
+    ['Avansat: punct de secvență în ?:', 'int n = 4, r;', 'r = n-- > 3 ? n : -n'],
+    ['UB: ++y * --y', 'int y = 10, x;', 'x = ++y * --y'],
+    ['UB: i + i++', 'int i = 1, x;', 'x = i + i++'],
+    ['UB: depășire cu semn', 'int x = 2147483647;', 'x = x + 1'],
+    ['Eroare: ++4', 'int a = 1;', '++4'],
+    ['Eroare: (5+a)++', 'int a = 1;', '(5+a)++'],
+    ['aritmetică pe char', "char c = 'A'; int k;", "k = c + 2, c = c + 2"],
+  ];
+  const sel = $('#elEx');
+  sel.innerHTML = '<option value="">— alegeți —</option>' + EX.map((e, i) => `<option value="${i}">${esc(e[0])}</option>`).join('');
+  sel.onchange = () => { const e = EX[sel.value]; if (!e) return; $('#elDecl').value = e[1]; $('#elExpr').value = e[2]; runLab(); };
+  function astHTML(n, vars) {
+    let label, kids = [];
+    let ty = ''; try { ty = ExprEngine.typeOf(n, vars); } catch (e) { }
+    switch (n.k) {
+      case 'num': label = n.raw; break; case 'id': label = n.name; break;
+      case 'paren': return astHTML(n.x, vars);
+      case 'bin': label = n.op; kids = [n.l, n.r]; break;
+      case 'un': label = n.op + ' unar'; kids = [n.x]; break;
+      case 'pre': label = n.op + ' prefixat'; kids = [n.x]; break;
+      case 'post': label = n.op + ' postfixat'; kids = [n.x]; break;
+      case 'cast': label = `cast (${n.t})`; kids = [n.x]; break;
+      case 'sizeofT': label = `sizeof(${n.t})`; break;
+      case 'sizeofE': label = 'sizeof'; kids = [n.x]; break;
+      case 'assign': label = n.op; kids = [n.l, n.r]; break;
+      case 'cond': label = '? :'; kids = [n.c, n.a, n.b]; break;
+      case 'comma': label = ','; kids = [n.l, n.r]; break;
+    }
+    return `<li><span class="nd">${esc(label)}</span><span class="ty">${ty}</span>${kids.length ? '<ul>' + kids.map(k => astHTML(k, vars)).join('') + '</ul>' : ''}</li>`;
+  }
+  function runLab() {
+    const r = ExprEngine.run($('#elDecl').value, $('#elExpr').value, $('#elModel').value);
+    const o = $('#elOut'); let h = '';
+    const F = ExprEngine.fmtNum, P = ExprEngine.printfF;
+    if (!r.ok) {
+      h += `<div class="err">✗ ${r.kind === 'lvalue' ? 'Eroare de compilare: ' : r.kind === 'ub' ? 'Problemă la execuție: ' : 'Eroare: '}${r.error}</div>`;
+      if (r.log && r.log.length) h += '<h4>Pașii de dinaintea problemei</h4><ol class="steps">' + r.log.map(s => `<li>${s.html}</li>`).join('') + '</ol>';
+      o.innerHTML = h; return;
+    }
+    h += `<h4>1 · Forma complet parantezată (prioritate + asociativitate)</h4><div class="result" style="background:var(--soft);border-color:var(--line)">${esc(r.paren)}</div>`;
+    if (r.warns.length) h += '<div class="wlist">' + r.warns.map(w => `<div class="${w.k}">${w.k === 'ub' ? '⚠ ' : 'ℹ '}${w.m}</div>`).join('') + '</div>';
+    h += `<div class="grid2"><div><h4>2 · Arborele sintactic (cu tipurile statice)</h4><div class="ast"><ul>${astHTML(r.tree, r.before)}</ul></div></div>`;
+    h += `<div><h4>3 · Variabile</h4><table><tr><th>var.</th><th>tip</th><th>înainte</th><th>după</th></tr>` +
+      Object.keys(r.after).map(k => { const b = r.before[k], a = r.after[k]; const ch = (b.v !== a.v || b.init !== a.init); return `<tr><td><code>${k}</code></td><td>${a.t}</td><td>${b.init ? F(b.v, b.t) : '<i>neinițial.</i>'}</td><td>${ch ? '<b>' : ''}${a.init ? F(a.v, a.t) : '<i>neinițial.</i>'}${ch ? '</b>' : ''}${(a.t === 'float' || a.t === 'double') && a.init ? ` <span style="color:var(--muted);font-size:.85em">(%f: ${P(a.v, a.t)})</span>` : ''}</td></tr>`; }).join('') + '</table></div></div>';
+    h += '<h4>4 · Pașii evaluării</h4><ol class="steps">' + r.log.map(s => `<li>${s.html}</li>`).join('') + '</ol>';
+    h += `<div class="result">Valoarea întregii expresii: ${F(r.result.v, r.result.t)} &nbsp;·&nbsp; tip: ${r.type}${r.result.t === 'float' || r.result.t === 'double' ? ` &nbsp;·&nbsp; printf("%f") → ${P(r.result.v, r.result.t)}` : ''}</div>`;
+    h += '<p style="font-size:.82rem;color:var(--muted)">Observații: rezultatele relaționale și logice apar ca <code>int</code> (C); în C++ tipul lor este <code>bool</code>, afișat ca 0/1. Acolo unde C lasă ordinea de evaluare nespecificată, laboratorul evaluează de la stânga la dreapta. Compilatoarele reale pot alege altă ordine.</p>';
+    o.innerHTML = h;
+  }
+  $('#elRun').onclick = runLab;
+  $('#elExpr').addEventListener('keydown', e => { if (e.key === 'Enter') runLab(); });
+  $('#elModel').onchange = runLab;
+  runLab();
+
+  /* ---------- quiz ---------- */
+  const Q = [
+    ['b', 'Care este valoarea expresiei <code>(x = 3, x + 4)</code>?', ['3', '4', '7', 'Nu se compilează'], 2, 'Operatorul virgulă evaluează de la stânga la dreapta și produce valoarea ultimului operand: x devine 3, apoi 3 + 4 = 7.'],
+    ['b', 'După <code>int a = 5, b; b = a++;</code> cât sunt a și b?', ['a = 6, b = 6', 'a = 6, b = 5', 'a = 5, b = 6', 'a = 5, b = 5'], 1, 'Postfixat: b primește valoarea veche 5, apoi a este incrementat la 6.'],
+    ['b', 'După <code>int a = 5, b; b = --a;</code> cât sunt a și b?', ['a = 4, b = 4', 'a = 4, b = 5', 'a = 5, b = 4', 'a = 6, b = 6'], 0, 'Prefixat: întâi a este decrementat (4), apoi se folosește valoarea nouă.'],
+    ['b', 'Care expresie este <b>incorectă</b>?', ['a++', '++a', '(a+1)++', 'a--'], 2, '<code>a+1</code> este o valoare, nu o variabilă; ++/-- cer un lvalue modificabil.'],
+    ['b', '<code>max = (a > b) ? a : b;</code> cu a = 3, b = 8 dă max =', ['3', '8', '1', '0'], 1, 'Condiția 3 > 8 este falsă (0), deci se evaluează al treilea operand, b = 8.'],
+    ['b', 'Cât dă <code>sizeof(char)</code> pe orice compilator C/C++?', ['1', '2', '4', 'Depinde de platformă'], 0, 'sizeof(char) este 1 prin definiție. Toate celelalte dimensiuni depind de platformă.'],
+    ['b', 'Ce se memorează în <code>int b = (int) 5.99;</code>?', ['5', '6', '5.99', 'Eroare de compilare'], 0, 'Conversia la întreg trunchiază (elimină partea fracționară); nu rotunjește.'],
+    ['b', '<code>float d = (float)(1/2);</code> → d =', ['0.5', '0.0', '1.0', '2.0'], 1, '1/2 este împărțire întreagă = 0; apoi 0 se convertește la 0.0f. Conversia vine prea târziu.'],
+    ['i', 'După <code>int x; x = 1, 2;</code> valoarea lui x este', ['1', '2', '3', 'nedefinită'], 0, 'Atribuirea are prioritate mai mare decât virgula: (x = 1), 2.'],
+    ['i', 'Care secvență este echivalentă cu <code>val += suma++;</code>?', ['suma = suma + 1; val = val + suma;', 'val = val + suma; suma = suma + 1;', 'val = val + suma;', 'val = val + ++suma;'], 1, 'Se adună valoarea veche a lui suma, apoi suma este incrementat.'],
+    ['i', 'Cum se pun parantezele în <code>a = -5 * i++ - 12 % 5</code>?', ['a = (-5 * i)++ - (12 % 5)', 'a = (((-5) * (i++)) - (12 % 5))', 'a = (-(5 * i++ - 12)) % 5', 'a = ((-5) * (i++ - 12)) % 5'], 1, 'Întâi se leagă ++ postfixat, apoi - unar, apoi * și %, apoi - binar și, la final, =.'],
+    ['i', 'Pentru i = -5, expresia de mai sus dă a =', ['27', '23', '-27', '20'], 1, '(-5)·(-5) − 12 % 5 = 25 − 2 = 23 (forma postfixată folosește valoarea veche, −5).'],
+    ['i', 'De ce nu se compilează <code>cout &lt;&lt; a &gt; b ? a : b;</code>?', ['?: nu poate fi folosit cu cout', '<< are prioritate mai mare decât > și ?:, deci se interpretează ((cout << a) > b) ? a : b', 'a și b trebuie să fie float', 'Lipsește punctul și virgula'], 1, 'Puneți întotdeauna între paranteze un ?: aflat într-o expresie de afișare.'],
+    ['i', '<code>int suma = 17, n = 4;</code> Care expresie dă 4.25?', ['(double)(suma / n)', 'suma / n', '(double)suma / n', 'double(suma / n)'], 2, 'Cast-ul trebuie aplicat unui operand înainte de împărțire.'],
+    ['i', 'Ce întoarce <code>sizeof(3 + 2*4)</code> pe un compilator Linux de 64 de biți?', ['11', '4', '8', '2'], 1, 'Contează doar tipul: expresia este int → sizeof(int) = 4 (2 pe Turbo C, 16 biți).'],
+    ['i', 'Câte elemente are <code>double w[] = {1, 2, 3, 4};</code>, calculat cu sizeof?', ['sizeof(w)', 'sizeof(w) / sizeof(w[0])', 'sizeof(w[0])', 'sizeof(double)'], 1, '32 de octeți / 8 octeți pe element = 4.'],
+    ['i', '<code>int n = 4; int r = n-- > 3 ? n : -n;</code> → r =', ['4', '3', '-3', 'comportament nedefinit'], 1, 'Condiția folosește 4 (adevărat). După condiție există un punct de secvență, deci n este deja 3 când se evaluează al doilea operand.'],
+    ['i', 'Cât dă <code>(int)-3.7</code>?', ['-4', '-3', '3', '-3.7'], 1, 'Trunchiere spre zero, și pentru numerele negative.'],
+    ['i', 'Cum citește compilatorul <code>a+++b</code>?', ['a + (++b)', '(a++) + b', 'a + + + b', 'Eroare de compilare'], 1, '„Maximal munch”: analizorul lexical ia întâi cel mai lung simbol: a ++ + b.'],
+    ['a', 'Care dintre aceste expresii are <b>comportament nedefinit</b> în orice standard C/C++?', ['i = i + 1', 'x = (i++, i)', 'x = i++ * i++', 'x = i++ && i'], 2, 'i este modificat de două ori fără secvențiere. Virgula și && introduc puncte de secvență.'],
+    ['a', '<code>int i = 3; size_t s = sizeof(i++);</code> După aceasta, i =', ['3', '4', 'nedefinit', 'nu se compilează'], 0, 'Operandul lui sizeof nu este evaluat, deci incrementarea nu are loc niciodată.'],
+    ['a', 'Care este tipul expresiei <code>true ? 1 : 2.5</code>?', ['int', 'double', 'float', 'depinde de condiție, la execuție'], 1, 'Tipul se stabilește la compilare: tipul comun pentru int și double este double (se afișează 1).'],
+    ['a', '<code>sizeof(\'a\')</code> este…', ['1 atât în C, cât și în C++', '4 în C și 1 în C++', '1 în C și 4 în C++', '2 peste tot'], 1, 'În C o constantă caracter are tipul int; în C++ are tipul char.'],
+    ['a', 'Cu <code>int n = -1; unsigned u = 1;</code>, expresia <code>n &lt; u</code> este', ['adevărată', 'falsă', 'comportament nedefinit', 'eroare de compilare'], 1, 'n se convertește la unsigned (4294967295), deci comparația este falsă. Compilați cu -Wsign-compare.'],
+    ['a', 'În <code>void f(int v[10])</code>, <code>sizeof(v)</code> pe un sistem de 64 de biți este', ['40', '10', '8', '4'], 2, 'Un parametru tablou este de fapt un pointer, deci obțineți dimensiunea unui pointer.'],
+    ['a', 'Care cast C++ este alegerea potrivită pentru a converti un int la double?', ['reinterpret_cast<double>(n)', 'const_cast<double>(n)', 'static_cast<double>(n)', 'dynamic_cast<double>(n)'], 2, 'static_cast este pentru conversiile obișnuite, verificate la compilare. reinterpret_cast<double>(int) nici nu se compilează.'],
+    ['a', 'În C++, care instrucțiune este validă?', ['(p > q ? p : q) = 10; cu int p, q', 'a++ ++;', '++4;', 'sizeof int;'], 0, 'În C++, ?: cu două lvalue de același tip este un lvalue. În C nu este.'],
+    ['a', 'Din C++17, <code>cout &lt;&lt; ++y &lt;&lt; " " &lt;&lt; ++y;</code> cu y = 10 afișează', ['12 11', '11 12', '12 12', 'nedefinit'], 1, 'C++17 secvențiază operandul stâng al lui << înaintea celui drept. Înainte de C++17 rezultatul era nespecificat.'],
+  ];
+  const ans = store.get('quiz', {});
+  function renderQuiz() {
+    $('#quizBox').innerHTML = Q.map((q, i) => `<div class="q ${q[0]}" data-i="${i}"><div class="qt"><span class="badge ${q[0]}">${{ b: 'Î', i: 'M', a: 'A' }[q[0]]}</span>${i + 1}. ${q[1]}</div><div class="opts">${q[2].map((o, j) => `<label data-j="${j}"><input type="radio" name="q${i}"> ${esc(o)}</label>`).join('')}</div><div class="fb"></div></div>`).join('');
+    $$('#quizBox .q').forEach(el => {
+      const i = +el.dataset.i;
+      el.querySelectorAll('label').forEach(l => l.addEventListener('click', () => { if (el.classList.contains('answered')) return; ans[i] = +l.dataset.j; store.set('quiz', ans); mark(el, i); updateScore(); }));
+      if (ans[i] !== undefined) mark(el, i);
+    });
+    updateScore();
+  }
+  function mark(el, i) {
+    const q = Q[i], j = ans[i]; el.classList.add('answered');
+    el.querySelectorAll('label').forEach(l => { const k = +l.dataset.j; if (k === q[3]) l.classList.add('right'); else if (k === j) l.classList.add('wrong'); l.querySelector('input').checked = k === j; l.querySelector('input').disabled = true; });
+    el.querySelector('.fb').innerHTML = (j === q[3] ? '<b style="color:var(--good)">✓ Corect.</b> ' : '<b style="color:var(--bad)">✗ Nu chiar.</b> ') + q[4];
+  }
+  function updateScore() {
+    const lvl = store.get('level', 'a'); const allowed = { b: ['b'], i: ['b', 'i'], a: ['b', 'i', 'a'] }[lvl];
+    let tot = 0, ok = 0, done = 0;
+    Q.forEach((q, i) => { if (!allowed.includes(q[0])) return; tot++; if (ans[i] !== undefined) { done++; if (ans[i] === q[3]) ok++; } });
+    const s = $('#qzScore'); if (s) s.textContent = `Scor: ${ok} / ${done} răspunsuri · ${tot} întrebări la acest nivel`;
+  }
+  $('#qzReset').onclick = () => { for (const k in ans) delete ans[k]; store.set('quiz', ans); renderQuiz(); };
+  renderQuiz();
+  setLevel(store.get('level', 'a'));
+})();
+
+</script>
+</body>
+</html>

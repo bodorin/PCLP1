@@ -1,0 +1,2548 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UI 7 · Operatori și expresii în C/C++ — curs, seminar, laborator</title>
+<style>
+:root{
+  --bg:#f6f6f3; --fg:#1c1e22; --muted:#5b616c; --card:#ffffff; --line:#e2e2dc;
+  --acc:#2f5bd3; --acc2:#e9eefc; --code:#f3f4f7; --codefg:#1c1e22;
+  --l1:#17864a; --l2:#b07800; --l3:#c0392b;
+  --ok:#e6f5ec; --okb:#17864a; --bad:#fdeceb; --badb:#c9372c; --warn:#fff6dd; --warnb:#b07800; --info:#eaf1ff;
+  --hl:#ffe27a; --hlfg:#1c1e22;
+  --kw:#7a3fc0; --st:#a3501a; --nu:#0b7a75; --cm:#7b8190; --pp:#b0306a; --lb:#2f5bd3;
+  --radius:12px; --mono: ui-monospace, "Cascadia Code", "JetBrains Mono", Consolas, "Liberation Mono", monospace;
+}
+[data-theme="dark"]{
+  --bg:#121418; --fg:#e7e7e3; --muted:#9aa1ac; --card:#1b1e24; --line:#2c3039;
+  --acc:#82a6ff; --acc2:#1e2943; --code:#0f1115; --codefg:#e2e2de;
+  --l1:#3fc27a; --l2:#e2a92c; --l3:#ff7a6b;
+  --ok:#11281a; --okb:#3fc27a; --bad:#2e1514; --badb:#ff7a6b; --warn:#2b240e; --warnb:#e2a92c; --info:#18233b;
+  --hl:#7a5d00; --hlfg:#fff;
+  --kw:#c39bff; --st:#f0a36b; --nu:#4fd1c5; --cm:#7d8494; --pp:#ff8ac0; --lb:#82a6ff;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:76px}
+body{margin:0; background:var(--bg); color:var(--fg); font:16px/1.62 system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, sans-serif}
+a{color:var(--acc)}
+code{font-family:var(--mono); font-size:.9em; background:var(--code); color:var(--codefg); padding:.08em .35em; border-radius:5px; white-space:nowrap}
+pre code{white-space:pre; padding:0; background:none}
+h1,h2,h3,h4{line-height:1.25}
+h1{font-size:2.1rem; margin:.2em 0 .3em}
+h2{font-size:1.5rem; margin:2.2rem 0 .8rem; padding-top:.4rem}
+h2.part{font-size:1.05rem; text-transform:uppercase; letter-spacing:.08em; color:var(--acc); border-top:2px solid var(--acc); padding-top:1rem; margin-top:3.5rem}
+h3{font-size:1.15rem; margin:1.4rem 0 .5rem}
+table{border-collapse:collapse; width:100%; margin:.6rem 0 1rem; font-size:.94rem}
+th,td{border:1px solid var(--line); padding:.42rem .6rem; text-align:left; vertical-align:top}
+th{background:var(--acc2)}
+.tbl-wrap{overflow-x:auto}
+/* header */
+header.top{position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:1rem; flex-wrap:wrap;
+  padding:.55rem 1.1rem; background:color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter:blur(8px); border-bottom:1px solid var(--line)}
+.brand{font-weight:700; white-space:nowrap}
+.brand span{font-weight:400; color:var(--muted)}
+.levels{display:flex; gap:.35rem; align-items:center; flex-wrap:wrap; margin-left:auto}
+.levels .lbl{font-size:.85rem; color:var(--muted)}
+.lvb{border:1.5px solid var(--line); background:var(--card); color:var(--fg); border-radius:999px; padding:.28rem .8rem; font-size:.86rem; cursor:pointer}
+.lvb.on.l1{border-color:var(--l1); background:color-mix(in srgb,var(--l1) 16%, var(--card))}
+.lvb.on.l2{border-color:var(--l2); background:color-mix(in srgb,var(--l2) 16%, var(--card))}
+.lvb.on.l3{border-color:var(--l3); background:color-mix(in srgb,var(--l3) 16%, var(--card))}
+#themeBtn{border:1px solid var(--line); background:var(--card); color:var(--fg); border-radius:8px; padding:.28rem .6rem; cursor:pointer}
+#progress{position:absolute; left:0; bottom:-1px; height:3px; background:var(--acc); width:0}
+/* layout */
+.layout{display:grid; grid-template-columns:270px minmax(0,1fr); gap:2rem; max-width:1280px; margin:0 auto; padding:0 1.2rem}
+nav#toc{position:sticky; top:64px; align-self:start; max-height:calc(100vh - 80px); overflow:auto; padding:1.2rem 0; font-size:.9rem}
+nav#toc a{display:block; color:var(--muted); text-decoration:none; padding:.22rem .6rem; border-left:2px solid transparent; border-radius:0 6px 6px 0}
+nav#toc a:hover{color:var(--fg); background:var(--acc2)}
+nav#toc a.act{color:var(--acc); border-left-color:var(--acc); background:var(--acc2)}
+nav#toc .grp{margin:.9rem 0 .2rem .6rem; font-size:.74rem; text-transform:uppercase; letter-spacing:.08em; color:var(--acc); font-weight:700}
+main{min-width:0; max-width:900px; padding:1.2rem 0 6rem}
+@media (max-width:980px){ .layout{grid-template-columns:1fr} nav#toc{display:none} }
+/* blocks */
+.hero{padding:1.5rem 0 .5rem}
+.kicker{color:var(--acc); font-weight:600; letter-spacing:.04em; margin:0}
+.lead{font-size:1.12rem; color:var(--muted); max-width:46em}
+.grid3{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:.9rem; margin:1.2rem 0}
+.card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:1rem 1.2rem; margin:1rem 0}
+.card h3:first-child, .card h4:first-child{margin-top:0}
+.pcard{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:.9rem 1.1rem; text-decoration:none; color:var(--fg); display:block}
+.pcard b{display:block; font-size:1.05rem; margin-bottom:.2rem}
+.pcard span{color:var(--muted); font-size:.92rem}
+.blk{position:relative; margin:1rem 0; padding:.2rem 0 .2rem 1rem; border-left:3px solid var(--line)}
+.blk[data-level="1"]{border-left-color:color-mix(in srgb,var(--l1) 55%, transparent)}
+.blk[data-level="2"]{border-left-color:color-mix(in srgb,var(--l2) 60%, transparent)}
+.blk[data-level="3"]{border-left-color:color-mix(in srgb,var(--l3) 55%, transparent)}
+.badge{display:inline-block; font-size:.72rem; font-weight:700; letter-spacing:.03em; padding:.08rem .5rem; border-radius:999px; vertical-align:middle; color:#fff}
+.badge.l1{background:var(--l1)} .badge.l2{background:var(--l2)} .badge.l3{background:var(--l3)}
+[data-theme="dark"] .badge{color:#111}
+.blk > .badge:first-child{margin-bottom:.3rem}
+h2 .badge{margin-left:.5rem; font-size:.7rem}
+.note,.warn,.tip,.ub{border-radius:10px; padding:.7rem 1rem; margin:.9rem 0; border:1px solid}
+.note{background:var(--info); border-color:color-mix(in srgb,var(--acc) 35%, transparent)}
+.tip{background:var(--ok); border-color:color-mix(in srgb,var(--okb) 40%, transparent)}
+.warn{background:var(--warn); border-color:color-mix(in srgb,var(--warnb) 45%, transparent)}
+.ub{background:var(--bad); border-color:color-mix(in srgb,var(--badb) 45%, transparent)}
+.note>b:first-child,.warn>b:first-child,.tip>b:first-child,.ub>b:first-child{display:block; margin-bottom:.2rem}
+.chain{font-family:var(--mono); background:var(--code); padding:.6rem .9rem; border-radius:8px; overflow-x:auto; white-space:nowrap}
+/* code */
+.codewrap{position:relative; margin:.7rem 0 1rem}
+.codetitle{font-size:.8rem; color:var(--muted); font-family:var(--mono); margin-bottom:.2rem}
+pre.code{background:var(--code); color:var(--codefg); border:1px solid var(--line); border-radius:10px; padding:.8rem 1rem; overflow-x:auto; margin:0; font:14px/1.55 var(--mono)}
+pre.code.small{font-size:13.5px; padding:.55rem .8rem; margin:.4rem 0}
+.copy{position:absolute; top:.45rem; right:.45rem; font-size:.75rem; border:1px solid var(--line); background:var(--card); color:var(--muted); border-radius:6px; padding:.12rem .5rem; cursor:pointer; opacity:.75}
+.codetitle + pre + .copy{top:1.75rem}
+.copy:hover{opacity:1}
+.kw{color:var(--kw); font-weight:600} .st{color:var(--st)} .nu{color:var(--nu)} .cm{color:var(--cm); font-style:italic} .pp{color:var(--pp)} .lb{color:var(--lb)}
+/* buttons */
+.btn, .try{font:inherit; font-size:.88rem; border:1px solid var(--acc); color:var(--acc); background:var(--card); border-radius:8px; padding:.28rem .7rem; cursor:pointer}
+.btn.primary{background:var(--acc); color:#fff}
+[data-theme="dark"] .btn.primary{color:#0d1220}
+.try{font-size:.8rem; padding:.12rem .55rem; border-radius:999px; margin:.15rem 0; white-space:nowrap}
+.try:hover, .btn:hover{filter:brightness(1.08)}
+.trydemo{font-size:.8rem; border:1px solid var(--acc); color:var(--acc); border-radius:999px; padding:.05rem .5rem}
+.row{display:flex; gap:.6rem; flex-wrap:wrap; align-items:center}
+input[type=text], input[type=number], textarea, select{font:inherit; background:var(--card); color:var(--fg); border:1px solid var(--line); border-radius:8px; padding:.35rem .55rem}
+textarea, input.mono{font-family:var(--mono); font-size:.92rem}
+/* example table w/ try buttons */
+.ex td:first-child{font-family:var(--mono); white-space:nowrap}
+/* evaluator */
+.widget{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:1rem 1.2rem; margin:1rem 0}
+.ev-grid{display:grid; grid-template-columns:1fr; gap:.6rem}
+.ev-grid label{font-size:.85rem; color:var(--muted); display:block; margin-bottom:.15rem}
+#ev-decl{width:100%; min-height:64px; resize:vertical}
+#ev-expr{width:100%; font-size:1.05rem; padding:.5rem .7rem}
+.ev-sec{margin-top:1rem}
+.ev-sec h4{margin:.2rem 0 .4rem; font-size:.95rem; color:var(--muted); font-weight:600}
+.expr-line{font-family:var(--mono); font-size:1rem; background:var(--code); border-radius:8px; padding:.45rem .7rem; overflow-x:auto; white-space:nowrap}
+.expr-line .hl{background:var(--hl); color:var(--hlfg); border-radius:4px; padding:0 .15em; box-shadow:0 0 0 1px color-mix(in srgb,var(--warnb) 40%, transparent)}
+.expr-line .var{color:var(--acc); font-weight:600}
+ol.steps{padding-left:1.6rem; margin:.3rem 0}
+ol.steps li{margin:.45rem 0}
+ol.steps li .why{font-size:.88rem; color:var(--muted); margin:.15rem 0 0 .2rem}
+ol.steps li .why div::before{content:"↳ "; color:var(--acc)}
+.result{display:flex; flex-wrap:wrap; gap:.6rem 1.4rem; align-items:baseline; font-size:1.02rem}
+.result .big{font-family:var(--mono); font-size:1.5rem; font-weight:700; color:var(--acc)}
+.pill{display:inline-block; font-size:.78rem; padding:.05rem .5rem; border-radius:999px; background:var(--acc2); color:var(--acc); font-family:var(--mono)}
+.err{background:var(--bad); border:1px solid color-mix(in srgb,var(--badb) 45%, transparent); border-radius:10px; padding:.6rem .9rem}
+/* AST tree */
+.tree{overflow-x:auto; padding:.4rem 0 .8rem}
+.tree ul{padding-top:14px; position:relative; display:flex; justify-content:center; margin:0; padding-left:0}
+.tree li{list-style:none; text-align:center; position:relative; padding:14px 4px 0}
+.tree li::before,.tree li::after{content:""; position:absolute; top:0; right:50%; border-top:1.5px solid var(--line); width:50%; height:14px}
+.tree li::after{right:auto; left:50%; border-left:1.5px solid var(--line)}
+.tree li:only-child::before,.tree li:only-child::after{display:none}
+.tree li:only-child{padding-top:0}
+.tree li:first-child::before,.tree li:last-child::after{border:0 none}
+.tree li:last-child::before{border-right:1.5px solid var(--line); border-radius:0 6px 0 0}
+.tree li:first-child::after{border-radius:6px 0 0 0}
+.tree ul ul::before{content:""; position:absolute; top:0; left:50%; border-left:1.5px solid var(--line); height:14px}
+.tree > ul{padding-top:0}
+.tn{display:inline-block; font-family:var(--mono); font-size:.88rem; border:1.5px solid var(--line); border-radius:8px; padding:.12rem .5rem; background:var(--card); white-space:nowrap}
+.tn.op{border-color:var(--acc); color:var(--acc); font-weight:700}
+.tn.leaf{background:var(--code)}
+/* precedence table */
+#prec-table tr{cursor:pointer}
+#prec-table tr.lesson td:first-child{box-shadow:inset 3px 0 0 var(--acc)}
+#prec-table tr.dim{opacity:.45}
+#prec-table tr.sel td{background:var(--acc2)}
+#prec-table td.ops code{white-space:nowrap; margin:0 .15rem .15rem 0; display:inline-block}
+.prec-detail{min-height:2.2rem}
+/* bit lab */
+.bitrow{display:grid; grid-template-columns:120px repeat(8, 38px) 1fr; gap:4px; align-items:center; margin:4px 0}
+.bitrow .lab{font-family:var(--mono); font-size:.9rem}
+.bit{height:34px; border-radius:7px; border:1.5px solid var(--line); background:var(--card); font:600 1rem var(--mono); color:var(--muted); cursor:pointer}
+.bit.on{background:var(--acc); border-color:var(--acc); color:#fff}
+[data-theme="dark"] .bit.on{color:#0d1220}
+.bit.ro{cursor:default}
+.bit.res.on{background:var(--l1); border-color:var(--l1)}
+.bitrow .val{font-family:var(--mono); padding-left:.6rem; font-size:.92rem}
+.bitrow.hdr span{font-size:.72rem; color:var(--muted); text-align:center; font-family:var(--mono)}
+.bitrow.sep{border-top:2px solid var(--fg); padding-top:4px}
+.opbtns button.on{background:var(--acc); color:#fff}
+@media (max-width:620px){ .bitrow{grid-template-columns:70px repeat(8, 1fr); } .bitrow .val{grid-column:1/-1; padding-left:0} }
+/* quiz */
+.q{background:var(--card); border:1px solid var(--line); border-left-width:3px; border-radius:10px; padding:.8rem 1rem; margin:.9rem 0}
+.qh{font-weight:600}
+.qh .qn{color:var(--acc); margin-right:.2rem}
+.opts{display:grid; gap:.4rem; margin-top:.55rem}
+.opt{font:inherit; text-align:left; border:1.5px solid var(--line); background:var(--bg); color:var(--fg); border-radius:8px; padding:.4rem .7rem; cursor:pointer}
+.opt:hover:not([disabled]){border-color:var(--acc)}
+.opt.right{border-color:var(--okb); background:var(--ok)}
+.opt.wrong{border-color:var(--badb); background:var(--bad)}
+.opt[disabled]{cursor:default}
+.expl{margin-top:.6rem; font-size:.94rem; padding:.55rem .8rem; border-radius:8px; background:var(--info)}
+.scorebar{position:sticky; bottom:.6rem; z-index:5; display:flex; gap:1rem; align-items:center; justify-content:space-between; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:.5rem .9rem; box-shadow:0 4px 18px rgba(0,0,0,.08)}
+/* manual tasks */
+.task{background:var(--card); border:1px solid var(--line); border-left-width:3px; border-radius:10px; padding:.8rem 1rem; margin:.8rem 0}
+.task .expr{font-family:var(--mono); font-size:1.05rem}
+.task .fb{margin-top:.4rem; font-size:.93rem}
+.ok-t{color:var(--okb); font-weight:600} .bad-t{color:var(--badb); font-weight:600}
+.task input{width:9rem}
+.task input.wide{width:min(100%, 34rem)}
+details{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:.5rem .9rem; margin:.6rem 0}
+details summary{cursor:pointer; font-weight:600; color:var(--acc)}
+details[open] summary{margin-bottom:.4rem}
+.lab-card{background:var(--card); border:1px solid var(--line); border-left-width:3px; border-radius:var(--radius); padding:.9rem 1.2rem; margin:1.2rem 0}
+.lab-card h3{margin-top:.2rem}
+.out{font-family:var(--mono); font-size:.88rem; background:#0f1115; color:#d7f5d7; border-radius:8px; padding:.6rem .9rem; white-space:pre; overflow-x:auto}
+.kbd{font-family:var(--mono); font-size:.85em; border:1px solid var(--line); border-bottom-width:2px; border-radius:5px; padding:0 .3em}
+.toast{position:fixed; bottom:1.2rem; left:50%; transform:translateX(-50%); background:var(--fg); color:var(--bg); padding:.4rem 1rem; border-radius:999px; font-size:.9rem; opacity:0; transition:opacity .2s; pointer-events:none; z-index:99}
+.toast.show{opacity:1}
+.tt{display:inline-table; width:auto; margin:.3rem 1rem .6rem 0; font-family:var(--mono); text-align:center}
+.tt td,.tt th{text-align:center; padding:.25rem .65rem}
+.cheat{columns:2 320px; column-gap:1.6rem}
+.cheat > div{break-inside:avoid; margin-bottom:1rem}
+.cheat h4{margin:.2rem 0 .3rem}
+.cheat ul{margin:.2rem 0; padding-left:1.1rem}
+footer{color:var(--muted); font-size:.85rem; border-top:1px solid var(--line); margin-top:3rem; padding-top:1rem}
+/* level filter */
+body[data-lv="1"] [data-level="2"], body[data-lv="1"] [data-level="3"], body[data-lv="2"] [data-level="3"]{display:none !important}
+@media (max-width:620px){
+  header.top{gap:.35rem .6rem; padding:.4rem .7rem}
+  .brand span, .levels .lbl, .lvb .x{display:none}
+  .levels{margin-left:0}
+  .lvb{padding:.18rem .55rem; font-size:.8rem}
+  #themeBtn{padding:.18rem .45rem; font-size:.8rem; margin-left:auto}
+  html{scroll-padding-top:110px}
+  main code{white-space:normal; overflow-wrap:anywhere}
+  .bitrow.hdr .w{display:none}
+  h1{font-size:1.7rem}
+}
+@media print{
+  header.top, nav#toc, .copy, .try, .scorebar{display:none !important}
+  .layout{display:block} body{background:#fff}
+  [data-level]{display:block !important}
+}
+</style>
+</head>
+<body data-lv="3">
+<header class="top">
+  <div class="brand">C/C++ · UI 7 <span>Operatori și expresii</span></div>
+  <div class="levels" role="group" aria-label="Alege traseul de parcurgere">
+    <span class="lbl">Traseu:</span>
+    <button class="lvb l1" data-set="1" title="Doar noțiunile de bază">🟢 Începător</button>
+    <button class="lvb l2" data-set="2" title="Începător + mediu">🟡 Mediu</button>
+    <button class="lvb l3 on" data-set="3" title="Tot materialul">🔴 Avansat<span class="x"> (complet)</span></button>
+  </div>
+  <button id="themeBtn" title="Temă luminoasă / întunecată">◐ Temă</button>
+  <div id="progress"></div>
+</header>
+
+<div class="layout">
+<nav id="toc" aria-label="Cuprins"></nav>
+<main>
+
+<section class="hero" id="start">
+  <p class="kicker">Programarea calculatoarelor · Unitatea de învățare 7</p>
+  <h1>Operatori și expresii în limbajul C/C++</h1>
+  <p class="lead">Curs, seminar și laborator într-o singură pagină interactivă: de la „cât face <code>7 / 2</code> în C?” până la conversii implicite, operații pe biți și comportament nedefinit.</p>
+  <div class="grid3">
+    <a class="pcard" href="#curs"><b>📘 Curs</b><span>Teorie pe trei niveluri, cu exemple care pot fi rulate pas cu pas.</span></a>
+    <a class="pcard" href="#seminar"><b>✍️ Seminar</b><span>Evaluări manuale, grile cu explicații, „scrie tu expresia” cu verificare automată.</span></a>
+    <a class="pcard" href="#laborator"><b>🧪 Laborator</b><span>Evaluatorul interactiv de expresii și programe C++ de rulat, modificat și extins.</span></a>
+  </div>
+
+  <div class="card">
+    <h3>Obiective</h3>
+    <p>După parcurgerea acestei lecții vei putea:</p>
+    <ul>
+      <li>să recunoști operatorii limbajului C/C++ și să îi clasifici după numărul de operanzi și după rolul lor;</li>
+      <li>să stabilești, pentru orice expresie, ordinea în care se aplică operatorii (<b>prioritate</b> și <b>asociativitate</b>);</li>
+      <li>să calculezi corect <b>valoarea</b> și <b>tipul</b> unei expresii, ținând cont de <b>conversiile implicite</b>;</li>
+      <li>să scrii condiții corecte folosind operatorii relaționali și logici;</li>
+      <li>să folosești operatorii pe biți și operatorii de atribuire (simplă și compusă);</li>
+      <li>să eviți capcanele clasice: împărțirea întreagă neintenționată, depășirile, amestecul <code>signed</code>/<code>unsigned</code>, comportamentul nedefinit.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Cum folosești pagina</h3>
+    <p>Alege <b>traseul</b> din bara de sus. Fiecare nivel îl include pe cel anterior, așa că poți reveni oricând pentru a „urca” un nivel:</p>
+    <ul>
+      <li><span class="badge l1">Începător</span> — noțiunile esențiale: ce este o expresie, operatorii de bază, cum se calculează o expresie simplă;</li>
+      <li><span class="badge l2">Mediu</span> — regulile complete (conversii, scurtcircuitare, operații pe biți) și greșelile frecvente;</li>
+      <li><span class="badge l3">Avansat</span> — detalii de standard, ordinea evaluării, comportament nedefinit, tehnici pe biți.</li>
+    </ul>
+    <p>Butoanele <span class="trydemo">▶ pas cu pas</span> trimit exemplul în <a href="#eval">evaluatorul interactiv</a>, care arată arborele expresiei, ordinea în care se aplică operatorii și valoarea intermediară după fiecare pas.</p>
+    <p class="muted">Timp orientativ: curs 2–3 ore · seminar 2 ore · laborator 2 ore.</p>
+  </div>
+</section>
+
+<!-- ======================= CURS ======================= -->
+<h2 class="part" id="curs">Partea I — Curs</h2>
+
+<section id="c1">
+<h2>1. Expresii, operanzi, operatori</h2>
+
+<div class="blk" data-level="1">
+  <p>O <b>expresie</b> este o construcție formată din unul sau mai mulți <b>operanzi</b> legați prin <b>operatori</b>. Prin <b>evaluarea</b> expresiei se obține o valoare. Operanzii pot fi constante (<code>5</code>, <code>3.14</code>, <code>'a'</code>), variabile (<code>x</code>), apeluri de funcții (<code>sqrt(x)</code>) sau alte expresii puse între paranteze.</p>
+  <script type="text/x-cpp">
+x              // expresie formată dintr-un singur operand
+a + b * 2      // doi operatori: + și *
+(a + b) * 2    // parantezele schimbă gruparea
+n % 10 == 0    // un operator aritmetic și unul de egalitate
+  </script>
+  <p>După numărul de operanzi (<b>aritate</b>), operatorii sunt:</p>
+  <div class="tbl-wrap"><table>
+    <tr><th>Tip</th><th>Operanzi</th><th>Exemple</th></tr>
+    <tr><td>unar</td><td>1</td><td><code>-x</code> <code>!gata</code> <code>~m</code> <code>++i</code> <code>sizeof x</code> <code>(double)n</code></td></tr>
+    <tr><td>binar</td><td>2</td><td><code>a + b</code> <code>x &lt; y</code> <code>p &amp;&amp; q</code> <code>v = 3</code></td></tr>
+    <tr><td>ternar</td><td>3</td><td><code>c ? a : b</code> — singurul operator ternar (operatorul condițional)</td></tr>
+  </table></div>
+  <p>După rolul lor, operatorii se grupează în <b>clase</b>:</p>
+  <div class="tbl-wrap"><table>
+    <tr><th>Clasă</th><th>Operatori</th></tr>
+    <tr><td>aritmetici</td><td><code>+</code> <code>-</code> <code>*</code> <code>/</code> <code>%</code></td></tr>
+    <tr><td>relaționali</td><td><code>&lt;</code> <code>&gt;</code> <code>&lt;=</code> <code>&gt;=</code></td></tr>
+    <tr><td>de egalitate</td><td><code>==</code> <code>!=</code></td></tr>
+    <tr><td>logici</td><td><code>!</code> <code>&amp;&amp;</code> <code>||</code></td></tr>
+    <tr><td>logici pe biți</td><td><code>~</code> <code>&amp;</code> <code>|</code> <code>^</code> <code>&lt;&lt;</code> <code>&gt;&gt;</code></td></tr>
+    <tr><td>de atribuire</td><td><code>=</code> <code>+=</code> <code>-=</code> <code>*=</code> <code>/=</code> <code>%=</code> <code>&amp;=</code> <code>|=</code> <code>^=</code> <code>&lt;&lt;=</code> <code>&gt;&gt;=</code></td></tr>
+    <tr><td>incrementare / decrementare</td><td><code>++</code> <code>--</code></td></tr>
+    <tr><td>condițional, virgulă</td><td><code>?:</code> <code>,</code></td></tr>
+    <tr><td>alții</td><td><code>sizeof</code>, conversia <code>(tip)</code>, adresă <code>&amp;</code>, indirectare <code>*</code>, <code>[]</code>, <code>()</code>, <code>.</code>, <code>-&gt;</code>, <code>::</code> (C++)</td></tr>
+  </table></div>
+  <div class="note"><b>Același simbol, operatori diferiți</b>Sensul unui simbol depinde de context: <code>-</code> poate fi minus unar (<code>-x</code>) sau scădere (<code>a - b</code>); <code>*</code> înmulțire sau indirectare; <code>&amp;</code> ȘI pe biți sau „adresa lui”; în C++, <code>&lt;&lt;</code> este deplasare pe biți, dar împreună cu <code>cout</code> înseamnă afișare.</div>
+</div>
+
+<div class="blk" data-level="2">
+  <h3>Valoare, tip și efect secundar</h3>
+  <p>Evaluarea unei expresii produce întotdeauna o <b>valoare</b> de un anumit <b>tip</b>. Unele expresii au, în plus, un <b>efect secundar</b> (<i>side effect</i>): modifică o variabilă, afișează ceva etc.</p>
+  <div class="tbl-wrap"><table class="ex">
+    <tr><th>Expresie</th><th>Valoare</th><th>Tip</th><th>Efect secundar</th><th></th></tr>
+    <tr><td>7 / 2</td><td>3</td><td>int</td><td>—</td><td><button class="try" data-expr="7 / 2">▶ pas cu pas</button></td></tr>
+    <tr><td>7.0 / 2</td><td>3.5</td><td>double</td><td>—</td><td><button class="try" data-expr="7.0 / 2">▶ pas cu pas</button></td></tr>
+    <tr><td>x = 5</td><td>5</td><td>tipul lui x</td><td>x primește valoarea 5</td><td><button class="try" data-decl="int x = 0;" data-expr="x = 5">▶ pas cu pas</button></td></tr>
+    <tr><td>i++ &nbsp;(i este 3)</td><td>3</td><td>int</td><td>i devine 4</td><td><button class="try" data-decl="int i = 3;" data-expr="i++">▶ pas cu pas</button></td></tr>
+    <tr><td>a &lt; b &nbsp;(a = 2, b = 9)</td><td>1 (adevărat)</td><td>bool în C++, int în C</td><td>—</td><td><button class="try" data-decl="int a = 2, b = 9;" data-expr="a &lt; b">▶ pas cu pas</button></td></tr>
+  </table></div>
+
+  <h3>lvalue și rvalue</h3>
+  <p>Un <b>lvalue</b> (<i>left value</i>) desemnează o zonă de memorie cu identitate — de exemplu o variabilă — și poate apărea în stânga unei atribuiri. Un <b>rvalue</b> este o valoare temporară (constanta <code>5</code>, rezultatul lui <code>a + b</code>), căreia nu i se poate atribui nimic.</p>
+  <script type="text/x-cpp">
+int x, y;
+x = 5;          // corect: x este lvalue
+5 = x;          // EROARE: 5 nu este lvalue
+x + 1 = y;      // EROARE: x + 1 este o valoare temporară
+++(x + 1);      // EROARE: ++ cere un lvalue
+  </script>
+</div>
+
+<div class="blk" data-level="3">
+  <h3>Expresii constante</h3>
+  <p>O <b>expresie constantă</b> poate fi calculată de compilator, înainte de execuția programului: <code>3 * 60</code>, <code>sizeof(int) * 8</code>. Ele sunt obligatorii în unele locuri (dimensiunea unui tablou static, etichetele <code>case</code>). În C++ le poți marca explicit cu <code>constexpr</code>, iar compilatorul verifică faptul că sunt într-adevăr calculabile la compilare:</p>
+  <script type="text/x-cpp">
+constexpr int SECUNDE_PE_ZI = 24 * 60 * 60;   // 86400, calculat la compilare
+int v[2 * 10];                                 // dimensiunea: expresie constantă
+  </script>
+</div>
+</section>
+
+<section id="c2">
+<h2>2. Prioritate, asociativitate și ordinea evaluării</h2>
+
+<div class="blk" data-level="1">
+  <p>Ca în matematică, unele operații „se fac înainte”: în <code>2 + 3 * 4</code> se înmulțește întâi, rezultatul fiind 14, nu 20. Regula după care compilatorul decide cum grupează operanzii se numește <b>prioritate</b> (precedență).</p>
+  <p>Când doi operatori vecini au <b>aceeași prioritate</b>, decide <b>asociativitatea</b>:</p>
+  <ul>
+    <li><b>stânga → dreapta</b> pentru majoritatea operatorilor binari: <code>20 - 5 - 3</code> înseamnă <code>(20 - 5) - 3</code> = 12, iar <code>100 / 10 / 5</code> înseamnă <code>(100 / 10) / 5</code> = 2;</li>
+    <li><b>dreapta → stânga</b> pentru operatorii unari, operatorul condițional și atribuiri: <code>a = b = c = 0</code> înseamnă <code>a = (b = (c = 0))</code>, iar <code>!!x</code> înseamnă <code>!(!x)</code>.</li>
+  </ul>
+  <p><b>Parantezele</b> au întotdeauna câștig de cauză: se grupează mai întâi expresia din parantezele cele mai interioare.</p>
+  <div class="tip"><b>Regula scurtă (de la prioritate mare la mică)</b>
+  unari (<code>! ~ - + ++ -- (tip) sizeof</code>) → multiplicativi (<code>* / %</code>) → aditivi (<code>+ -</code>) → deplasări (<code>&lt;&lt; &gt;&gt;</code>) → relaționali (<code>&lt; &lt;= &gt; &gt;=</code>) → egalitate (<code>== !=</code>) → pe biți (<code>&amp;</code>, apoi <code>^</code>, apoi <code>|</code>) → logici (<code>&amp;&amp;</code>, apoi <code>||</code>) → condițional (<code>?:</code>) → atribuiri → virgulă.</div>
+  <h3>Exemplu rezolvat</h3>
+  <p><code>x = 10 + 5 * 4 / 2 - 3</code> (x de tip int). Cea mai mare prioritate o au <code>*</code> și <code>/</code>; fiind egale ca prioritate, se aplică de la stânga la dreapta. Urmează <code>+</code> și <code>-</code>, tot de la stânga la dreapta, iar la final atribuirea:</p>
+  <ol>
+    <li><code>5 * 4</code> = 20 → <code>10 + 20 / 2 - 3</code></li>
+    <li><code>20 / 2</code> = 10 → <code>10 + 10 - 3</code></li>
+    <li><code>10 + 10</code> = 20 → <code>20 - 3</code></li>
+    <li><code>20 - 3</code> = 17 → <code>x = 17</code></li>
+  </ol>
+  <button class="try" data-decl="int x = 0;" data-expr="x = 10 + 5 * 4 / 2 - 3">▶ pas cu pas</button>
+</div>
+
+<div class="blk" data-level="1">
+  <h3>Tabelul priorităților</h3>
+  <p>Tabelul de mai jos conține toți operatorii C++, de la prioritatea cea mai mare (1) la cea mai mică (17). Rândurile marcate cu bară albastră conțin operatorii studiați în această lecție. Caută un operator sau dă clic pe un rând pentru un exemplu.</p>
+  <div class="widget" id="prec">
+    <div class="row" style="margin-bottom:.6rem">
+      <input type="text" id="prec-search" placeholder="Caută un operator, ex.: &amp;&amp;  sau  %" style="flex:1; min-width:200px">
+      <label class="row" style="gap:.3rem; font-size:.9rem"><input type="checkbox" id="prec-lesson"> doar operatorii din lecție</label>
+    </div>
+    <div class="prec-detail note" id="prec-detail">Dă clic pe un rând pentru a vedea un exemplu de grupare.</div>
+    <div class="tbl-wrap"><table id="prec-table"></table></div>
+    <p style="font-size:.88rem; color:var(--muted); margin:.3rem 0 0">În C nu există <code>::</code>, <code>.*</code>, <code>-&gt;*</code>, <code>&lt;=&gt;</code>, <code>new</code>/<code>delete</code>, <code>throw</code>; tot în C, operatorul <code>?:</code> are un nivel propriu, imediat deasupra atribuirilor. Pentru expresiile obișnuite, ordinea este aceeași în ambele limbaje.</p>
+  </div>
+</div>
+
+<div class="blk" data-level="2">
+  <h3>Prioritatea în practică: afișarea cu <code>cout</code></h3>
+  <p>În C++, <code>&lt;&lt;</code> folosit cu <code>cout</code> își păstrează prioritatea de operator de deplasare (nivelul 7). Expresiile care conțin operatori de prioritate mai mică — relaționali, pe biți, logici, <code>?:</code>, atribuire — trebuie deci puse între paranteze:</p>
+  <script type="text/x-cpp">
+cout << a + b;            // corect: + are prioritate mai mare decât <<
+cout << a < b;            // EROARE: se grupează (cout << a) < b
+cout << (a < b);          // corect: afișează 1 sau 0
+cout << (x & 1);          // corect; fără paranteze: (cout << x) & 1 → eroare
+cout << (a > b ? a : b);  // corect
+  </script>
+</div>
+
+<div class="blk" data-level="3">
+  <h3>Prioritatea nu este ordinea evaluării</h3>
+  <p>Prioritatea și asociativitatea spun doar <b>cum se grupează</b> operanzii, nu <b>în ce ordine se calculează</b> aceștia. În <code>f() + g() * h()</code> gruparea este sigur <code>f() + (g() * h())</code>, dar standardul nu precizează dacă <code>f()</code> se apelează înainte sau după <code>g()</code> și <code>h()</code>.</p>
+  <script type="text/x-cpp">
+int f() { cout << "f "; return 1; }
+int g() { cout << "g "; return 2; }
+int h() { cout << "h "; return 3; }
+// ...
+int r = f() + g() * h();   // r == 7 sigur; afișarea poate fi "f g h", dar și "g h f"
+  </script>
+  <p>Ordinea de evaluare a operanzilor este garantată doar pentru câțiva operatori:</p>
+  <ul>
+    <li><code>&amp;&amp;</code> și <code>||</code> — operandul stâng se evaluează complet înaintea celui drept (iar uneori dreptul nu se mai evaluează deloc, vezi <a href="#c6">§6</a>);</li>
+    <li>operatorul virgulă — întâi stânga, apoi dreapta;</li>
+    <li><code>?:</code> — întâi condiția, apoi o singură ramură;</li>
+    <li>în C++17, în plus: <code>&lt;&lt;</code> și <code>&gt;&gt;</code> (stânga înaintea dreptei), atribuirile (dreapta înaintea stângii), indexarea <code>a[b]</code>.</li>
+  </ul>
+  <p>Consecința practică: nu scrie expresii al căror rezultat depinde de ordinea în care se evaluează operanzii (vezi <a href="#c10">§10</a>).</p>
+</div>
+</section>
+
+<section id="c3">
+<h2>3. Operatori aritmetici</h2>
+<div class="blk" data-level="1">
+  <div class="tbl-wrap"><table>
+    <tr><th>Operator</th><th>Semnificație</th><th>Aritate</th><th>Asociativitate</th><th>Prioritate</th></tr>
+    <tr><td><code>+x</code> <code>-x</code></td><td>plus / minus unar</td><td>unar</td><td>dreapta → stânga</td><td>cea mai mare dintre aritmetici</td></tr>
+    <tr><td><code>*</code> <code>/</code> <code>%</code></td><td>înmulțire, împărțire, rest</td><td>binar</td><td>stânga → dreapta</td><td>medie</td></tr>
+    <tr><td><code>+</code> <code>-</code></td><td>adunare, scădere</td><td>binar</td><td>stânga → dreapta</td><td>mai mică decât <code>* / %</code></td></tr>
+  </table></div>
+
+  <h3>Împărțirea <code>/</code> depinde de tipul operanzilor</h3>
+  <ul>
+    <li>dacă <b>ambii</b> operanzi sunt întregi → <b>împărțire întreagă</b>: rezultatul este câtul, iar partea fracționară se pierde (trunchiere spre zero): <code>7 / 2</code> = 3, <code>-7 / 2</code> = -3;</li>
+    <li>dacă <b>cel puțin unul</b> este real (<code>float</code>, <code>double</code>) → <b>împărțire reală</b>: <code>7.0 / 2</code> = 3.5, <code>7 / 2.0</code> = 3.5.</li>
+  </ul>
+  <div class="tbl-wrap"><table class="ex">
+    <tr><th>Declarație</th><th>Expresie</th><th>Calcul</th><th>Rezultat</th><th></th></tr>
+    <tr><td>int a = 14;</td><td><code>2 * a / 5</code></td><td>28 / 5 (întreagă)</td><td>5</td><td><button class="try" data-decl="int a = 14;" data-expr="2 * a / 5">▶ pas cu pas</button></td></tr>
+    <tr><td>int a = 14;</td><td><code>2 * (a / 5)</code></td><td>2 * 2</td><td>4</td><td><button class="try" data-decl="int a = 14;" data-expr="2 * (a / 5)">▶ pas cu pas</button></td></tr>
+    <tr><td>double a = 14;</td><td><code>2 * a / 5</code></td><td>28.0 / 5</td><td>5.6</td><td><button class="try" data-decl="double a = 14;" data-expr="2 * a / 5">▶ pas cu pas</button></td></tr>
+    <tr><td>double a = 14;</td><td><code>2 * (a / 5)</code></td><td>2 * 2.8</td><td>5.6</td><td><button class="try" data-decl="double a = 14;" data-expr="2 * (a / 5)">▶ pas cu pas</button></td></tr>
+  </table></div>
+  <div class="warn"><b>Capcană: 1 / 4 este 0, nu 0.25!</b>
+  Variante corecte: <code>1.0 / 4</code>, <code>1. / 4</code>, <code>1 / 4.0</code>, <code>(double)1 / 4</code>. Atenție însă: <code>(double)(1 / 4)</code> este 0.0 — conversia vine după ce împărțirea întreagă s-a făcut deja.
+  <div class="row" style="margin-top:.4rem"><button class="try" data-expr="1 / 4">▶ 1 / 4</button><button class="try" data-expr="1. / 4">▶ 1. / 4</button><button class="try" data-expr="(double)1 / 4">▶ (double)1 / 4</button><button class="try" data-expr="(double)(1 / 4)">▶ (double)(1 / 4)</button></div></div>
+
+  <h3>Restul împărțirii întregi <code>%</code></h3>
+  <ul>
+    <li>se aplică <b>numai operanzilor întregi</b>: <code>7.5 % 2</code> este eroare de compilare (pentru numere reale există funcția <code>fmod</code> din <code>&lt;cmath&gt;</code>);</li>
+    <li><code>7 % 3</code> = 1, <code>-7 % 3</code> = -1, <code>7 % -3</code> = 1 — restul are <b>semnul deîmpărțitului</b>;</li>
+    <li>pentru orice <code>b ≠ 0</code> are loc identitatea <code>(a / b) * b + a % b == a</code>; de exemplu −7 = (−2)·3 + (−1).</li>
+  </ul>
+  <div class="row"><button class="try" data-expr="7 % 3">▶ 7 % 3</button><button class="try" data-expr="-7 % 3">▶ -7 % 3</button><button class="try" data-expr="7 % -3">▶ 7 % -3</button><button class="try" data-expr="7.5 % 2">▶ 7.5 % 2</button></div>
+  <h3>Rețete folosite des</h3>
+  <div class="tbl-wrap"><table class="ex">
+    <tr><th>Expresie</th><th>Ce calculează</th><th>Pentru n = 742</th><th></th></tr>
+    <tr><td>n % 10</td><td>ultima cifră</td><td>2</td><td><button class="try" data-decl="int n = 742;" data-expr="n % 10">▶</button></td></tr>
+    <tr><td>n / 10</td><td>numărul fără ultima cifră</td><td>74</td><td><button class="try" data-decl="int n = 742;" data-expr="n / 10">▶</button></td></tr>
+    <tr><td>n / 10 % 10</td><td>cifra zecilor</td><td>4</td><td><button class="try" data-decl="int n = 742;" data-expr="n / 10 % 10">▶</button></td></tr>
+    <tr><td>n / 100</td><td>cifra sutelor (n de 3 cifre)</td><td>7</td><td><button class="try" data-decl="int n = 742;" data-expr="n / 100">▶</button></td></tr>
+    <tr><td>n % 2 == 0</td><td>n este par</td><td>1 (adevărat)</td><td><button class="try" data-decl="int n = 742;" data-expr="n % 2 == 0">▶</button></td></tr>
+    <tr><td>a % b == 0</td><td>a se divide cu b</td><td>—</td><td><button class="try" data-decl="int a = 742, b = 7;" data-expr="a % b == 0">▶</button></td></tr>
+  </table></div>
+</div>
+
+<div class="blk" data-level="2">
+  <h3>Împărțirea la zero și depășirea</h3>
+  <ul>
+    <li><b>Întregi:</b> <code>a / 0</code> și <code>a % 0</code> au <b>comportament nedefinit</b>; în practică programul se oprește brusc (pe Linux: „Floating point exception”).</li>
+    <li><b>Reali:</b> conform standardului IEEE 754, <code>1.0 / 0</code> dă <code>inf</code>, <code>-1.0 / 0</code> dă <code>-inf</code>, iar <code>0.0 / 0</code> dă <code>nan</code> („not a number”).</li>
+    <li><b>Depășire (overflow):</b> tipul <code>int</code> (32 de biți) are domeniul [−2 147 483 648, 2 147 483 647] — constantele <code>INT_MIN</code> și <code>INT_MAX</code> din <code>&lt;climits&gt;</code>. Dacă rezultatul exact iese din domeniu, pentru tipurile cu semn comportamentul este nedefinit; pentru tipurile <code>unsigned</code> rezultatul se calculează modulo 2<sup>32</sup> („se dă peste cap”).</li>
+  </ul>
+  <script type="text/x-cpp">
+int a = 50000, b = 50000;
+long long p = a * b;              // GREȘIT: înmulțirea se face în int → depășire
+long long q = (long long)a * b;   // CORECT: înmulțirea se face în long long
+  </script>
+  <div class="note"><b>De reținut</b>Tipul rezultatului unei operații se stabilește din <b>tipurile operanzilor</b>, nu din tipul variabilei în care se memorează rezultatul.</div>
+  <div class="row"><button class="try" data-expr="2147483647 + 1">▶ INT_MAX + 1</button><button class="try" data-decl="int a = 50000, b = 50000;" data-expr="a * b">▶ 50000 * 50000</button><button class="try" data-expr="10 / 0">▶ 10 / 0</button><button class="try" data-expr="1.0 / 0">▶ 1.0 / 0</button></div>
+</div>
+
+<div class="blk" data-level="3">
+  <h3>Paritatea numerelor negative</h3>
+  <p>Deoarece restul are semnul deîmpărțitului, <code>-3 % 2</code> este <b>-1</b>, nu 1. Testul <code>n % 2 == 1</code> ratează deci numerele impare negative. Corect: <code>n % 2 != 0</code> (sau <code>n &amp; 1</code>).</p>
+  <div class="row"><button class="try" data-decl="int n = -3;" data-expr="n % 2 == 1">▶ n % 2 == 1 pentru n = -3</button><button class="try" data-decl="int n = -3;" data-expr="n % 2 != 0">▶ n % 2 != 0</button></div>
+  <h3>Numerele reale sunt aproximări</h3>
+  <p><code>float</code> și <code>double</code> memorează valorile în baza 2, cu un număr finit de cifre: 0.1 nu se poate reprezenta exact, deci <code>0.1 + 0.2</code> este 0.30000000000000004. Consecințele pentru comparații sunt discutate în <a href="#c5">§5</a>. În plus, <code>INT_MIN / -1</code> depășește domeniul (rezultatul ar fi 2 147 483 648), deci este tot comportament nedefinit.</p>
+</div>
+</section>
+
+<section id="c4">
+<h2>4. Conversii de tip în expresii</h2>
+<div class="blk" data-level="1">
+  <p>Un operator aritmetic binar lucrează cu doi operanzi <b>de același tip</b>. Dacă tipurile diferă, compilatorul convertește automat (<b>conversie implicită</b>) operandul de tip „mai mic” la tipul „mai mare”, apoi efectuează operația. Ierarhia, simplificat:</p>
+  <div class="chain">bool, char, short → int → long → long long → float → double → long double</div>
+  <p>Exemplu: <code>int a = 5; char b = 6; float c = 9;</code> — în <code>a + b + c</code> se calculează întâi <code>a + b</code> = 11 (int), apoi <code>11 + 9.0f</code> = 20 (float).
+  <button class="try" data-decl="int a = 5; char b = 6; float c = 9;" data-expr="a + b + c">▶ pas cu pas</button></p>
+
+  <h3>Caracterele sunt numere mici</h3>
+  <p>Un <code>char</code> memorează <b>codul</b> caracterului (codul ASCII). În calcule, caracterul participă cu codul lui:</p>
+  <div class="tbl-wrap"><table class="ex">
+    <tr><th>Expresie</th><th>Rezultat</th><th>Explicație</th><th></th></tr>
+    <tr><td>0 + 'a'</td><td>97</td><td>codul lui 'a'</td><td><button class="try" data-expr="0 + 'a'">▶</button></td></tr>
+    <tr><td>'a' + 1</td><td>98</td><td>rezultatul este int</td><td><button class="try" data-expr="'a' + 1">▶</button></td></tr>
+    <tr><td>(char)('a' + 1)</td><td>'b'</td><td>conversie înapoi la char</td><td><button class="try" data-expr="(char)('a' + 1)">▶</button></td></tr>
+    <tr><td>c - '0'</td><td>7 pentru c = '7'</td><td>valoarea cifrei-caracter</td><td><button class="try" data-decl="char c = '7';" data-expr="c - '0'">▶</button></td></tr>
+    <tr><td>c - 'a' + 'A'</td><td>'G' pentru c = 'g'</td><td>literă mică → literă mare (ca număr: 71)</td><td><button class="try" data-decl="char c = 'g';" data-expr="(char)(c - 'a' + 'A')">▶</button></td></tr>
+  </table></div>
+  <p>Coduri utile: <code>' '</code> = 32, <code>'0'</code>…<code>'9'</code> = 48…57, <code>'A'</code>…<code>'Z'</code> = 65…90, <code>'a'</code>…<code>'z'</code> = 97…122. Diferența dintre o literă mică și perechea ei mare este 32.</p>
+  <script type="text/x-cpp">
+#include <iostream>
+using namespace std;
+
+int main() {
+    int a = 0;
+    char b = 'a';
+    cout << a + b << '\n';   // 97: b este convertit la int
+    cout << b << '\n';       // a: un char se afișează ca un caracter
+    return 0;
+}
+  </script>
+</div>
+
+<div class="blk" data-level="2">
+  <h3>Regulile complete</h3>
+  <ol>
+    <li><b>Promovarea întregilor.</b> Operanzii de tip <code>bool</code>, <code>char</code>, <code>signed char</code>, <code>unsigned char</code>, <code>short</code>, <code>unsigned short</code> sunt convertiți la <code>int</code> înainte de orice calcul. Calculele nu se fac niciodată „în char”.</li>
+    <li><b>Conversiile aritmetice uzuale.</b> Dacă după promovare tipurile încă diferă:
+      <ul>
+        <li>dacă unul este <code>long double</code>, celălalt devine <code>long double</code>; altfel, dacă unul este <code>double</code>, celălalt devine <code>double</code>; altfel, dacă unul este <code>float</code>, celălalt devine <code>float</code>;</li>
+        <li>altfel ambii sunt întregi: cel de rang mai mic se convertește la cel de rang mai mare (<code>int</code> &lt; <code>long</code> &lt; <code>long long</code>); dacă unul este cu semn și celălalt fără semn, de regulă câștigă tipul <b>fără semn</b> (vezi capcana de mai jos).</li>
+      </ul></li>
+    <li>Conversiile se fac <b>pe rând, la fiecare operator</b>, nu pentru toată expresia deodată: în <code>1 / 2 + 1.0</code> împărțirea <code>1 / 2</code> se face în int (0) și abia apoi rezultatul se convertește la double: 0 + 1.0 = 1.0. <button class="try" data-expr="1 / 2 + 1.0">▶ pas cu pas</button></li>
+  </ol>
+  <h3>Exploratorul conversiilor</h3>
+  <div class="widget" id="conv">
+    <div class="row">
+      <label>Operandul 1 <select id="conv-a"></select></label>
+      <b>+</b>
+      <label>Operandul 2 <select id="conv-b"></select></label>
+    </div>
+    <div id="conv-out" style="margin-top:.7rem"></div>
+    <p style="font-size:.85rem; color:var(--muted); margin:.4rem 0 0">Dimensiunile sunt cele tipice pentru Linux/macOS pe 64 de biți (int: 4 octeți, long: 8 octeți). Pe Windows, <code>long</code> are 4 octeți, iar unele rezultate între <code>long</code> și <code>unsigned int</code> diferă.</p>
+  </div>
+
+  <h3>Conversii la atribuire</h3>
+  <p>La atribuire, valoarea din dreapta se convertește la tipul variabilei din stânga — chiar dacă se pierde informație:</p>
+  <div class="tbl-wrap"><table class="ex">
+    <tr><th>Conversie</th><th>Regulă</th><th>Exemplu</th><th></th></tr>
+    <tr><td>double → int</td><td>partea fracționară se taie (trunchiere, nu rotunjire)</td><td><code>int a = 37.67;</code> → 37; <code>int b = -2.9;</code> → -2</td><td><button class="try" data-decl="int a = 0;" data-expr="a = 37.67">▶</button></td></tr>
+    <tr><td>int → char</td><td>se păstrează codul</td><td><code>char c = 38;</code> → '&amp;'</td><td><button class="try" data-decl="char c = 0;" data-expr="c = 38">▶</button></td></tr>
+    <tr><td>orice → bool</td><td>0 → false, orice altă valoare → true</td><td><code>bool ok = 5;</code> → true</td><td><button class="try" data-decl="bool ok = false;" data-expr="ok = 5">▶</button></td></tr>
+    <tr><td>int → double</td><td>exactă</td><td><code>double d = 7;</code> → 7.0</td><td><button class="try" data-decl="double d = 0;" data-expr="d = 7">▶</button></td></tr>
+  </table></div>
+  <p>Pentru rotunjire corectă se folosesc funcțiile <code>round</code> / <code>lround</code> din <code>&lt;cmath&gt;</code>.</p>
+
+  <h3>Conversia explicită (cast)</h3>
+  <p>Se scrie <code>(tip) expresie</code> (stilul C) sau <code>static_cast&lt;tip&gt;(expresie)</code> (stilul C++, recomandat: este mai vizibil și verificat mai strict de compilator). Conversia explicită are prioritatea operatorilor unari, deci <code>(double)s / n</code> înseamnă <code>((double)s) / n</code>.</p>
+  <script type="text/x-cpp">
+int s = 17, n = 4;
+double m1 = s / n;                        // 4.0  — împărțire întreagă, apoi conversie
+double m2 = (double)s / n;                // 4.25 — s devine double înainte de împărțire
+double m3 = static_cast<double>(s) / n;   // 4.25 — la fel, stil C++
+double m4 = (double)(s / n);              // 4.0  — conversia vine prea târziu
+  </script>
+  <div class="row"><button class="try" data-decl="int s = 17, n = 4; double m = 0;" data-expr="m = s / n">▶ m1</button><button class="try" data-decl="int s = 17, n = 4;" data-expr="(double)s / n">▶ m2</button><button class="try" data-decl="int s = 17, n = 4;" data-expr="static_cast&lt;double&gt;(s) / n">▶ m3</button><button class="try" data-decl="int s = 17, n = 4;" data-expr="(double)(s / n)">▶ m4</button></div>
+</div>
+
+<div class="blk" data-level="3">
+  <h3>Capcana signed / unsigned</h3>
+  <script type="text/x-cpp">
+unsigned int u = 1;
+int i = -1;
+cout << (i < u);   // 0 (!) — i este convertit la unsigned: 4294967295 < 1 este fals
+cout << u - 2;     // 4294967295, nu -1
+  </script>
+  <p>Compilatorul avertizează (<code>-Wsign-compare</code>); tratează avertismentul ca pe o eroare. Capcana apare des cu <code>v.size()</code>, care are un tip fără semn: pentru un vector gol, <code>v.size() - 1</code> este un număr uriaș.</p>
+  <h3>Alte detalii</h3>
+  <ul>
+    <li>Conversia unui real care nu încape în tipul întreg destinație (de exemplu <code>(int)1e10</code>) are comportament nedefinit. <button class="try" data-expr="(int)1e10">▶</button></li>
+    <li>Dacă <code>char</code> simplu are sau nu semn depinde de platformă (cu semn pe x86, fără semn pe multe procesoare ARM). Pentru valori numerice mici, folosește explicit <code>signed char</code> / <code>unsigned char</code>.</li>
+    <li>Inițializarea cu acolade (C++11) interzice conversiile cu pierdere de informație: <code>int x = 3.7;</code> se compilează (x = 3), dar <code>int x{3.7};</code> este eroare.</li>
+  </ul>
+</div>
+</section>
+
+<section id="c5">
+<h2>5. Operatori relaționali și de egalitate</h2>
+<div class="blk" data-level="1">
+  <div class="tbl-wrap"><table>
+    <tr><th>Operatori</th><th>Semnificație</th><th>Prioritate</th><th>Asociativitate</th></tr>
+    <tr><td><code>&lt;</code> <code>&gt;</code> <code>&lt;=</code> <code>&gt;=</code></td><td>relaționali: mai mic, mai mare, mai mic sau egal, mai mare sau egal</td><td>mai mare</td><td>stânga → dreapta</td></tr>
+    <tr><td><code>==</code> <code>!=</code></td><td>egalitate: egal, diferit</td><td>mai mică</td><td>stânga → dreapta</td></tr>
+  </table></div>
+  <p>Rezultatul unei comparații este o valoare de adevăr: în <b>C</b> un <code>int</code> egal cu 1 (adevărat) sau 0 (fals); în <b>C++</b> o valoare de tip <code>bool</code> (<code>true</code> / <code>false</code>), care devine automat 1 / 0 când participă la calcule. <code>cout</code> afișează implicit 1 / 0; după <code>cout &lt;&lt; boolalpha;</code> afișează <code>true</code> / <code>false</code>. Operanzii pot fi constante, variabile sau apeluri de funcții.</p>
+  <div class="tbl-wrap"><table class="ex">
+    <tr><th>Expresie</th><th>Rezultat</th><th>Observație</th><th></th></tr>
+    <tr><td>3 &gt; 5</td><td>0</td><td></td><td><button class="try" data-expr="3 &gt; 5">▶</button></td></tr>
+    <tr><td>3 &lt; 5</td><td>1</td><td></td><td><button class="try" data-expr="3 &lt; 5">▶</button></td></tr>
+    <tr><td>7 == 7.0</td><td>1</td><td>7 este convertit la double</td><td><button class="try" data-expr="7 == 7.0">▶</button></td></tr>
+    <tr><td>'a' &lt; 'b'</td><td>1</td><td>se compară codurile (97 &lt; 98)</td><td><button class="try" data-expr="'a' &lt; 'b'">▶</button></td></tr>
+  </table></div>
+  <p>Fiind 0 sau 1, rezultatele comparațiilor pot apărea în calcule aritmetice:</p>
+  <div class="tbl-wrap"><table class="ex">
+    <tr><th>Expresie</th><th>Calcul</th><th>Valoarea lui a</th><th></th></tr>
+    <tr><td>a = ((1 &lt; 2) + (3 != 5)) * 2</td><td>(1 + 1) * 2</td><td>4</td><td><button class="try" data-decl="int a = 0;" data-expr="a = ((1 &lt; 2) + (3 != 5)) * 2">▶</button></td></tr>
+    <tr><td>a = (2 &lt; 3) == (2 != 8)</td><td>1 == 1</td><td>1</td><td><button class="try" data-decl="int a = 0;" data-expr="a = (2 &lt; 3) == (2 != 8)">▶</button></td></tr>
+    <tr><td>a = 5 == 6</td><td>== are prioritate mai mare decât =</td><td>0</td><td><button class="try" data-decl="int a = 0;" data-expr="a = 5 == 6">▶</button></td></tr>
+    <tr><td>poz += (x &gt; 0)</td><td>numără valorile pozitive</td><td>—</td><td><button class="try" data-decl="int poz = 2, x = 8;" data-expr="poz += (x &gt; 0)">▶</button></td></tr>
+  </table></div>
+  <div class="warn"><b>Capcană: <code>=</code> în loc de <code>==</code></b>
+  <code>if (x = 5)</code> nu compară: îi atribuie lui x valoarea 5, iar condiția are valoarea 5, deci este mereu adevărată. Corect: <code>if (x == 5)</code>. Compilează cu <code>-Wall</code>: g++ avertizează („suggest parentheses around assignment used as truth value”).</div>
+</div>
+
+<div class="blk" data-level="2">
+  <h3>Comparațiile înlănțuite nu funcționează ca în matematică</h3>
+  <p>În matematică 1 &lt; x &lt; 3 înseamnă „x este între 1 și 3”. În C/C++, <code>1 &lt; x &lt; 3</code> se grupează <code>(1 &lt; x) &lt; 3</code>: paranteza dă 0 sau 1, ambele mai mici decât 3, deci expresia este <b>mereu adevărată</b>. Forma corectă: <code>1 &lt; x &amp;&amp; x &lt; 3</code>. Din același motiv, <code>3 &gt; 2 &gt; 1</code> este fals: <code>(3 &gt; 2)</code> este 1, iar <code>1 &gt; 1</code> este fals.</p>
+  <div class="row"><button class="try" data-decl="int x = 10;" data-expr="1 &lt; x &lt; 3">▶ 1 &lt; x &lt; 3 cu x = 10</button><button class="try" data-decl="int x = 10;" data-expr="1 &lt; x &amp;&amp; x &lt; 3">▶ forma corectă</button><button class="try" data-expr="3 &gt; 2 &gt; 1">▶ 3 &gt; 2 &gt; 1</button></div>
+</div>
+
+<div class="blk" data-level="3">
+  <h3>Compararea numerelor reale</h3>
+  <script type="text/x-cpp">
+double d = 0.1 + 0.2;
+if (d == 0.3) ...                  // fals! d este 0.30000000000000004
+if (fabs(d - 0.3) < 1e-9) ...      // corect: comparare cu toleranță (fabs din <cmath>)
+  </script>
+  <p>Pentru valori de ordine de mărime diferite se folosește o toleranță relativă: <code>fabs(a - b) &lt;= 1e-9 * fmax(fabs(a), fabs(b))</code>. Valoarea specială <code>nan</code> nu este egală nici cu ea însăși: <code>x != x</code> este adevărat doar dacă x este nan.</p>
+  <button class="try" data-expr="0.1 + 0.2 == 0.3">▶ 0.1 + 0.2 == 0.3</button>
+  <p>C++20 a introdus și operatorul de comparație în trei sensuri <code>a &lt;=&gt; b</code> („nava spațială”), care spune dintr-o singură operație dacă a este mai mic, egal sau mai mare decât b; este folosit mai ales la definirea comparațiilor pentru tipurile proprii.</p>
+</div>
+</section>
+
+<section id="c6">
+<h2>6. Operatori logici</h2>
+<div class="blk" data-level="1">
+  <p>Operatorii logici combină condiții. Orice valoare <b>nenulă</b> este considerată <b>adevărată</b>, iar <b>0</b> este <b>fals</b>; rezultatul este întotdeauna 1 (true) sau 0 (false).</p>
+  <div class="tbl-wrap"><table>
+    <tr><th>Operator</th><th>Nume</th><th>Rezultatul este 1 (adevărat) dacă…</th></tr>
+    <tr><td><code>!</code></td><td>negație logică (unar)</td><td>operandul este 0</td></tr>
+    <tr><td><code>&amp;&amp;</code></td><td>ȘI logic</td><td>ambii operanzi sunt nenuli</td></tr>
+    <tr><td><code>||</code></td><td>SAU logic</td><td>cel puțin un operand este nenul</td></tr>
+  </table></div>
+  <table class="tt"><tr><th>p</th><th>!p</th></tr><tr><td>0</td><td>1</td></tr><tr><td>1</td><td>0</td></tr></table>
+  <table class="tt"><tr><th>p</th><th>q</th><th>p &amp;&amp; q</th><th>p || q</th></tr><tr><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr><td>0</td><td>1</td><td>0</td><td>1</td></tr><tr><td>1</td><td>0</td><td>0</td><td>1</td></tr><tr><td>1</td><td>1</td><td>1</td><td>1</td></tr></table>
+  <p>Prioritățile: <code>!</code> (unar) &gt; aritmetici &gt; relaționali &gt; egalitate &gt; <code>&amp;&amp;</code> &gt; <code>||</code>. Așadar <code>a || b &amp;&amp; c</code> înseamnă <code>a || (b &amp;&amp; c)</code>; pune totuși paranteze, pentru cititor.</p>
+  <div class="tbl-wrap"><table class="ex">
+    <tr><th>Expresie</th><th>Rezultat</th><th>Motiv</th><th></th></tr>
+    <tr><td>(2 + 3 * 3) &amp;&amp; (!0)</td><td>1</td><td>ambii operanzi sunt nenuli (11 și 1)</td><td><button class="try" data-expr="(2 + 3 * 3) &amp;&amp; (!0)">▶</button></td></tr>
+    <tr><td>(2 - 2) || (0)</td><td>0</td><td>niciun operand nu este nenul</td><td><button class="try" data-expr="(2 - 2) || (0)">▶</button></td></tr>
+    <tr><td>!(1 + 3 * 3)</td><td>0</td><td>operandul (10) este nenul</td><td><button class="try" data-expr="!(1 + 3 * 3)">▶</button></td></tr>
+    <tr><td>!!3</td><td>1</td><td>!3 = 0, !0 = 1</td><td><button class="try" data-expr="!!3">▶</button></td></tr>
+    <tr><td>!(3 &gt; 4)</td><td>1</td><td>3 &gt; 4 este 0</td><td><button class="try" data-expr="!(3 &gt; 4)">▶</button></td></tr>
+    <tr><td>!(3 &lt; 4) + (3 &amp;&amp; 4) * (!0) + (3 || 4)</td><td>2</td><td>0 + 1 * 1 + 1</td><td><button class="try" data-expr="!(3 &lt; 4) + (3 &amp;&amp; 4) * (!0) + (3 || 4)">▶</button></td></tr>
+  </table></div>
+  <h3>Condiții tipice</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>În cuvinte</th><th>În C/C++</th></tr>
+    <tr><td>x aparține intervalului [a, b]</td><td><code>x &gt;= a &amp;&amp; x &lt;= b</code></td></tr>
+    <tr><td>x nu aparține intervalului [a, b]</td><td><code>x &lt; a || x &gt; b</code></td></tr>
+    <tr><td>n este par și pozitiv</td><td><code>n % 2 == 0 &amp;&amp; n &gt; 0</code></td></tr>
+    <tr><td>c este cifră</td><td><code>c &gt;= '0' &amp;&amp; c &lt;= '9'</code></td></tr>
+    <tr><td>c este literă</td><td><code>(c &gt;= 'a' &amp;&amp; c &lt;= 'z') || (c &gt;= 'A' &amp;&amp; c &lt;= 'Z')</code></td></tr>
+    <tr><td>anul este bisect</td><td><code>(an % 4 == 0 &amp;&amp; an % 100 != 0) || an % 400 == 0</code></td></tr>
+    <tr><td>exact una dintre condițiile p, q este adevărată</td><td><code>(p || q) &amp;&amp; !(p &amp;&amp; q)</code></td></tr>
+  </table></div>
+</div>
+
+<div class="blk" data-level="2">
+  <h3>Evaluarea prin scurtcircuitare</h3>
+  <p>Operanzii lui <code>&amp;&amp;</code> și <code>||</code> se evaluează de la stânga la dreapta, iar evaluarea se oprește imediat ce rezultatul este cunoscut:</p>
+  <ul>
+    <li><code>A &amp;&amp; B</code>: dacă A este fals, rezultatul este fals și <b>B nu se mai evaluează</b>;</li>
+    <li><code>A || B</code>: dacă A este adevărat, rezultatul este adevărat și <b>B nu se mai evaluează</b>.</li>
+  </ul>
+  <p>Regula se folosește intenționat pentru „gărzi”: condiția din stânga protejează operația periculoasă din dreapta.</p>
+  <script type="text/x-cpp">
+if (x != 0 && 10 / x > 2) ...       // nu se împarte niciodată la 0
+if (i < n && v[i] > 0) ...          // nu se citește în afara tabloului
+if (p != nullptr && p->activ) ...   // nu se folosește un pointer nul
+  </script>
+  <div class="row"><button class="try" data-decl="int x = 0;" data-expr="x != 0 &amp;&amp; 10 / x &gt; 2">▶ cu gardă (x = 0)</button><button class="try" data-decl="int x = 0;" data-expr="10 / x &gt; 2 &amp;&amp; x != 0">▶ ordinea inversă (x = 0)</button></div>
+
+  <h3>Legile lui De Morgan</h3>
+  <p><code>!(p &amp;&amp; q)</code> ≡ <code>!p || !q</code> &nbsp;&nbsp;și&nbsp;&nbsp; <code>!(p || q)</code> ≡ <code>!p &amp;&amp; !q</code>. Exemplu: negația lui „x este în [a, b]” este <code>!(x &gt;= a &amp;&amp; x &lt;= b)</code> ≡ <code>x &lt; a || x &gt; b</code>. Poți verifica orice astfel de echivalență cu <a href="#s4">verificatorul de echivalență</a> din seminar.</p>
+</div>
+
+<div class="blk" data-level="3">
+  <h3>Echivalențe și diferențe subtile</h3>
+  <ul>
+    <li><code>if (n)</code> ≡ <code>if (n != 0)</code>; <code>if (!n)</code> ≡ <code>if (n == 0)</code>; <code>if (n - 10)</code> ≡ <code>if (n != 10)</code>; <code>!!x</code> transformă orice valoare în 0 sau 1.</li>
+    <li><b>Logic sau pe biți?</b> <code>1 &amp;&amp; 2</code> este 1, dar <code>1 &amp; 2</code> este 0 (01 ȘI 10 = 00). În plus, <code>&amp;</code> și <code>|</code> nu fac scurtcircuitare și nu garantează ordinea operanzilor. <button class="try" data-expr="1 &amp;&amp; 2">▶ 1 &amp;&amp; 2</button> <button class="try" data-expr="1 &amp; 2">▶ 1 &amp; 2</button></li>
+    <li><b>Tautologii și contradicții</b>: <code>(a &gt; 0) || (a &lt;= 0)</code> este mereu adevărată; <code>(a &gt; 0) &amp;&amp; (a &lt;= 0)</code> mereu falsă; <code>x % 10 &gt; 9</code> mereu falsă (restul la 10 este între -9 și 9).</li>
+    <li><b>Efecte secundare ascunse</b>: în <code>if (gasit || ++contor &gt; 3)</code>, <code>contor</code> crește <b>doar</b> când <code>gasit</code> este fals — sursă frecventă de erori greu de găsit.</li>
+  </ul>
+</div>
+</section>
+
+<section id="c7">
+<h2>7. Operatori pe biți</h2>
+<div class="blk" data-level="1">
+  <p>În memorie, un întreg este un șir de biți. Pe 8 biți: 7 = <code>00000111</code> (4 + 2 + 1), 3 = <code>00000011</code>, 8 = <code>00001000</code>, 64 = <code>01000000</code>. Operatorii pe biți lucrează pe fiecare poziție de bit în parte și se aplică <b>numai operanzilor întregi</b>.</p>
+  <div class="tbl-wrap"><table>
+    <tr><th>Operator</th><th>Nume</th><th>Aritate</th></tr>
+    <tr><td><code>~</code></td><td>negare (complementare) pe biți: 0 ↔ 1</td><td>unar</td></tr>
+    <tr><td><code>&amp;</code></td><td>ȘI pe biți: 1 doar dacă ambii biți sunt 1</td><td>binar</td></tr>
+    <tr><td><code>|</code></td><td>SAU pe biți: 1 dacă cel puțin un bit este 1</td><td>binar</td></tr>
+    <tr><td><code>^</code></td><td>SAU exclusiv (XOR): 1 dacă biții sunt diferiți</td><td>binar</td></tr>
+    <tr><td><code>&lt;&lt;</code></td><td>deplasare la stânga</td><td>binar</td></tr>
+    <tr><td><code>&gt;&gt;</code></td><td>deplasare la dreapta</td><td>binar</td></tr>
+  </table></div>
+  <table class="tt"><tr><th>a</th><th>b</th><th>a &amp; b</th><th>a | b</th><th>a ^ b</th></tr><tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr><td>0</td><td>1</td><td>0</td><td>1</td><td>1</td></tr><tr><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td></tr><tr><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td></tr></table>
+  <table class="tt"><tr><th>a</th><th>~a</th></tr><tr><td>0</td><td>1</td></tr><tr><td>1</td><td>0</td></tr></table>
+  <script type="text/x-cpp">
+// 7 & 3 = 3       7 | 3 = 7       7 ^ 3 = 4
+//   00000111        00000111        00000111
+// & 00000011      | 00000011      ^ 00000011
+//   --------        --------        --------
+//   00000011        00000111        00000100
+
+// 8 << 3 = 64     00001000  →  01000000   (3 poziții la stânga, completare cu 0)
+// 7 >> 2 = 1      00000111  →  00000001   (2 poziții la dreapta)
+  </script>
+  <p><code>a &lt;&lt; n</code> mută biții lui a cu n poziții spre stânga, completând cu 0 în dreapta — echivalent cu a · 2<sup>n</sup>, cât timp rezultatul încape în tip. <code>a &gt;&gt; n</code> mută biții spre dreapta — echivalent cu împărțirea întreagă a / 2<sup>n</sup>, pentru a ≥ 0.</p>
+  <h3>Laboratorul de biți</h3>
+  <p>Modifică valorile sau dă clic pe biți, apoi alege operația.</p>
+  <div class="widget" id="bitlab">
+    <div class="row" style="margin-bottom:.6rem">
+      <label>A = <input type="number" id="blA" min="0" max="255" value="7" style="width:5.5rem"></label>
+      <label>B = <input type="number" id="blB" min="0" max="255" value="3" style="width:5.5rem"></label>
+      <label>n = <input type="number" id="blN" min="0" max="7" value="2" style="width:4.5rem"></label>
+    </div>
+    <div class="row opbtns" id="blOps" style="margin-bottom:.7rem">
+      <button class="btn on" data-op="&amp;">A &amp; B</button><button class="btn" data-op="|">A | B</button><button class="btn" data-op="^">A ^ B</button><button class="btn" data-op="~">~A</button><button class="btn" data-op="&lt;&lt;">A &lt;&lt; n</button><button class="btn" data-op="&gt;&gt;">A &gt;&gt; n</button>
+    </div>
+    <div id="blGrid"></div>
+    <p id="blNote" style="font-size:.92rem; margin:.6rem 0 0"></p>
+  </div>
+</div>
+
+<div class="blk" data-level="2">
+  <h3>Negarea pe biți a unui int</h3>
+  <p>Un <code>int</code> are 32 de biți, iar numerele negative se reprezintă în <b>complement față de 2</b>. De aceea <code>~7</code> nu este 248, ci <b>-8</b>: toți cei 32 de biți se inversează. În general, <code>~x == -x - 1</code>. <button class="try" data-expr="~7">▶ ~7</button> <button class="try" data-expr="~0">▶ ~0</button></p>
+  <h3>Măști de biți — rețete</h3>
+  <div class="tbl-wrap"><table class="ex">
+    <tr><th>Operație</th><th>Expresie</th><th>n = 40 (00101000)</th><th></th></tr>
+    <tr><td>testează bitul k</td><td>(n &gt;&gt; k) &amp; 1</td><td>k = 3 → 1</td><td><button class="try" data-decl="int n = 40, k = 3;" data-expr="(n &gt;&gt; k) &amp; 1">▶</button></td></tr>
+    <tr><td>setează bitul k (pune 1)</td><td>n |= 1 &lt;&lt; k</td><td>k = 0 → 41</td><td><button class="try" data-decl="int n = 40, k = 0;" data-expr="n |= 1 &lt;&lt; k">▶</button></td></tr>
+    <tr><td>șterge bitul k (pune 0)</td><td>n &amp;= ~(1 &lt;&lt; k)</td><td>k = 3 → 32</td><td><button class="try" data-decl="int n = 40, k = 3;" data-expr="n &amp;= ~(1 &lt;&lt; k)">▶</button></td></tr>
+    <tr><td>comută bitul k</td><td>n ^= 1 &lt;&lt; k</td><td>k = 1 → 42</td><td><button class="try" data-decl="int n = 40, k = 1;" data-expr="n ^= 1 &lt;&lt; k">▶</button></td></tr>
+    <tr><td>paritate</td><td>n &amp; 1</td><td>0 → par</td><td><button class="try" data-decl="int n = 40;" data-expr="n &amp; 1">▶</button></td></tr>
+    <tr><td>ultimii k biți</td><td>n &amp; ((1 &lt;&lt; k) - 1)</td><td>k = 4 → 8</td><td><button class="try" data-decl="int n = 40, k = 4;" data-expr="n &amp; ((1 &lt;&lt; k) - 1)">▶</button></td></tr>
+    <tr><td>· 2<sup>k</sup>, / 2<sup>k</sup></td><td>n &lt;&lt; k, n &gt;&gt; k</td><td>40 &lt;&lt; 1 = 80, 40 &gt;&gt; 3 = 5</td><td><button class="try" data-decl="int n = 40;" data-expr="n &gt;&gt; 3">▶</button></td></tr>
+  </table></div>
+  <p>Exemplu clasic — drepturi de acces memorate ca <b>indicatori pe biți</b> (<i>flags</i>):</p>
+  <script type="text/x-cpp">
+const int CITIRE = 1, SCRIERE = 2, EXECUTIE = 4;   // 001, 010, 100
+int drepturi = CITIRE | EXECUTIE;                  // 101 = 5
+if (drepturi & SCRIERE) ...                         // fals: bitul 1 este 0
+drepturi |= SCRIERE;                                // 111 = 7
+drepturi &= ~EXECUTIE;                              // 011 = 3
+  </script>
+</div>
+
+<div class="blk" data-level="3">
+  <h3>Capcane de prioritate</h3>
+  <ul>
+    <li><code>&amp;</code>, <code>^</code>, <code>|</code> au prioritate <b>mai mică</b> decât <code>==</code>: <code>x &amp; 1 == 0</code> înseamnă <code>x &amp; (1 == 0)</code> = <code>x &amp; 0</code> = 0, pentru orice x! Corect: <code>(x &amp; 1) == 0</code>. <button class="try" data-decl="int x = 4;" data-expr="x &amp; 1 == 0">▶ greșit</button> <button class="try" data-decl="int x = 4;" data-expr="(x &amp; 1) == 0">▶ corect</button></li>
+    <li>Aditivii au prioritate mai mare decât deplasările: <code>1 &lt;&lt; n - 1</code> înseamnă <code>1 &lt;&lt; (n - 1)</code>, iar <code>a + b &gt;&gt; 1</code> înseamnă <code>(a + b) &gt;&gt; 1</code>.</li>
+  </ul>
+  <h3>Comportament nedefinit și dependent de implementare</h3>
+  <ul>
+    <li>deplasarea cu un număr negativ de poziții sau cu cel puțin numărul de biți ai tipului (pentru int: ≥ 32) — <b>nedefinit</b>; <code>1 &lt;&lt; 31</code> depășește domeniul lui int — folosește <code>1u &lt;&lt; 31</code> sau <code>1LL &lt;&lt; 40</code>;</li>
+    <li>deplasarea la stânga a unui număr negativ — nedefinită în C și în C++ înainte de C++20;</li>
+    <li>deplasarea la dreapta a unui număr negativ — dependentă de implementare (de obicei se copiază bitul de semn): <code>-7 &gt;&gt; 1</code> este -4, în timp ce <code>-7 / 2</code> este -3. <button class="try" data-expr="-7 &gt;&gt; 1">▶</button></li>
+  </ul>
+  <div class="tip"><b>Recomandare</b>Pentru manipularea biților folosește tipuri fără semn (<code>unsigned</code>): toate operațiile sunt complet definite.</div>
+  <h3>Trucuri cunoscute</h3>
+  <ul>
+    <li><code>n &gt; 0 &amp;&amp; (n &amp; (n - 1)) == 0</code> — n este putere a lui 2 (o putere a lui 2 are un singur bit 1); <code>n &amp; (n - 1)</code> șterge bitul 1 cel mai din dreapta. <button class="try" data-decl="int n = 64;" data-expr="n &gt; 0 &amp;&amp; (n &amp; (n - 1)) == 0">▶</button></li>
+    <li><code>n &amp; -n</code> izolează bitul 1 cel mai din dreapta: pentru 40 (101000) dă 8 (1000). <button class="try" data-decl="int n = 40;" data-expr="n &amp; -n">▶</button></li>
+    <li><code>x ^ x == 0</code> și <code>x ^ 0 == x</code>; de aici interschimbarea fără variabilă auxiliară <code>a ^= b; b ^= a; a ^= b;</code> — o curiozitate: nu este mai rapidă decât varianta clasică și eșuează dacă a și b sunt aceeași variabilă.</li>
+  </ul>
+</div>
+</section>
+
+<section id="c8">
+<h2>8. Operatori de atribuire</h2>
+<div class="blk" data-level="1">
+  <p><b>Atribuirea simplă</b> <code>v = expresie</code>: se evaluează expresia din dreapta, valoarea se convertește la tipul lui v și se memorează în v. Operandul stâng trebuie să fie un lvalue (de regulă, o variabilă).</p>
+  <p>Atribuirea este ea însăși o expresie, a cărei valoare este valoarea atribuită. De aceea atribuirile se pot înlănțui; asociativitatea este <b>dreapta → stânga</b>:</p>
+  <div class="chain">v1 = v2 = … = vn = expresie &nbsp;⇔&nbsp; vn = expresie; vn-1 = vn; … ; v1 = v2;</div>
+  <script type="text/x-cpp">
+int a, b; char c; double f;
+a = c = b = (11 + 8) * 2;   // b = 38, c = 38 (caracterul '&'), a = 38
+c = a = f = 37.67;          // f = 37.67, a = 37 (trunchiere), c = 37 (caracterul '%')
+c = 'f';                    // c = 'f' (codul 102)
+  </script>
+  <div class="row"><button class="try" data-decl="int a = 0, b = 0; char c = 0; double f = 0;" data-expr="a = c = b = (11 + 8) * 2">▶ prima atribuire</button><button class="try" data-decl="int a = 0, b = 0; char c = 0; double f = 0;" data-expr="c = a = f = 37.67">▶ a doua atribuire</button></div>
+  <h3>Atribuirea compusă</h3>
+  <p>Operatorii <code>+=</code> <code>-=</code> <code>*=</code> <code>/=</code> <code>%=</code> <code>&amp;=</code> <code>|=</code> <code>^=</code> <code>&lt;&lt;=</code> <code>&gt;&gt;=</code> scurtează scrierea: <b><code>v op= e</code> este echivalent cu <code>v = v op (e)</code></b>.</p>
+  <div class="tbl-wrap"><table class="ex">
+    <tr><th>Scriere scurtă</th><th>Echivalent</th><th>Exemplu (a = 7)</th><th></th></tr>
+    <tr><td>a += 3</td><td>a = a + 3</td><td>10</td><td><button class="try" data-decl="int a = 7;" data-expr="a += 3">▶</button></td></tr>
+    <tr><td>a *= 2</td><td>a = a * 2</td><td>14</td><td><button class="try" data-decl="int a = 7;" data-expr="a *= 2">▶</button></td></tr>
+    <tr><td>a %= 4</td><td>a = a % 4</td><td>3</td><td><button class="try" data-decl="int a = 7;" data-expr="a %= 4">▶</button></td></tr>
+    <tr><td>a /= 10</td><td>a = a / 10 (elimină ultima cifră)</td><td>0</td><td><button class="try" data-decl="int a = 7;" data-expr="a /= 10">▶</button></td></tr>
+    <tr><td>a &lt;&lt;= 1</td><td>a = a &lt;&lt; 1 (dublare)</td><td>14</td><td><button class="try" data-decl="int a = 7;" data-expr="a &lt;&lt;= 1">▶</button></td></tr>
+  </table></div>
+  <div class="warn"><b>Atenție la parantezele implicite</b><code>a *= b + 1</code> înseamnă <code>a = a * (b + 1)</code>, <b>nu</b> <code>a = a * b + 1</code>. Pentru a = 5, b = 2 rezultatul este 15, nu 11. <button class="try" data-decl="int a = 5, b = 2;" data-expr="a *= b + 1">▶ pas cu pas</button></div>
+</div>
+
+<div class="blk" data-level="2">
+  <h3>Conversii ascunse în atribuirea compusă</h3>
+  <p>Operația se face în tipul comun, iar rezultatul se convertește înapoi la tipul variabilei: pentru <code>int x = 5; x *= 1.5;</code> se calculează 7.5, iar x devine 7. Pentru <code>char c = 'a'; c += 2;</code>, c devine <code>'c'</code>.</p>
+  <div class="row"><button class="try" data-decl="int x = 5;" data-expr="x *= 1.5">▶ x *= 1.5</button><button class="try" data-decl="char c = 'a';" data-expr="c += 2">▶ c += 2</button></div>
+  <h3>Atribuirea în interiorul unei condiții</h3>
+  <p>Idiomul <code>while ((c = getchar()) != EOF)</code> citește un caracter, îl memorează și apoi îl compară. Parantezele interioare sunt obligatorii: <code>!=</code> are prioritate mai mare decât <code>=</code>, iar fără ele c ar primi rezultatul comparației (0 sau 1).</p>
+</div>
+
+<div class="blk" data-level="3">
+  <h3>Evaluarea unică a operandului stâng</h3>
+  <p>În <code>v[f()] += 1</code> funcția f se apelează o singură dată; în <code>v[f()] = v[f()] + 1</code> se apelează de două ori, posibil cu rezultate diferite. Atribuirea compusă nu este doar o prescurtare de scriere.</p>
+</div>
+</section>
+
+<section id="c9">
+<h2>9. Alți operatori — privire de ansamblu</h2>
+<div class="blk" data-level="1">
+  <h3>Incrementare și decrementare: <code>++</code>, <code>--</code></h3>
+  <script type="text/x-cpp">
+int x = 5, y;
+y = ++x;   // prefixat: întâi crește x (6), apoi îl folosește → y = 6, x = 6
+y = x++;   // postfixat: întâi îl folosește (6), apoi crește x → y = 6, x = 7
+x--;       // ca instrucțiune de sine stătătoare, x-- și --x au același efect
+  </script>
+  <div class="row"><button class="try" data-decl="int x = 5, y = 0;" data-expr="y = ++x">▶ y = ++x</button><button class="try" data-decl="int x = 5, y = 0;" data-expr="y = x++">▶ y = x++</button></div>
+  <h3>Operatorul condițional <code>?:</code></h3>
+  <p><code>conditie ? expr1 : expr2</code> — dacă condiția este adevărată, valoarea este expr1, altfel expr2; se evaluează doar una dintre ele.</p>
+  <script type="text/x-cpp">
+int maxim = a > b ? a : b;
+cout << (n % 2 == 0 ? "par" : "impar");
+  </script>
+  <button class="try" data-decl="int a = 4, b = 9;" data-expr="a &gt; b ? a : b">▶ maximul</button>
+</div>
+
+<div class="blk" data-level="2">
+  <h3>Operatorul virgulă</h3>
+  <p><code>e1, e2</code> evaluează e1, îi ignoră valoarea, apoi evaluează e2; valoarea întregii expresii este cea a lui e2. Are cea mai mică prioritate dintre toți operatorii. Se folosește mai ales în <code>for</code>: <code>for (i = 0, j = n - 1; i &lt; j; i++, j--)</code>. Virgulele din lista de argumente <code>f(a, b)</code> sau dintr-o declarație <code>int a, b;</code> sunt simpli separatori, nu acest operator.</p>
+  <div class="row"><button class="try" data-decl="int a = 0, x = 0;" data-expr="x = (a = 2, a + 3)">▶ x = (a = 2, a + 3)</button><button class="try" data-decl="int a = 0, x = 0;" data-expr="x = a = 2, a + 3">▶ fără paranteze</button></div>
+  <h3>Operatorul <code>sizeof</code></h3>
+  <p>Dă dimensiunea în octeți a unui tip sau a unei expresii: <code>sizeof(char)</code> este întotdeauna 1, <code>sizeof(int)</code> este de obicei 4, <code>sizeof(double)</code> 8. Rezultatul are tipul <code>size_t</code> (fără semn). Pentru expresii parantezele nu sunt obligatorii: <code>sizeof x</code>.</p>
+  <h3>Adresă și indirectare: <code>&amp;</code>, <code>*</code></h3>
+  <p><code>&amp;x</code> este adresa variabilei x în memorie, iar <code>*p</code> este valoarea aflată la adresa p. Acești operatori unari stau la baza lucrului cu pointeri.</p>
+</div>
+
+<div class="blk" data-level="3">
+  <ul>
+    <li><b><code>sizeof</code> nu evaluează operandul</b>: după <code>int i = 1; sizeof(i++);</code> variabila i rămâne 1 — compilatorul are nevoie doar de tipul expresiei. <button class="try" data-decl="int i = 1;" data-expr="sizeof(i++) + i">▶ sizeof(i++) + i</button></li>
+    <li><b>Tipul rezultatului lui <code>?:</code></b> este tipul comun al celor două ramuri: <code>cout &lt;&lt; (true ? 'A' : 66);</code> afișează <b>65</b>, nu A, pentru că tipul comun al lui char și int este int. <button class="try" data-expr="true ? 'A' : 66">▶</button></li>
+  </ul>
+</div>
+</section>
+
+<section id="c10" data-level="3">
+<h2>10. Efecte secundare și comportament nedefinit</h2>
+<div class="blk" data-level="3">
+  <p>Un <b>efect secundar</b> este o modificare a stării programului produsă de evaluarea unei expresii: o atribuire, <code>++</code>/<code>--</code>, o afișare, apelul unei funcții care modifică ceva. Standardul garantează ordinea efectelor secundare doar în anumite puncte („puncte de secvență” în C, relația <i>sequenced-before</i> în C++):</p>
+  <ul>
+    <li>la sfârșitul fiecărei expresii complete (la <code>;</code>);</li>
+    <li>după operandul stâng al lui <code>&amp;&amp;</code>, <code>||</code>, <code>,</code> și după condiția lui <code>?:</code>;</li>
+    <li>înainte de intrarea în corpul unei funcții (toate argumentele sunt deja evaluate).</li>
+  </ul>
+  <div class="ub"><b>Regula de aur</b>Între două astfel de puncte nu modifica aceeași variabilă de două ori și nu o citi în altă parte a expresiei în care o modifici. Altfel programul are <b>comportament nedefinit</b> (<i>undefined behavior</i>, UB): compilatorul poate produce orice rezultat, iar compilatoare diferite — sau același compilator cu alte opțiuni de optimizare — dau rezultate diferite.</div>
+  <script type="text/x-cpp">
+int i = 3, v[10];
+i = i++ + 1;          // UB în C și în C++ înainte de C++17 — evitați
+int r = i++ + i++;    // UB și în C, și în C++
+v[i] = i++;           // UB în C (definit abia din C++17) — evitați
+f(i++, i++);          // ordinea argumentelor nu este specificată → rezultat imprevizibil
+
+// Corect: câte o modificare pe instrucțiune
+i++;
+r = 2 * i + 1;
+  </script>
+  <div class="row"><button class="try" data-decl="int i = 3;" data-expr="i = i++ + 1">▶ i = i++ + 1</button><button class="try" data-decl="int i = 3;" data-expr="i++ + i++">▶ i++ + i++</button><button class="try" data-decl="int i = 3;" data-expr="i++ + i">▶ i++ + i</button></div>
+  <h3>Lista comportamentelor nedefinite întâlnite în această lecție</h3>
+  <ul>
+    <li>depășirea domeniului la tipurile întregi cu semn (<code>INT_MAX + 1</code>);</li>
+    <li>împărțirea sau restul întreg cu 0;</li>
+    <li>deplasarea cu un număr negativ de poziții sau cu cel puțin lățimea tipului; deplasarea la stânga a unui număr negativ (C, C++ înainte de C++20);</li>
+    <li>conversia unui real într-un întreg care nu îl poate reprezenta;</li>
+    <li>modificări nesecvențiate ale aceleiași variabile;</li>
+    <li>folosirea valorii unei variabile locale neinițializate.</li>
+  </ul>
+  <div class="tip"><b>Instrumente</b><code>g++ -Wall -Wextra</code> semnalează multe dintre aceste situații la compilare (de exemplu „operation on 'i' may be undefined”), iar <code>g++ -fsanitize=undefined</code> le detectează în timpul execuției (depășiri, deplasări invalide, împărțiri la zero).</div>
+</div>
+</section>
+
+<!-- ======================= SEMINAR ======================= -->
+<h2 class="part" id="seminar">Partea a II-a — Seminar</h2>
+
+<section id="s1">
+<h2>S1. Evaluare manuală, pas cu pas</h2>
+<p>Pentru fiecare expresie: (1) stabilește ordinea în care se aplică operatorii; (2) calculează pe hârtie valoarea, cu toate rezultatele intermediare; (3) scrie răspunsul și verifică-l. Abia apoi deschide rezolvarea pas cu pas. Toate variabilele și constantele sunt de tip <code>int</code>, dacă nu se precizează altfel; răspunsul cerut este ceea ce ar afișa <code>cout &lt;&lt; (expresie)</code>.</p>
+<div id="manual"></div>
+</section>
+
+<section id="s2">
+<h2>S2. Grilă — exerciții tipice</h2>
+<p>Alege răspunsul; explicația apare imediat. Scorul se calculează doar pentru întrebările vizibile pe traseul ales.</p>
+<div id="quiz-sem"></div>
+</section>
+
+<section id="s3">
+<h2>S3. Scrie tu expresia</h2>
+<p>Scrie în sintaxă C/C++ o expresie care este adevărată (nenulă) <b>exact</b> în situația descrisă. Expresia ta este verificată automat pe toate valorile din domeniul indicat; dacă există o diferență, primești un contraexemplu.</p>
+<div id="write"></div>
+</section>
+
+<section id="s4">
+<h2>S4. Verificatorul de echivalență</h2>
+<div class="blk" data-level="2">
+<p>Sunt cele două condiții echivalente? Introdu două expresii cu variabile întregi (cel mult trei variabile); verificatorul le evaluează pentru toate combinațiile de valori din domeniu și compară valorile de adevăr.</p>
+<div class="widget" id="eqv">
+  <div class="ev-grid">
+    <div><label for="eq1">Expresia 1</label><input type="text" id="eq1" class="mono" style="width:100%" value="!(p &amp;&amp; q)"></div>
+    <div><label for="eq2">Expresia 2</label><input type="text" id="eq2" class="mono" style="width:100%" value="!p || !q"></div>
+  </div>
+  <div class="row" style="margin-top:.6rem">
+    <label>valori de la <input type="number" id="eqMin" value="-10" style="width:5rem"></label>
+    <label>până la <input type="number" id="eqMax" value="10" style="width:5rem"></label>
+    <button class="btn primary" id="eqGo">Verifică</button>
+    <select id="eqPre"><option value="">— exemple —</option></select>
+  </div>
+  <div id="eqOut" style="margin-top:.7rem"></div>
+</div>
+</div>
+</section>
+
+<!-- ======================= LABORATOR ======================= -->
+<h2 class="part" id="laborator">Partea a III-a — Laborator</h2>
+
+<section id="l0">
+<h2>L0. Pregătire</h2>
+<div class="blk" data-level="1">
+<p>Programele se compilează cu orice compilator C++ modern (g++, clang++, Visual Studio) sau cu un compilator online. Recomandat, din linia de comandă:</p>
+<script type="text/x-cpp" data-title="terminal">
+g++ -std=c++17 -Wall -Wextra program.cpp -o program
+./program
+</script>
+<p><code>-Wall -Wextra</code> activează avertismentele care prind multe dintre greșelile din această lecție (<code>=</code> în loc de <code>==</code>, <code>x &amp; 1 == 0</code>, comparații signed/unsigned). Citește avertismentele — nu sunt opționale.</p>
+</div>
+<div class="blk" data-level="3">
+<p>Pentru a detecta comportamentul nedefinit în timpul execuției:</p>
+<script type="text/x-cpp" data-title="terminal">
+g++ -std=c++17 -Wall -Wextra -fsanitize=undefined -g program.cpp -o program
+</script>
+</div>
+</section>
+
+<section id="eval">
+<h2>L1. Evaluatorul interactiv de expresii</h2>
+<p>Scrie declarațiile variabilelor și o expresie C/C++. Evaluatorul construiește arborele expresiei, arată forma complet parantezată (gruparea stabilită de priorități și asociativitate), aplică operatorii unul câte unul și explică fiecare pas: conversii, împărțiri întregi, scurtcircuitări, efecte secundare, avertismente.</p>
+<div class="widget" id="evaluator">
+  <div class="ev-grid">
+    <div><label for="ev-decl">Declarații (tipuri: bool, char, short, int, float, double)</label>
+      <textarea id="ev-decl" spellcheck="false"></textarea></div>
+    <div><label for="ev-expr">Expresie</label>
+      <input type="text" id="ev-expr" class="mono" spellcheck="false" autocomplete="off"></div>
+  </div>
+  <div class="row" style="margin-top:.6rem">
+    <button class="btn primary" id="ev-go">Evaluează</button>
+    <select id="ev-presets"><option value="">— exemple pregătite —</option></select>
+    <span style="font-size:.85rem; color:var(--muted)">sau apasă <span class="kbd">Enter</span> în câmpul expresiei</span>
+  </div>
+  <div id="ev-out"></div>
+</div>
+<details class="blk" data-level="2">
+  <summary>Ce știe evaluatorul (și ce nu)</summary>
+  <ul>
+    <li>Operatori: aritmetici, relaționali, de egalitate, logici (cu scurtcircuitare), pe biți, atribuiri simple și compuse, <code>++</code>/<code>--</code> prefixat și postfixat, <code>?:</code>, virgulă, <code>sizeof</code>, conversii <code>(tip)</code> și <code>static_cast&lt;tip&gt;( )</code>.</li>
+    <li>Constante: întregi zecimale, hexazecimale (<code>0x1F</code>) și octale (<code>017</code>), reale (<code>2.5</code>, <code>1e3</code>, <code>2.5f</code>), caractere (<code>'a'</code>, <code>'\n'</code>), <code>true</code>/<code>false</code>.</li>
+    <li>Semantica este cea din C++ pe o platformă tipică: <code>int</code> pe 32 de biți, complement față de 2, comparațiile au tipul <code>bool</code>. În C, aceleași comparații au tipul <code>int</code>, cu aceleași valori 0/1.</li>
+    <li>Când ordinea de evaluare nu este fixată de standard, evaluatorul lucrează de la stânga la dreapta; dacă rezultatul ar putea depinde de această alegere, afișează un avertisment.</li>
+    <li>Nu sunt suportate: tipurile <code>unsigned</code> și <code>long</code>, tablourile, pointerii, apelurile de funcții, șirurile de caractere.</li>
+  </ul>
+</details>
+</section>
+
+<section id="lp">
+<h2>L2. Programe de rulat, modificat și extins</h2>
+<p>Pentru fiecare program: rulează-l, compară ieșirea cu cea așteptată, apoi rezolvă cerințele. Indiciile și soluțiile sunt ascunse — încearcă întâi singur.</p>
+
+<div class="lab-card blk" data-level="1">
+<h3>L2.1 · Operațiile cu întregi</h3>
+<script type="text/x-cpp" data-title="operatii.cpp">
+#include <iostream>
+using namespace std;
+
+int main() {
+    int a, b;
+    cout << "a = "; cin >> a;
+    cout << "b = "; cin >> b;
+
+    cout << "a + b = " << a + b << '\n';
+    cout << "a - b = " << a - b << '\n';
+    cout << "a * b = " << a * b << '\n';
+    cout << "a / b = " << a / b << "   (impartire intreaga)\n";
+    cout << "a % b = " << a % b << "   (restul)\n";
+    cout << "a / b real = " << (double)a / b << '\n';
+    cout << "verificare: (a/b)*b + a%b = " << (a / b) * b + a % b << '\n';
+    return 0;
+}
+</script>
+<p>Ieșire pentru <code>a = 17</code>, <code>b = 5</code>:</p>
+<div class="out">a + b = 22
+a - b = 12
+a * b = 85
+a / b = 3   (impartire intreaga)
+a % b = 2   (restul)
+a / b real = 3.4
+verificare: (a/b)*b + a%b = 17</div>
+<p><b>Cerințe:</b></p>
+<ol>
+  <li>Rulează pentru <code>a = -17</code>, <code>b = 5</code> și pentru <code>a = 17</code>, <code>b = -5</code>. Notează semnul câtului și al restului. Ce regulă observi?</li>
+  <li>Rulează pentru <code>b = 0</code>. Ce se întâmplă? Adaugă o verificare <code>if (b == 0)</code> care afișează un mesaj și oprește programul.</li>
+  <li>Ce se schimbă dacă scrii <code>(double)(a / b)</code> în loc de <code>(double)a / b</code>? Explică.</li>
+</ol>
+<details><summary>Răspunsuri</summary>
+<p>1) −17 / 5 = −3, −17 % 5 = −2; 17 / −5 = −3, 17 % −5 = 2. Câtul se trunchiază spre zero, restul are semnul deîmpărțitului, iar identitatea (a/b)·b + a%b = a rămâne adevărată. 2) Programul se oprește brusc (împărțire întreagă la zero — comportament nedefinit). 3) <code>(double)(a / b)</code> convertește un cât deja trunchiat: pentru 17 și 5 afișează 3, nu 3.4.</p></details>
+</div>
+
+<div class="lab-card blk" data-level="1">
+<h3>L2.2 · Cifrele unui număr de trei cifre</h3>
+<script type="text/x-cpp" data-title="cifre.cpp">
+#include <iostream>
+using namespace std;
+
+int main() {
+    int n;
+    cout << "Numar de 3 cifre: "; cin >> n;   // ex.: 742
+
+    int u = n % 10;        // cifra unitatilor
+    int z = n / 10 % 10;   // cifra zecilor
+    int s = n / 100;       // cifra sutelor
+
+    cout << "cifre: " << s << ' ' << z << ' ' << u << '\n';
+    cout << "suma cifrelor: " << s + z + u << '\n';
+    cout << "rasturnat: " << u * 100 + z * 10 + s << '\n';
+    cout << "palindrom: " << (s == u) << '\n';
+    return 0;
+}
+</script>
+<div class="out">cifre: 7 4 2
+suma cifrelor: 13
+rasturnat: 247
+palindrom: 0</div>
+<p><b>Cerințe:</b></p>
+<ol>
+  <li>Elimină parantezele din <code>(s == u)</code>. De ce nu se mai compilează?</li>
+  <li>Adaugă afișarea produsului cifrelor și a celei mai mari cifre (folosește <code>?:</code>).</li>
+  <li>Adaptează programul pentru un număr de patru cifre.</li>
+</ol>
+<details><summary>Indicii</summary>
+<p>1) <code>&lt;&lt;</code> are prioritate mai mare decât <code>==</code>: se încearcă <code>(cout &lt;&lt; "..." &lt;&lt; s) == u</code>. 2) <code>int m = s &gt; z ? s : z; m = m &gt; u ? m : u;</code> 3) Cifrele: <code>n / 1000</code>, <code>n / 100 % 10</code>, <code>n / 10 % 10</code>, <code>n % 10</code>.</p></details>
+</div>
+
+<div class="lab-card blk" data-level="2">
+<h3>L2.3 · Capcana împărțirii întregi</h3>
+<script type="text/x-cpp" data-title="temperatura.cpp">
+#include <iostream>
+using namespace std;
+
+int main() {
+    double c = 25;
+    double f1 = 9 / 5 * c + 32;     // GRESIT: 9 / 5 == 1
+    double f2 = 9.0 / 5 * c + 32;   // corect
+    double f3 = c * 9 / 5 + 32;     // corect si el - de ce?
+    cout << f1 << ' ' << f2 << ' ' << f3 << '\n';
+
+    int x = 7, y = 8;
+    cout << (x + y) / 2 << ' ' << (x + y) / 2.0 << '\n';
+    return 0;
+}
+</script>
+<div class="out">57 77 77
+7 7.5</div>
+<p><b>Cerințe:</b></p>
+<ol>
+  <li>Explică de ce <code>f3</code> este corect, deși conține tot constantele întregi 9 și 5.</li>
+  <li>Scrie conversia inversă (Fahrenheit → Celsius, C = 5/9 · (F − 32)) în trei variante, dintre care una greșită. Verifică cu F = 212.</li>
+  <li>Calculează media aritmetică a trei note întregi, afișată cu zecimale.</li>
+</ol>
+<details><summary>Răspunsuri</summary>
+<p>1) Asociativitatea stânga → dreapta: întâi <code>c * 9</code> (double · int → double 225.0), apoi <code>225.0 / 5</code> este împărțire reală. 2) Greșit: <code>5 / 9 * (f - 32)</code> dă 0; corect: <code>5.0 / 9 * (f - 32)</code> sau <code>(f - 32) * 5 / 9</code> → 100. 3) <code>(n1 + n2 + n3) / 3.0</code>.</p></details>
+<div class="row"><button class="try" data-decl="double c = 25;" data-expr="9 / 5 * c + 32">▶ f1</button><button class="try" data-decl="double c = 25;" data-expr="c * 9 / 5 + 32">▶ f3</button></div>
+</div>
+
+<div class="lab-card blk" data-level="2">
+<h3>L2.4 · Condiții compuse</h3>
+<script type="text/x-cpp" data-title="conditii.cpp">
+#include <iostream>
+using namespace std;
+
+int main() {
+    int an, x;
+    char c;
+    cout << "an: "; cin >> an;
+    cout << "caracter: "; cin >> c;
+    cout << "x: "; cin >> x;
+
+    cout << boolalpha;   // afiseaza true/false in loc de 1/0
+    cout << "an bisect: " << ((an % 4 == 0 && an % 100 != 0) || an % 400 == 0) << '\n';
+    cout << "cifra: " << (c >= '0' && c <= '9') << '\n';
+    cout << "litera: " << ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) << '\n';
+    cout << "x in [10, 20]: " << (x >= 10 && x <= 20) << '\n';
+    cout << "x in afara [10, 20]: " << (x < 10 || x > 20) << '\n';
+    return 0;
+}
+</script>
+<p>Ieșire pentru <code>1900</code>, <code>7</code>, <code>15</code>:</p>
+<div class="out">an bisect: false
+cifra: true
+litera: false
+x in [10, 20]: true
+x in afara [10, 20]: false</div>
+<p><b>Cerințe:</b></p>
+<ol>
+  <li>Testează anii 1900, 2000, 2024, 2025 și verifică rezultatele.</li>
+  <li>Înlocuiește <code>x &gt;= 10 &amp;&amp; x &lt;= 20</code> cu <code>10 &lt;= x &lt;= 20</code>. Compilează cu <code>-Wall</code>: ce avertisment primești? Pentru ce valori ale lui x rezultatul este greșit?</li>
+  <li>Adaugă: „c este literă mică sau cifră”, „x este multiplu de 3 sau de 5, dar nu de amândouă”.</li>
+</ol>
+<details><summary>Răspunsuri</summary>
+<p>2) g++ avertizează că expresia <code>X &lt;= Y &lt;= Z</code> nu are sensul matematic. <code>10 &lt;= x</code> dă 0 sau 1, iar ambele sunt ≤ 20, deci rezultatul este mereu true — greșit pentru orice x în afara intervalului. 3) <code>(c &gt;= 'a' &amp;&amp; c &lt;= 'z') || (c &gt;= '0' &amp;&amp; c &lt;= '9')</code>; <code>(x % 3 == 0) != (x % 5 == 0)</code>.</p></details>
+</div>
+
+<div class="lab-card blk" data-level="2">
+<h3>L2.5 · Scurtcircuitarea, observată direct</h3>
+<script type="text/x-cpp" data-title="scurtcircuit.cpp">
+#include <iostream>
+using namespace std;
+
+bool A() { cout << "A "; return false; }
+bool B() { cout << "B "; return true; }
+
+int main() {
+    cout << "A() && B(): "; bool r1 = A() && B(); cout << "-> " << r1 << '\n';
+    cout << "A() || B(): "; bool r2 = A() || B(); cout << "-> " << r2 << '\n';
+    cout << "B() || A(): "; bool r3 = B() || A(); cout << "-> " << r3 << '\n';
+    cout << "A() &  B(): "; bool r4 = A() & B();  cout << "-> " << r4 << '\n';
+
+    int x = 0;
+    if (x != 0 && 10 / x > 1) cout << "nu ajunge aici\n";
+    else cout << "impartirea la zero a fost evitata\n";
+    return 0;
+}
+</script>
+<div class="out">A() &amp;&amp; B(): A -&gt; 0
+A() || B(): A B -&gt; 1
+B() || A(): B -&gt; 1
+A() &amp;  B(): A B -&gt; 0
+impartirea la zero a fost evitata</div>
+<p><b>Cerințe:</b></p>
+<ol>
+  <li>Explică fiecare linie. De ce la <code>A() &amp; B()</code> se apelează ambele funcții?</li>
+  <li>La linia a patra, ordinea afișării „A B” este garantată? Dar la primele trei?</li>
+  <li>Inversează operanzii condiției din <code>if</code>. Ce se întâmplă la execuție?</li>
+</ol>
+<details><summary>Răspunsuri</summary>
+<p>1) <code>&amp;</code> este operator pe biți: nu face scurtcircuitare, deci ambii operanzi se evaluează. 2) Nu: pentru <code>&amp;</code> ordinea evaluării operanzilor nu este specificată, deci „B A” este la fel de corect. La <code>&amp;&amp;</code> și <code>||</code> ordinea stânga → dreapta este garantată. 3) <code>10 / x</code> se calculează cu x = 0 → împărțire la zero, programul se oprește.</p></details>
+</div>
+
+<div class="lab-card blk" data-level="3">
+<h3>L2.6 · Indicatori pe biți</h3>
+<script type="text/x-cpp" data-title="biti.cpp">
+#include <iostream>
+#include <bitset>
+using namespace std;
+
+int main() {
+    const unsigned CITIRE   = 1u << 0;   // 001
+    const unsigned SCRIERE  = 1u << 1;   // 010
+    const unsigned EXECUTIE = 1u << 2;   // 100
+
+    unsigned drepturi = 0;
+    drepturi |= CITIRE | SCRIERE;              // acordam citire + scriere
+    cout << bitset<8>(drepturi) << '\n';
+    drepturi &= ~SCRIERE;                      // retragem scrierea
+    cout << bitset<8>(drepturi) << '\n';
+    drepturi ^= EXECUTIE;                      // comutam executia
+    cout << bitset<8>(drepturi) << '\n';
+    cout << "poate citi? " << ((drepturi & CITIRE) != 0) << '\n';
+
+    unsigned n = 40;
+    cout << "n = " << bitset<8>(n) << ", n & (n-1) = " << bitset<8>(n & (n - 1)) << '\n';
+    cout << "putere a lui 2? " << (n != 0 && (n & (n - 1)) == 0) << '\n';
+    int k = 3;
+    cout << "bitul " << k << " al lui n: " << ((n >> k) & 1) << '\n';
+    return 0;
+}
+</script>
+<div class="out">00000011
+00000001
+00000101
+poate citi? 1
+n = 00101000, n &amp; (n-1) = 00100000
+putere a lui 2? 0
+bitul 3 al lui n: 1</div>
+<p><b>Cerințe:</b></p>
+<ol>
+  <li>Scrie o expresie care este adevărată dacă sunt acordate <b>toate</b> drepturile din masca <code>CITIRE | EXECUTIE</code>.</li>
+  <li>Afișează numărul de biți 1 din n folosind <code>bitset&lt;32&gt;(n).count()</code>, apoi verifică pe hârtie.</li>
+  <li>Scrie expresia care păstrează doar ultimii 4 biți ai lui n și pe cea care îi pune pe toți patru pe 1.</li>
+</ol>
+<details><summary>Răspunsuri</summary>
+<p>1) <code>(drepturi &amp; (CITIRE | EXECUTIE)) == (CITIRE | EXECUTIE)</code>. 2) Pentru 40 = 00101000 sunt 2 biți de 1. 3) <code>n &amp; 0xF</code>, respectiv <code>n | 0xF</code>.</p></details>
+</div>
+
+<div class="lab-card blk" data-level="3">
+<h3>L2.7 · Galeria capcanelor</h3>
+<script type="text/x-cpp" data-title="capcane.cpp">
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+int main() {
+    int a = 50000, b = 50000;
+    long long p1 = a * b;               // depasire in int (UB)
+    long long p2 = (long long)a * b;    // corect
+    cout << p1 << ' ' << p2 << '\n';
+
+    unsigned u = 0;
+    cout << u - 1 << '\n';              // aritmetica modulo 2^32
+    cout << (-1 < 0u) << '\n';          // -1 devine 4294967295
+
+    double d = 0.1 + 0.2;
+    cout << (d == 0.3) << ' ' << (fabs(d - 0.3) < 1e-9) << '\n';
+
+    int x = 4;
+    cout << (x & 1 == 0) << ' ' << ((x & 1) == 0) << '\n';
+    return 0;
+}
+</script>
+<p>Ieșire tipică (prima valoare poate varia, fiind rezultatul unui comportament nedefinit):</p>
+<div class="out">-1794967296 2500000000
+4294967295
+0
+0 1
+0 1</div>
+<p><b>Cerințe:</b></p>
+<ol>
+  <li>Compilează cu <code>-Wall -Wextra</code>. Ce linii primesc avertismente și de ce?</li>
+  <li>Compilează și cu <code>-fsanitize=undefined</code>. Ce mesaj apare la execuție?</li>
+  <li>Corectează fiecare linie problematică.</li>
+</ol>
+<details><summary>Răspunsuri</summary>
+<p>1) Comparația <code>-1 &lt; 0u</code> (signed/unsigned) și <code>x &amp; 1 == 0</code> („suggest parentheses around comparison in operand of '&amp;'”). 2) Un mesaj de tipul „signed integer overflow: 50000 * 50000 cannot be represented in type 'int'”. 3) <code>(long long)a * b</code>; nu amesteca signed cu unsigned; compară realii cu toleranță; pune paranteze: <code>(x &amp; 1) == 0</code>.</p></details>
+</div>
+
+<div class="lab-card blk" data-level="3">
+<h3>L2.8 · Mini-proiect: analizorul de numere</h3>
+<p>Scrie un program care citește un întreg <code>n</code> și afișează, <b>fără instrucțiuni repetitive</b>, folosind doar operatori:</p>
+<ol>
+  <li>dacă n este par, folosind <code>&amp;</code> (verifică și pentru numere negative);</li>
+  <li>reprezentarea binară pe 32 de biți și numărul de biți 1;</li>
+  <li>dacă n este putere a lui 2;</li>
+  <li>valorile n · 8 și n / 4 calculate prin deplasări (pentru n ≥ 0) și comparate cu rezultatele obținute cu <code>*</code> și <code>/</code>;</li>
+  <li>valoarea absolută a lui n, cu operatorul condițional;</li>
+  <li>dacă n este în intervalul [−100, 100] și are ultima cifră 0 sau 5.</li>
+</ol>
+<details><summary>O soluție posibilă</summary>
+<script type="text/x-cpp" data-title="analizor.cpp">
+#include <iostream>
+#include <bitset>
+using namespace std;
+
+int main() {
+    int n;
+    cout << "n = "; cin >> n;
+    cout << boolalpha;
+    cout << "par: " << ((n & 1) == 0) << '\n';
+    cout << "binar: " << bitset<32>(n) << " (" << bitset<32>(n).count() << " biti de 1)\n";
+    cout << "putere a lui 2: " << (n > 0 && (n & (n - 1)) == 0) << '\n';
+    if (n >= 0) {
+        cout << "n*8 = " << (n << 3) << " = " << n * 8 << '\n';
+        cout << "n/4 = " << (n >> 2) << " = " << n / 4 << '\n';
+    }
+    cout << "|n| = " << (n < 0 ? -n : n) << '\n';
+    cout << "in [-100, 100] cu ultima cifra 0 sau 5: "
+         << (n >= -100 && n <= 100 && n % 5 == 0) << '\n';
+    return 0;
+}
+</script>
+</details>
+</div>
+</section>
+
+<!-- ======================= TEST ======================= -->
+<section id="test">
+<h2>Test final de autoevaluare</h2>
+<p>Întrebări din toate secțiunile, pe niveluri. Rezolvă-le fără să te uiți înapoi, apoi citește explicațiile — și pentru răspunsurile corecte.</p>
+<div id="quiz-final"></div>
+</section>
+
+<!-- ======================= REZUMAT ======================= -->
+<section id="rezumat">
+<h2>Rezumat și fișă recapitulativă</h2>
+<div class="card cheat">
+  <div><h4>Expresii</h4><ul>
+    <li>Expresie = operanzi + operatori; evaluarea dă o valoare de un anumit tip, eventual cu efecte secundare.</li>
+    <li>Operatori unari, binari și unul singur ternar (<code>?:</code>).</li>
+    <li>Gruparea: <b>paranteze → prioritate → asociativitate</b>.</li></ul></div>
+  <div><h4>Aritmetici</h4><ul>
+    <li><code>int / int</code> → împărțire întreagă (trunchiere spre 0).</li>
+    <li><code>%</code> doar pentru întregi; restul are semnul deîmpărțitului.</li>
+    <li>Depășirea pentru tipurile cu semn și împărțirea întreagă la 0: comportament nedefinit.</li></ul></div>
+  <div><h4>Conversii</h4><ul>
+    <li>bool/char/short → int (promovare).</li>
+    <li>„Mai mic” → „mai mare”: int → long → long long → float → double.</li>
+    <li>signed + unsigned → de regulă unsigned (capcană!).</li>
+    <li>La atribuire: conversie la tipul din stânga; real → întreg trunchiază.</li>
+    <li>Cast: <code>(double)a / b</code>, nu <code>(double)(a / b)</code>.</li></ul></div>
+  <div><h4>Relaționali și logici</h4><ul>
+    <li>Rezultat 0/1 (<code>bool</code> în C++, <code>int</code> în C).</li>
+    <li><code>=</code> atribuie, <code>==</code> compară.</li>
+    <li><code>a &lt; b &lt; c</code> ≠ matematică → <code>a &lt; b &amp;&amp; b &lt; c</code>.</li>
+    <li><code>&amp;&amp;</code>, <code>||</code>: scurtcircuitare, ordine stânga → dreapta.</li>
+    <li>De Morgan: <code>!(p &amp;&amp; q) ≡ !p || !q</code>.</li>
+    <li>Realii nu se compară cu <code>==</code>.</li></ul></div>
+  <div><h4>Pe biți</h4><ul>
+    <li><code>~ &amp; | ^ &lt;&lt; &gt;&gt;</code>, doar pentru întregi.</li>
+    <li><code>a &lt;&lt; n</code> = a·2ⁿ; <code>a &gt;&gt; n</code> = a/2ⁿ (a ≥ 0).</li>
+    <li>Măști: test <code>(n &gt;&gt; k) &amp; 1</code>, set <code>|=</code>, clear <code>&amp;= ~</code>, toggle <code>^=</code>.</li>
+    <li><code>&amp; ^ |</code> au prioritate sub <code>==</code> → paranteze!</li></ul></div>
+  <div><h4>Atribuire și alții</h4><ul>
+    <li>Atribuirea are valoare; se înlănțuie de la dreapta la stânga.</li>
+    <li><code>v op= e</code> ≡ <code>v = v op (e)</code>.</li>
+    <li><code>++x</code> crește apoi folosește; <code>x++</code> folosește apoi crește.</li>
+    <li>Virgula are cea mai mică prioritate; <code>sizeof</code> nu evaluează operandul.</li>
+    <li>O singură modificare a unei variabile pe expresie.</li></ul></div>
+</div>
+
+<h3>Erori frecvente</h3>
+<div class="tbl-wrap"><table>
+  <tr><th>Greșit</th><th>Corect</th><th>De ce</th></tr>
+  <tr><td><code>if (x = 5)</code></td><td><code>if (x == 5)</code></td><td>atribuire în loc de comparație</td></tr>
+  <tr><td><code>1 / 3 * x</code></td><td><code>1.0 / 3 * x</code></td><td>împărțirea întreagă dă 0</td></tr>
+  <tr><td><code>0 &lt; x &lt; 10</code></td><td><code>0 &lt; x &amp;&amp; x &lt; 10</code></td><td>comparația înlănțuită este mereu adevărată</td></tr>
+  <tr><td><code>x &amp; 1 == 0</code></td><td><code>(x &amp; 1) == 0</code></td><td>prioritatea lui <code>&amp;</code> este sub cea a lui <code>==</code></td></tr>
+  <tr><td><code>n % 2 == 1</code></td><td><code>n % 2 != 0</code></td><td>pentru n negativ impar restul este -1</td></tr>
+  <tr><td><code>a * b</code> (int, valori mari)</td><td><code>(long long)a * b</code></td><td>depășire</td></tr>
+  <tr><td><code>d == 0.3</code></td><td><code>fabs(d - 0.3) &lt; 1e-9</code></td><td>realii sunt aproximări</td></tr>
+  <tr><td><code>cout &lt;&lt; a &lt; b;</code></td><td><code>cout &lt;&lt; (a &lt; b);</code></td><td><code>&lt;&lt;</code> are prioritate mai mare</td></tr>
+  <tr><td><code>a *= b + 1</code> gândit ca <code>a * b + 1</code></td><td><code>a = a * b + 1</code></td><td>atribuirea compusă pune paranteze în jurul părții drepte</td></tr>
+  <tr><td><code>i = i++ + 1</code></td><td><code>i += 2</code> (sau <code>i++; i++;</code>)</td><td>modificări multiple ale aceleiași variabile</td></tr>
+</table></div>
+
+<h3>Glosar</h3>
+<div class="tbl-wrap"><table>
+  <tr><td><b>Aritate</b></td><td>numărul de operanzi ai unui operator.</td></tr>
+  <tr><td><b>Prioritate (precedență)</b></td><td>regula care stabilește care operator „își ia” primul operanzii.</td></tr>
+  <tr><td><b>Asociativitate</b></td><td>sensul de grupare pentru operatori vecini de aceeași prioritate.</td></tr>
+  <tr><td><b>Conversie implicită</b></td><td>schimbare automată de tip, făcută de compilator.</td></tr>
+  <tr><td><b>Cast</b></td><td>conversie explicită, cerută de programator.</td></tr>
+  <tr><td><b>Scurtcircuitare</b></td><td>oprirea evaluării lui <code>&amp;&amp;</code> / <code>||</code> când rezultatul este deja cunoscut.</td></tr>
+  <tr><td><b>Mască de biți</b></td><td>valoare întreagă folosită pentru a selecta, seta sau șterge anumiți biți.</td></tr>
+  <tr><td><b>Efect secundar</b></td><td>modificare de stare produsă de evaluarea unei expresii.</td></tr>
+  <tr><td><b>Comportament nedefinit</b></td><td>situație pentru care standardul nu impune niciun rezultat; programul nu mai este corect.</td></tr>
+  <tr><td><b>lvalue / rvalue</b></td><td>expresie care desemnează o locație de memorie / valoare temporară.</td></tr>
+</table></div>
+</section>
+
+<section id="bib">
+<h2>Bibliografie recomandată</h2>
+<ul>
+  <li>B. W. Kernighan, D. M. Ritchie — <i>Limbajul C</i>, Editura Teora (capitolul despre tipuri, operatori și expresii).</li>
+  <li>L. Negrescu — <i>Limbajele C și C++ pentru începători</i>, Editura Albastră.</li>
+  <li>B. Stroustrup — <i>The C++ Programming Language</i>, ediția a 4-a, Addison-Wesley.</li>
+  <li>cppreference.com — paginile „C++ Operator Precedence” și „Order of evaluation”.</li>
+</ul>
+</section>
+
+<footer>Unitatea de învățare 7 — Operatori și expresii în limbajul C/C++ · material de curs, seminar și laborator. Pagina funcționează complet offline.</footer>
+</main>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+'use strict';
+/* =========================================================
+   Utilitare
+   ========================================================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+function md(s) { // `cod` și **bold**
+  return String(s).split('`').map((p, i) => i % 2 ? `<code>${esc(p)}</code>` : esc(p).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')).join('');
+}
+function toast(msg) { const t = $('#toast'); if (!t) return; t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 1400); }
+function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+
+/* =========================================================
+   Evidențiere de sintaxă C++
+   ========================================================= */
+const KW = new Set('int char float double bool void return if else while for do const unsigned signed long short sizeof static_cast using namespace true false auto constexpr enum struct switch case break continue default typedef nullptr'.split(' '));
+const LIB = new Set('cout cin endl std main printf scanf boolalpha bitset fabs fmod fmax sqrt round lround INT_MAX INT_MIN EOF getchar size_t include iostream cmath climits'.split(' '));
+function hl(code) {
+  const re = /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|("(?:\\.|[^"\\\n])*")|('(?:\\.|[^'\\\n])*')|(^[ \t]*#[^\n]*)|(\b\d+\.?\d*(?:[eE][+-]?\d+)?[fFuUlL]*\b|\.\d+)|([A-Za-z_]\w*)/gm;
+  let out = '', last = 0, m;
+  while ((m = re.exec(code))) {
+    out += esc(code.slice(last, m.index));
+    const t = m[0]; let cls = '';
+    if (m[1]) cls = 'cm'; else if (m[2] || m[3]) cls = 'st'; else if (m[4]) cls = 'pp'; else if (m[5]) cls = 'nu';
+    else if (m[6]) cls = KW.has(t) ? 'kw' : LIB.has(t) ? 'lb' : '';
+    out += cls ? `<span class="${cls}">${esc(t)}</span>` : esc(t);
+    last = re.lastIndex;
+  }
+  return out + esc(code.slice(last));
+}
+function copyText(txt) {
+  const fallback = () => { const ta = document.createElement('textarea'); ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); toast('Copiat!'); } catch (e) { toast('Nu s-a putut copia'); } ta.remove(); };
+  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(txt).then(() => toast('Copiat!'), fallback); else fallback();
+}
+function mountCode() {
+  $$('script[type="text/x-cpp"]').forEach(s => {
+    let lines = s.textContent.replace(/^\s*\n/, '').replace(/\s+$/, '').split('\n');
+    const ind = Math.min(...lines.filter(l => l.trim()).map(l => l.match(/^ */)[0].length));
+    const code = lines.map(l => l.slice(ind)).join('\n');
+    const w = document.createElement('div'); w.className = 'codewrap';
+    const title = s.dataset.title;
+    w.innerHTML = (title ? `<div class="codetitle">${esc(title)}</div>` : '') + `<pre class="code"><code>${hl(code)}</code></pre><button class="copy" type="button">Copiază</button>`;
+    w.querySelector('.copy').addEventListener('click', () => copyText(code));
+    s.replaceWith(w);
+  });
+}
+
+/* =========================================================
+   Motorul evaluatorului de expresii C/C++
+   ========================================================= */
+class CErr extends Error { constructor(msg, kind = 'compile') { super(msg); this.kind = kind; } }
+const TYPES = ['bool', 'char', 'short', 'int', 'float', 'double'];
+const SIZE = { bool: 1, char: 1, short: 2, int: 4, float: 4, double: 8 };
+const ASSIGN = new Set(['=', '+=', '-=', '*=', '/=', '%=', '&=', '|=', '^=', '<<=', '>>=']);
+const BINPREC = { '||': 4, '&&': 5, '|': 6, '^': 7, '&': 8, '==': 9, '!=': 9, '<': 10, '<=': 10, '>': 10, '>=': 10, '<<': 11, '>>': 11, '+': 12, '-': 12, '*': 13, '/': 13, '%': 13 };
+const REL = new Set(['<', '>', '<=', '>=', '==', '!=']);
+const OPS3 = ['<<=', '>>='];
+const OPS2 = ['++', '--', '<<', '>>', '<=', '>=', '==', '!=', '&&', '||', '+=', '-=', '*=', '/=', '%=', '&=', '|=', '^='];
+const OPS1 = '+-*/%<>=!~&|^?:(),';
+const RESERVED = new Set([...TYPES, 'sizeof', 'static_cast', 'true', 'false', 'unsigned', 'signed', 'long', 'const', 'return', 'if', 'else', 'while', 'for', 'auto', 'void']);
+const isInt = t => t === 'bool' || t === 'char' || t === 'short' || t === 'int';
+const promote = t => isInt(t) ? 'int' : t;
+function usual(a, b) { a = promote(a); b = promote(b); if (a === 'double' || b === 'double') return 'double'; if (a === 'float' || b === 'float') return 'float'; return 'int'; }
+const wrapBits = (v, bits) => Number(BigInt.asIntN(bits, BigInt(v)));
+const LIM = { char: [-128, 127], short: [-32768, 32767], int: [-2147483648, 2147483647] };
+
+function tokenize(src) {
+  const toks = []; let i = 0;
+  while (i < src.length) {
+    const ch = src[i];
+    if (/\s/.test(ch)) { i++; continue; }
+    const rest = src.slice(i);
+    if (/[0-9]/.test(ch) || (ch === '.' && /[0-9]/.test(src[i + 1] || ''))) {
+      const m = /^(0[xX][0-9a-fA-F]+|(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?)([A-Za-z_]*)/.exec(rest);
+      const body = m[1], suf = m[2].toLowerCase();
+      let t, v;
+      if (suf && !/^[ful]+$/.test(suf)) throw new CErr(`Constantă invalidă „${m[0]}”.`);
+      if (/[ul]/.test(suf)) throw new CErr(`Sufixele u / l (unsigned / long) nu sunt suportate de acest evaluator („${m[0]}”).`);
+      if (/^0[xX]/.test(body)) { t = 'int'; v = parseInt(body, 16); }
+      else if (/[.eE]/.test(body)) { t = suf.includes('f') ? 'float' : 'double'; v = parseFloat(body); if (t === 'float') v = Math.fround(v); }
+      else {
+        if (suf.includes('f')) throw new CErr(`Constantă invalidă „${m[0]}” (sufixul f se pune după o constantă reală, ex. 2.0f).`);
+        t = 'int';
+        if (/^0\d/.test(body)) { if (/[89]/.test(body)) throw new CErr(`„${body}” începe cu 0, deci este o constantă în baza 8 — iar cifrele 8 și 9 nu există în baza 8.`); v = parseInt(body, 8); }
+        else v = parseInt(body, 10);
+      }
+      if (t === 'int' && v > 2147483647) throw new CErr(`Constanta ${body} nu încape în int (maximum 2147483647).`);
+      toks.push({ k: 'num', t, v, txt: m[0] }); i += m[0].length; continue;
+    }
+    if (ch === "'") {
+      const m = /^'(\\.|[^'\\])'/.exec(rest);
+      if (!m) throw new CErr('Constantă caracter invalidă: se scrie între apostrofuri, ex. \'a\' sau \'\\n\'.');
+      const ESC = { n: 10, t: 9, '0': 0, '\\': 92, "'": 39, '"': 34, r: 13, a: 7, b: 8, f: 12, v: 11 };
+      let v = m[1].length === 1 ? m[1].charCodeAt(0) : ESC[m[1][1]];
+      if (v === undefined) throw new CErr(`Secvență escape necunoscută ${m[1]}.`);
+      if (v > 127) throw new CErr('Folosiți doar caractere ASCII în constantele caracter.');
+      toks.push({ k: 'num', t: 'char', v, txt: m[0] }); i += m[0].length; continue;
+    }
+    if (ch === '"') throw new CErr('Șirurile de caractere ("...") nu sunt suportate de evaluator.');
+    if (/[A-Za-z_]/.test(ch)) {
+      const w = /^[A-Za-z_]\w*/.exec(rest)[0];
+      if (w === 'true' || w === 'false') toks.push({ k: 'num', t: 'bool', v: w === 'true' ? 1 : 0, txt: w });
+      else if (TYPES.includes(w)) toks.push({ k: 'type', v: w });
+      else if (w === 'sizeof') toks.push({ k: 'op', v: 'sizeof' });
+      else if (w === 'static_cast') toks.push({ k: 'kw', v: w });
+      else if (['unsigned', 'signed', 'long'].includes(w)) throw new CErr(`Tipul „${w}” nu este suportat de evaluator (doar bool, char, short, int, float, double).`);
+      else toks.push({ k: 'id', v: w });
+      i += w.length; continue;
+    }
+    const o3 = OPS3.find(o => rest.startsWith(o)); if (o3) { toks.push({ k: 'op', v: o3 }); i += 3; continue; }
+    const o2 = OPS2.find(o => rest.startsWith(o)); if (o2) { toks.push({ k: 'op', v: o2 }); i += 2; continue; }
+    if (OPS1.includes(ch)) { toks.push({ k: 'op', v: ch }); i++; continue; }
+    throw new CErr(`Caracter neașteptat „${ch}”.`);
+  }
+  return toks;
+}
+
+function parse(src) {
+  const toks = tokenize(src); let p = 0;
+  if (!toks.length) throw new CErr('Scrie o expresie.');
+  const peek = () => toks[p];
+  const isOp = v => toks[p] && toks[p].k === 'op' && toks[p].v === v;
+  const tokTxt = t => t ? (t.txt || t.v) : 'sfârșitul expresiei';
+  const expect = v => { if (!isOp(v)) throw new CErr(`Se aștepta „${v}”, dar urmează ${toks[p] ? '„' + tokTxt(toks[p]) + '”' : 'sfârșitul expresiei'}.`); p++; };
+  const unparen = n => { while (n.k === 'paren') n = n.a; return n; };
+  function parseExpr() { let n = parseAssign(); while (isOp(',')) { p++; n = { k: 'bin', op: ',', a: n, b: parseAssign() }; } return n; }
+  function parseAssign() {
+    const left = parseCond(); const t = peek();
+    if (t && t.k === 'op' && ASSIGN.has(t.v)) {
+      const tg = unparen(left);
+      if (tg.k !== 'var') throw new CErr(`Operandul stâng al lui „${t.v}” trebuie să fie o variabilă (un lvalue); „${plain(left)}” nu este.`);
+      p++; return { k: 'assign', op: t.v, name: tg.name, b: parseAssign() };
+    }
+    return left;
+  }
+  function parseCond() {
+    const c = parseBin(4);
+    if (isOp('?')) { p++; const a = parseExpr(); expect(':'); const b = parseAssign(); return { k: 'tern', c, a, b }; }
+    return c;
+  }
+  function parseBin(min) {
+    let left = parseUnary();
+    for (;;) {
+      const t = peek(); if (!t || t.k !== 'op') break;
+      const pr = BINPREC[t.v]; if (pr === undefined || pr < min) break;
+      p++; left = { k: 'bin', op: t.v, a: left, b: parseBin(pr + 1) };
+    }
+    return left;
+  }
+  function parseUnary() {
+    const t = peek(); if (!t) throw new CErr('Expresie incompletă — lipsește un operand.');
+    if (t.k === 'op') {
+      if (['+', '-', '!', '~'].includes(t.v)) { p++; return { k: 'un', op: t.v, a: parseUnary() }; }
+      if (t.v === '++' || t.v === '--') {
+        p++; const a = unparen(parseUnary());
+        if (a.k !== 'var') throw new CErr(`Operatorul ${t.v} se aplică doar unei variabile (lvalue).`);
+        return { k: 'pre', op: t.v, name: a.name };
+      }
+      if (t.v === 'sizeof') {
+        p++;
+        if (isOp('(') && toks[p + 1] && toks[p + 1].k === 'type') { p++; const ty = toks[p].v; p++; expect(')'); return { k: 'sizeof', type: ty }; }
+        return { k: 'sizeof', a: parseUnary() };
+      }
+      if (t.v === '(' && toks[p + 1] && toks[p + 1].k === 'type') {
+        p++; const ty = toks[p].v; p++; expect(')');
+        return { k: 'cast', type: ty, a: parseUnary(), style: 'c' };
+      }
+    }
+    if (t.k === 'kw' && t.v === 'static_cast') {
+      p++; expect('<'); if (!peek() || peek().k !== 'type') throw new CErr('După static_cast&lt; se așteaptă un tip.');
+      const ty = peek().v; p++; expect('>'); expect('('); const a = parseExpr(); expect(')');
+      return { k: 'cast', type: ty, a, style: 'sc' };
+    }
+    return parsePostfix();
+  }
+  function parsePostfix() {
+    let n = parsePrimary();
+    while (isOp('++') || isOp('--')) {
+      const op = peek().v; const tg = unparen(n);
+      if (tg.k !== 'var') throw new CErr(`Operatorul ${op} se aplică doar unei variabile (lvalue).`);
+      p++; n = { k: 'post', op, name: tg.name };
+    }
+    if (isOp('(')) throw new CErr('Apelurile de funcții nu sunt suportate. Atenție: în C, înmulțirea se scrie explicit — 3(5) nu înseamnă 3 * 5.');
+    return n;
+  }
+  function parsePrimary() {
+    const t = peek(); if (!t) throw new CErr('Expresie incompletă — lipsește un operand.');
+    if (t.k === 'num') { p++; return { k: 'num', t: t.t, v: t.v, src: t.txt }; }
+    if (t.k === 'id') { p++; return { k: 'var', name: t.v }; }
+    if (isOp('(')) { p++; const e = parseExpr(); expect(')'); return { k: 'paren', a: e }; }
+    if (t.k === 'type') throw new CErr(`Tipul „${t.v}” nu poate apărea aici (pentru conversie scrie (${t.v}) expresie).`);
+    throw new CErr(`Simbol neașteptat „${tokTxt(t)}” — lipsește un operand înaintea lui.`);
+  }
+  const root = parseExpr();
+  if (p < toks.length) {
+    const t = toks[p];
+    if (t.k === 'op' && t.v === ')') throw new CErr('Paranteză „)” în plus.');
+    throw new CErr(`Simbol neașteptat „${tokTxt(t)}” — verifică operatorii și parantezele.`);
+  }
+  return root;
+}
+
+/* ---------- declarații ---------- */
+function splitTop(s) {
+  const out = []; let d = 0, cur = '', q = false;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (c === "'" && s[i - 1] !== '\\') q = !q;
+    if (!q && c === '(') d++; if (!q && c === ')') d--;
+    if (!q && d === 0 && c === ',') { out.push(cur); cur = ''; } else cur += c;
+  }
+  if (cur.trim()) out.push(cur);
+  return out;
+}
+function parseDecls(text) {
+  const env = new Map(); const notes = [];
+  const clean = text.replace(/\/\/[^\n]*/g, '');
+  const stmts = []; let cur = '', q = false;
+  for (let i = 0; i < clean.length; i++) { const c = clean[i]; if (c === "'" && clean[i - 1] !== '\\') q = !q; if (c === ';' && !q) { stmts.push(cur); cur = ''; } else cur += c; }
+  stmts.push(cur);
+  for (let st of stmts) {
+    st = st.trim(); if (!st) continue;
+    const m = /^(?:const\s+)?(bool|char|short|int|float|double)\s+([\s\S]+)$/.exec(st);
+    if (!m) throw new CErr(`Declarație nerecunoscută: „${st}”. Exemplu corect: int a = 5, b = 2; double x = 2.5;`, 'decl');
+    const ty = m[1];
+    for (const part of splitTop(m[2])) {
+      const mm = /^\s*([A-Za-z_]\w*)\s*(?:=\s*([\s\S]+))?$/.exec(part);
+      if (!mm) throw new CErr(`Nu înțeleg declarația „${part.trim()}”.`, 'decl');
+      const name = mm[1];
+      if (RESERVED.has(name)) throw new CErr(`„${name}” este cuvânt rezervat și nu poate fi nume de variabilă.`, 'decl');
+      let v = 0;
+      if (mm[2] !== undefined) {
+        const r = evalQuiet(parse(mm[2]), env);
+        v = convert(r.v, r.t, ty, null);
+      } else notes.push(`Variabila ${name} nu este inițializată: în C/C++ o variabilă locală neinițializată are o valoare nedeterminată; aici s-a folosit 0.`);
+      env.set(name, { t: ty, v });
+    }
+  }
+  return { env, notes };
+}
+
+/* ---------- formatare valori ---------- */
+function charLit(v) {
+  const M = { 0: "'\\0'", 10: "'\\n'", 9: "'\\t'", 13: "'\\r'", 39: "'\\''", 92: "'\\\\'" };
+  if (M[v] !== undefined) return M[v];
+  if (v >= 32 && v <= 126) return `'${String.fromCharCode(v)}'`;
+  return `(char)${v}`;
+}
+function fmtReal(v, prec = 10) {
+  if (Number.isNaN(v)) return 'nan';
+  if (!Number.isFinite(v)) return v > 0 ? 'inf' : '-inf';
+  if (Number.isInteger(v) && Math.abs(v) < 1e15) return (Object.is(v, -0) ? '-' : '') + Math.abs(v).toFixed(1);
+  return String(parseFloat(v.toPrecision(prec)));
+}
+function fmtLit(t, v) {
+  if (typeof t === 'object') { v = t.v; t = t.t; }
+  switch (t) {
+    case 'bool': return v ? 'true' : 'false';
+    case 'char': return charLit(v);
+    case 'double': return fmtReal(v);
+    case 'float': return fmtReal(v, 7) + 'f';
+    default: return String(v);
+  }
+}
+function fmtG(v, prec = 6) { // ca printf("%g") / cout implicit
+  if (Number.isNaN(v)) return 'nan';
+  if (!Number.isFinite(v)) return v > 0 ? 'inf' : '-inf';
+  if (v === 0) return Object.is(v, -0) ? '-0' : '0';
+  const e = v.toExponential(prec - 1); const X = Number(e.split('e')[1]);
+  if (X < -4 || X >= prec) { let [mnt, x] = e.split('e'); mnt = mnt.replace(/\.?0+$/, ''); const xn = Number(x); return `${mnt}e${xn < 0 ? '-' : '+'}${String(Math.abs(xn)).padStart(2, '0')}`; }
+  let s = v.toFixed(Math.max(0, prec - 1 - X)); if (s.includes('.')) s = s.replace(/0+$/, '').replace(/\.$/, ''); return s;
+}
+function coutFmt(t, v) {
+  if (t === 'bool') return v ? '1' : '0';
+  if (t === 'char') return v >= 32 && v <= 126 ? String.fromCharCode(v) : `(caracterul neafișabil cu codul ${v})`;
+  if (t === 'float' || t === 'double') return fmtG(v);
+  return String(v);
+}
+const bin8 = v => (v & 255).toString(2).padStart(8, '0');
+
+/* ---------- conversii ---------- */
+function convert(v, from, to, ctx) {
+  if (from === to) return v;
+  if (to === 'bool') return v !== 0 ? 1 : 0;
+  if (to === 'float') return Math.fround(v);
+  if (to === 'double') return v;
+  if (!isInt(from)) {
+    if (!Number.isFinite(v)) throw new CErr(`Conversia valorii ${fmtReal(v)} la ${to} are comportament nedefinit.`, 'ub');
+    const x = Math.trunc(v) || 0; const L = LIM[to];
+    if (x < L[0] || x > L[1]) throw new CErr(`Valoarea reală ${fmtReal(v)} nu încape în tipul ${to} [${L[0]}, ${L[1]}]: conversia are comportament nedefinit.`, 'ub');
+    return x;
+  }
+  const bits = { char: 8, short: 16, int: 32 }[to];
+  const w = wrapBits(v, bits);
+  if (w !== v && ctx) ctx.warns.push({ kind: 'warn', msg: `Valoarea ${v} nu încape în ${to}: se păstrează doar ultimii ${bits} biți, rezultând ${w} (comportament definit de implementare înainte de C++20).` });
+  return w;
+}
+function convNote(from, to, v, nv) {
+  if (from === to) return null;
+  let s = `conversie ${from} → ${to}: ${fmtLit(from, v)} → ${fmtLit(to, nv)}`;
+  if (!isInt(from) && isInt(to) && to !== 'bool') s += ' (partea fracționară se pierde prin trunchiere)';
+  else if (to === 'char') s += ` (caracterul cu codul ${nv})`;
+  else if (to === 'bool') s += ' (orice valoare nenulă devine true)';
+  return s;
+}
+
+/* ---------- tipuri statice ---------- */
+function getVar(ctx, name) {
+  const e = ctx.env.get(name);
+  if (!e) throw new CErr(`Variabila „${name}” nu este declarată. Adaug-o în caseta de declarații (ex.: int ${name} = 0;).`);
+  return e;
+}
+function checkBin(op, ta, tb) {
+  if (op === ',') return tb;
+  if (op === '&&' || op === '||' || REL.has(op)) return 'bool';
+  if (op === '<<' || op === '>>') { if (!isInt(ta) || !isInt(tb)) throw new CErr(`Eroare de compilare: operatorul ${op} cere operanzi întregi (aici: ${ta} și ${tb}).`); return promote(ta); }
+  const t = usual(ta, tb);
+  if (op === '%' && t !== 'int') throw new CErr('Eroare de compilare: operatorul % se aplică numai operanzilor întregi. Pentru numere reale folosește fmod(a, b) din <cmath>.');
+  if ('&|^'.includes(op) && t !== 'int') throw new CErr(`Eroare de compilare: operatorul pe biți ${op} se aplică numai operanzilor întregi.`);
+  return t;
+}
+function typeOf(n, ctx) {
+  switch (n.k) {
+    case 'num': return n.t;
+    case 'var': return getVar(ctx, n.name).t;
+    case 'paren': return typeOf(n.a, ctx);
+    case 'conv': typeOf(n.a, ctx); return n.t;
+    case 'un': { const t = typeOf(n.a, ctx); if (n.op === '!') return 'bool'; if (n.op === '~' && !isInt(t)) throw new CErr('Eroare de compilare: operatorul ~ se aplică numai operanzilor întregi.'); return promote(t); }
+    case 'cast': typeOf(n.a, ctx); return n.type;
+    case 'pre': case 'post': { const t = getVar(ctx, n.name).t; if (t === 'bool') throw new CErr('Operatorii ++ / -- nu se pot aplica unei variabile bool (interzis din C++17).'); return t; }
+    case 'sizeof': if (n.a) typeOf(n.a, ctx); return 'int';
+    case 'assign': { const t = getVar(ctx, n.name).t; const tb = typeOf(n.b, ctx); if (n.op !== '=') checkBin(n.op.slice(0, -1), t, tb); return t; }
+    case 'tern': { typeOf(n.c, ctx); const ta = typeOf(n.a, ctx), tb = typeOf(n.b, ctx); return ta === tb ? ta : usual(ta, tb); }
+    case 'bin': return checkBin(n.op, typeOf(n.a, ctx), typeOf(n.b, ctx));
+  }
+  throw new CErr('Nod necunoscut.');
+}
+
+/* ---------- operații ---------- */
+function promNote(X, notes) { if (X.t !== 'int' && isInt(X.t)) notes.push(`${fmtLit(X.t, X.v)} (${X.t}) este promovat la int → ${X.v}`); }
+function conv2(X, t, notes) {
+  promNote(X, notes); const pt = promote(X.t);
+  if (pt !== t) { const v = t === 'float' ? Math.fround(X.v) : X.v; notes.push(`${fmtLit(pt, X.v)} (${pt}) este convertit la ${t} → ${fmtLit(t, v)}`); return v; }
+  return X.v;
+}
+function binop(op, A, B, ctx) {
+  const notes = [];
+  if (op === '<<' || op === '>>') {
+    if (!isInt(A.t) || !isInt(B.t)) throw new CErr(`Operatorul ${op} cere operanzi întregi.`);
+    promNote(A, notes);
+    const a = A.v, b = B.v;
+    if (b < 0 || b >= 32) throw new CErr(`Deplasare cu ${b} poziții: pentru int (32 de biți) numărul de poziții trebuie să fie între 0 și 31 — altfel comportamentul este nedefinit.`, 'ub');
+    if (op === '<<') {
+      if (a < 0) ctx.warns.push({ kind: 'ub', msg: 'Deplasarea la stânga a unei valori negative are comportament nedefinit în C și în C++ înainte de C++20.' });
+      const ex = BigInt(a) * (1n << BigInt(b)); const r = Number(BigInt.asIntN(32, ex));
+      if (BigInt(r) !== ex && a >= 0) ctx.warns.push({ kind: 'ub', msg: `${a} << ${b} = ${ex} depășește domeniul lui int (comportament nedefinit în C; în C++20 rezultatul se ia modulo 2³²).` });
+      notes.push(`deplasare la stânga cu ${b} poziții ⇔ înmulțire cu 2^${b} = ${2 ** b}`);
+      if (a >= 0 && a < 256 && r < 256) notes.push(`${bin8(a)} → ${bin8(r)}`);
+      return { t: 'int', v: r, notes };
+    }
+    if (a < 0) ctx.warns.push({ kind: 'warn', msg: `Deplasarea la dreapta a unei valori negative este definită de implementare (de obicei se copiază bitul de semn); ${a} >> ${b} nu mai este egal cu ${a} / ${2 ** b}.` });
+    notes.push(`deplasare la dreapta cu ${b} poziții ⇔ împărțire întreagă la 2^${b} = ${2 ** b}${a < 0 ? ' (doar pentru valori ≥ 0!)' : ''}`);
+    if (a >= 0 && a < 256) notes.push(`${bin8(a)} → ${bin8(a >> b)}`);
+    return { t: 'int', v: a >> b, notes };
+  }
+  if (REL.has(op)) {
+    const t = usual(A.t, B.t); const a = conv2(A, t, notes), b = conv2(B, t, notes);
+    const r = { '<': a < b, '>': a > b, '<=': a <= b, '>=': a >= b, '==': a === b, '!=': a !== b }[op];
+    if ((op === '==' || op === '!=') && t !== 'int') ctx.warns.push({ kind: 'lint', msg: 'Compararea cu == / != a numerelor reale este riscantă: valorile calculate sunt aproximări. Folosește o toleranță: fabs(a - b) < 1e-9.' });
+    notes.push(`comparația este ${r ? 'adevărată → true (1)' : 'falsă → false (0)'}`);
+    return { t: 'bool', v: r ? 1 : 0, notes };
+  }
+  const t = usual(A.t, B.t);
+  if (op === '%' && t !== 'int') throw new CErr('Eroare de compilare: operatorul % se aplică numai operanzilor întregi. Pentru reali folosește fmod(a, b).');
+  if ('&|^'.includes(op) && t !== 'int') throw new CErr(`Eroare de compilare: operatorul ${op} se aplică numai operanzilor întregi.`);
+  const a = conv2(A, t, notes), b = conv2(B, t, notes);
+  let r;
+  if (t === 'int') {
+    const BA = BigInt(a), BB = BigInt(b); let ex;
+    switch (op) {
+      case '+': ex = BA + BB; break;
+      case '-': ex = BA - BB; break;
+      case '*': ex = BA * BB; break;
+      case '/':
+        if (b === 0) throw new CErr('Împărțire întreagă la zero: comportament nedefinit (de obicei programul se oprește brusc).', 'ub');
+        ex = BA / BB;
+        notes.push(a % b !== 0 ? `împărțire întreagă (ambii operanzi întregi): ${a} / ${b} = ${fmtG(a / b)} → se păstrează doar câtul ${ex}` : 'împărțire întreagă (ambii operanzi sunt întregi), fără rest');
+        break;
+      case '%':
+        if (b === 0) throw new CErr('Restul împărțirii la zero: comportament nedefinit.', 'ub');
+        ex = BA % BB; notes.push(`restul împărțirii întregi: ${a} = (${BA / BB})·(${b}) + (${ex})`); break;
+      case '&': ex = BA & BB; break;
+      case '|': ex = BA | BB; break;
+      case '^': ex = BA ^ BB; break;
+    }
+    r = Number(BigInt.asIntN(32, ex));
+    if (BigInt(r) !== ex) ctx.warns.push({ kind: 'ub', msg: `Depășire (overflow) la ${a} ${op} ${b}: rezultatul exact ${ex} nu încape în int. Pentru tipurile cu semn este comportament nedefinit; de obicei se obține ${r}.` });
+    if ('&|^'.includes(op)) { const nm = { '&': 'ȘI', '|': 'SAU', '^': 'SAU exclusiv' }[op]; notes.push(a >= 0 && b >= 0 && a < 256 && b < 256 ? `${nm} pe biți: ${bin8(a)} ${op} ${bin8(b)} = ${bin8(r)}` : `${nm} pe biți, aplicat celor 32 de biți`); }
+  } else {
+    switch (op) { case '+': r = a + b; break; case '-': r = a - b; break; case '*': r = a * b; break; case '/': r = a / b; break; }
+    if (op === '/' && b === 0) ctx.warns.push({ kind: 'warn', msg: 'Împărțire reală la zero: rezultatul este inf, -inf sau nan (conform IEEE 754).' });
+    if (t === 'float') r = Math.fround(r);
+    if (op === '/') notes.push(`împărțire reală (cel puțin un operand este de tip ${t})`);
+  }
+  return { t, v: r, notes };
+}
+function unop(op, A, ctx) {
+  const notes = [];
+  if (op === '!') return { t: 'bool', v: A.v === 0 ? 1 : 0, notes: [`negație logică: operandul este ${A.v === 0 ? '0 (fals) → true (1)' : 'nenul (adevărat) → false (0)'}`] };
+  promNote(A, notes);
+  const t = promote(A.t); const v = A.v;
+  if (op === '~') { const r = ~v; notes.push(`complement pe biți (toți cei 32 de biți se inversează): ~x = -x - 1 → ${r}`); return { t: 'int', v: r, notes }; }
+  if (op === '+') { notes.push('plus unar: valoarea rămâne aceeași'); return { t, v, notes }; }
+  if (t === 'int' && v === -2147483648) { ctx.warns.push({ kind: 'ub', msg: '-INT_MIN nu încape în int: depășire (comportament nedefinit).' }); notes.push('minus unar'); return { t, v, notes }; }
+  let r = -v; if (t === 'int') r = r || 0; if (t === 'float') r = Math.fround(r);
+  notes.push('minus unar (schimbă semnul)');
+  return { t, v: r, notes };
+}
+
+/* ---------- arbore: utilitare ---------- */
+function kids(n) {
+  switch (n.k) {
+    case 'un': case 'cast': case 'paren': case 'conv': return ['a'];
+    case 'bin': return ['a', 'b'];
+    case 'tern': return ['c', 'a', 'b'];
+    case 'assign': return ['b'];
+    default: return [];
+  }
+}
+function walk(n, fn) { fn(n); if (n.k === 'sizeof') { if (n.a) walk(n.a, fn); return; } for (const k of kids(n)) walk(n[k], fn); }
+function hasSide(n) { let s = false; (function w(x) { if (['assign', 'pre', 'post'].includes(x.k)) s = true; if (x.k === 'sizeof') return; for (const k of kids(x)) w(x[k]); })(n); return s; }
+function hasVars(n) { let s = false; (function w(x) { if (x.k === 'var') s = true; if (x.k === 'sizeof') return; for (const k of kids(x)) w(x[k]); })(n); return s; }
+function mapTree(n, f) { const m = f(n); if (m !== n) return m; const c = { ...n }; for (const k of kids(n)) c[k] = mapTree(n[k], f); return c; }
+function substAll(n, ctx) { return mapTree(n, x => { if (x.k === 'sizeof') return x; if (x.k === 'var') { const e = getVar(ctx, x.name); return { k: 'num', t: e.t, v: e.v, hl: true }; } return x; }); }
+function stripParens(n) { if (n.k === 'paren' && n.a.k === 'num') return { ...n.a }; const c = { ...n }; for (const k of kids(n)) c[k] = stripParens(n[k]); return c; }
+function clearHl(n) { delete n.hl; if (n.k === 'sizeof' && n.a) clearHl(n.a); for (const k of kids(n)) clearHl(n[k]); }
+const lit = (t, v) => ({ k: 'num', t, v, hl: true });
+
+/* ---------- un pas de reducere ---------- */
+function reduce(n, ctx) {
+  const sub = (key) => { const r = reduce(n[key], ctx); return { n: { ...n, [key]: r.n }, ev: r.ev }; };
+  const isL = x => x.k === 'num';
+  switch (n.k) {
+    case 'num': return null;
+    case 'var': { const e = getVar(ctx, n.name); return { n: { k: 'num', t: e.t, v: e.v }, ev: { silent: true, text: `${n.name} = ${fmtLit(e.t, e.v)}` } }; }
+    case 'paren': if (isL(n.a)) return { n: { ...n.a }, ev: { silent: true } }; return sub('a');
+    case 'conv': {
+      if (!isL(n.a)) return sub('a');
+      if (n.a.t === n.t) return { n: { ...n.a }, ev: { silent: true } };
+      const nv = convert(n.a.v, n.a.t, n.t, ctx);
+      return { n: lit(n.t, nv), ev: { text: `rezultatul lui ?: are tipul comun ${n.t}`, notes: [convNote(n.a.t, n.t, n.a.v, nv)] } };
+    }
+    case 'un': {
+      if (!isL(n.a)) return sub('a');
+      const R = unop(n.op, n.a, ctx);
+      return { n: lit(R.t, R.v), ev: { text: `${n.op}${fmtLit(n.a)} = ${fmtLit(R.t, R.v)}`, notes: R.notes } };
+    }
+    case 'cast': {
+      if (!isL(n.a)) return sub('a');
+      const nv = convert(n.a.v, n.a.t, n.type, ctx);
+      const cn = convNote(n.a.t, n.type, n.a.v, nv);
+      return { n: lit(n.type, nv), ev: { text: `(${n.type}) ${fmtLit(n.a)} = ${fmtLit(n.type, nv)}`, notes: ['conversie explicită (cast)' + (cn ? ': ' + cn.replace(/^conversie /, '') : ' — tipul este deja același')] } };
+    }
+    case 'sizeof': {
+      const t = n.type || typeOf(n.a, ctx);
+      return { n: lit('int', SIZE[t]), ev: { text: `sizeof(${n.type ? t : plain(n.a)}) = ${SIZE[t]}`, notes: [`tipul ${t} ocupă ${SIZE[t]} octeți (valoare tipică)`, ...(n.a ? ['operandul lui sizeof NU se evaluează: contează doar tipul lui'] : []), 'în realitate rezultatul are tipul size_t (fără semn)'] } };
+    }
+    case 'bin': {
+      if (!isL(n.a)) return sub('a');
+      if (n.op === '&&' || n.op === '||') {
+        const av = n.a.v !== 0;
+        if (n.op === '&&' && !av) return { n: lit('bool', 0), ev: { text: `${fmtLit(n.a)} && … = false (0)`, notes: ['scurtcircuitare: operandul stâng este fals, deci rezultatul este fals și operandul drept NU se mai evaluează'] } };
+        if (n.op === '||' && av) return { n: lit('bool', 1), ev: { text: `${fmtLit(n.a)} || … = true (1)`, notes: ['scurtcircuitare: operandul stâng este adevărat, deci rezultatul este adevărat și operandul drept NU se mai evaluează'] } };
+        if (!isL(n.b)) return sub('b');
+        const bv = n.b.v !== 0;
+        return { n: lit('bool', bv ? 1 : 0), ev: { text: `${fmtLit(n.a)} ${n.op} ${fmtLit(n.b)} = ${bv ? 'true (1)' : 'false (0)'}`, notes: [`operandul stâng este ${av ? 'adevărat' : 'fals'}, deci rezultatul este dat de operandul drept, care este ${bv ? 'adevărat' : 'fals'}`] } };
+      }
+      if (n.op === ',') return { n: n.b.k === 'num' ? lit(n.b.t, n.b.v) : n.b, ev: { text: `${fmtLit(n.a)}, … → se continuă cu operandul drept`, notes: ['operatorul virgulă: valoarea operandului stâng se ignoră; valoarea expresiei este cea a operandului drept'] } };
+      if (!isL(n.b)) return sub('b');
+      const R = binop(n.op, n.a, n.b, ctx);
+      return { n: lit(R.t, R.v), ev: { text: `${fmtLit(n.a)} ${n.op} ${fmtLit(n.b)} = ${fmtLit(R.t, R.v)}`, notes: R.notes } };
+    }
+    case 'tern': {
+      if (!isL(n.c)) return sub('c');
+      const rt = typeOf(n, ctx); const yes = n.c.v !== 0; let ch = yes ? n.a : n.b;
+      if (ch.k !== 'num' && ch.k !== 'var') ch = { k: 'paren', a: ch };
+      return { n: { k: 'conv', t: rt, a: ch }, ev: { text: `condiția ${fmtLit(n.c)} este ${yes ? 'adevărată → se evaluează al doilea operand' : 'falsă → se evaluează al treilea operand'}`, notes: ['operatorul condițional evaluează doar una dintre cele două ramuri'] } };
+    }
+    case 'assign': {
+      if (!isL(n.b)) return sub('b');
+      const e = getVar(ctx, n.name); let nv; const notes = []; let text;
+      if (n.op === '=') {
+        nv = convert(n.b.v, n.b.t, e.t, ctx); const cn = convNote(n.b.t, e.t, n.b.v, nv); if (cn) notes.push(cn);
+        text = `${n.name} = ${fmtLit(n.b)}`;
+      } else {
+        const op = n.op.slice(0, -1);
+        const R = binop(op, { t: e.t, v: e.v }, n.b, ctx);
+        notes.push(`${n.name} ${n.op} ${fmtLit(n.b)} ⇔ ${n.name} = ${n.name} ${op} (${fmtLit(n.b)}) = ${fmtLit(e.t, e.v)} ${op} ${fmtLit(n.b)} = ${fmtLit(R.t, R.v)}`, ...R.notes);
+        nv = convert(R.v, R.t, e.t, ctx); const cn = convNote(R.t, e.t, R.v, nv); if (cn) notes.push(cn);
+        text = `${n.name} ${n.op} ${fmtLit(n.b)}`;
+      }
+      const old = e.v; ctx.env.set(n.name, { t: e.t, v: nv }); ctx.changed.add(n.name);
+      notes.push(`efect secundar: ${n.name} devine ${fmtLit(e.t, nv)}${old !== nv ? ` (era ${fmtLit(e.t, old)})` : ''}; valoarea expresiei de atribuire este ${fmtLit(e.t, nv)}`);
+      return { n: lit(e.t, nv), ev: { text, notes } };
+    }
+    case 'pre': case 'post': {
+      const e = getVar(ctx, n.name);
+      if (e.t === 'bool') throw new CErr('Operatorii ++ / -- nu se pot aplica unei variabile bool.');
+      const R = binop(n.op === '++' ? '+' : '-', { t: e.t, v: e.v }, { t: 'int', v: 1 }, ctx);
+      const nv = convert(R.v, R.t, e.t, ctx); const old = e.v;
+      ctx.env.set(n.name, { t: e.t, v: nv }); ctx.changed.add(n.name);
+      const val = n.k === 'pre' ? nv : old;
+      const txt = n.k === 'pre' ? `${n.op}${n.name}` : `${n.name}${n.op}`;
+      return { n: lit(e.t, val), ev: { text: `${txt} = ${fmtLit(e.t, val)}`, notes: [n.k === 'pre' ? `prefixat: întâi ${n.name} ${n.op === '++' ? 'crește' : 'scade'} (${fmtLit(e.t, old)} → ${fmtLit(e.t, nv)}), apoi se folosește noua valoare` : `postfixat: se folosește valoarea veche ${fmtLit(e.t, old)}, iar ${n.name} devine ${fmtLit(e.t, nv)}`] } };
+    }
+  }
+  throw new CErr('Nod necunoscut.');
+}
+
+/* ---------- analize statice ---------- */
+function seqCheck(ast) {
+  const acc = [];
+  (function w(n, path) {
+    const p2 = [...path, n];
+    if (n.k === 'var') acc.push({ name: n.name, kind: 'read', node: n, path: p2 });
+    if (n.k === 'assign' || n.k === 'pre' || n.k === 'post') acc.push({ name: n.name, kind: 'mod', node: n, path: p2 });
+    if (n.k === 'sizeof') return;
+    for (const k of kids(n)) w(n[k], p2);
+  })(ast, []);
+  const out = []; const seen = new Set();
+  for (const m of acc.filter(x => x.kind === 'mod')) {
+    for (const x of acc) {
+      if (x === m || x.name !== m.name || seen.has(m.name)) continue;
+      const inside = x.path.includes(m.node);
+      if (inside && x.kind === 'read') continue;
+      let i = 0; while (i < m.path.length && i < x.path.length && m.path[i] === x.path[i]) i++;
+      const lca = m.path[i - 1];
+      if (lca && ((lca.k === 'bin' && (lca.op === '&&' || lca.op === '||' || lca.op === ',')) || lca.k === 'tern')) continue;
+      seen.add(m.name);
+      const nested = x.kind === 'mod' && (inside || m.path.includes(x.node));
+      out.push({ kind: 'ub', msg: nested
+        ? `Variabila ${m.name} este modificată de două ori în aceeași expresie. În C (și în C++ înainte de C++17) comportamentul este nedefinit; C++17 a fixat ordinea pentru unele astfel de forme, dar codul rămâne greu de înțeles. Scrie câte o modificare pe instrucțiune.`
+        : `Variabila ${m.name} este modificată și ${x.kind === 'mod' ? 'modificată din nou' : 'citită'} în aceeași expresie, fără o ordine garantată între cele două operații: comportament nedefinit. Rezultatul de mai jos este doar UNA dintre posibilități (evaluare de la stânga la dreapta).` });
+    }
+  }
+  return out;
+}
+function lint(ast, ctx) {
+  const w = []; const add = m => { if (!w.some(x => x.msg === m)) w.push({ kind: 'lint', msg: m }); };
+  const boolish = n => (n.k === 'bin' && (REL.has(n.op) || n.op === '&&' || n.op === '||')) || (n.k === 'un' && n.op === '!');
+  let rootT = null; try { rootT = typeOf(ast, ctx); } catch (e) { }
+  walk(ast, n => {
+    if (n.k === 'bin' && '&|^'.includes(n.op) && n.op.length === 1) {
+      for (const c of [n.a, n.b]) if (c.k === 'bin' && REL.has(c.op))
+        add(`Atenție la prioritate: „${c.op}” se aplică înaintea lui „${n.op}”. Expresia se grupează ca … ${n.op} (… ${c.op} …). Dacă voiai să compari rezultatul operației pe biți, pune paranteze: (x ${n.op} y) ${c.op} z.`);
+      if ((n.op === '&' || n.op === '|') && boolish(n.a) && boolish(n.b)) add(`Operatorul pe biți „${n.op}” aplicat unor condiții funcționează, dar nu face scurtcircuitare și nu garantează ordinea evaluării. Probabil voiai „${n.op}${n.op}”.`);
+    }
+    if (n.k === 'bin' && REL.has(n.op) && n.a.k === 'bin' && REL.has(n.a.op))
+      add(`Comparație înlănțuită (de forma a ${n.a.op} b ${n.op} c): se calculează (a ${n.a.op} b) ${n.op} c, adică 0 sau 1 comparat cu c — nu sensul din matematică. Corect: a ${n.a.op} b && b ${n.op} c.`);
+    if (n.k === 'bin' && n.op === '/' && (rootT === 'double' || rootT === 'float')) {
+      try { if (isInt(typeOf(n.a, ctx)) && isInt(typeOf(n.b, ctx))) add('Expresia are rezultat real, dar conține o împărțire între doi întregi, care se face ca împărțire întreagă. Verifică dacă este intenționat (altfel: 1.0 * a / b sau (double)a / b).'); } catch (e) { }
+    }
+    if ((n.k === 'bin') && (n.op === '<<' || n.op === '>>') && n.b.k === 'bin' && (n.b.op === '+' || n.b.op === '-'))
+      add(`Prioritate: aditivii se aplică înaintea deplasărilor, deci x ${n.op} a ${n.b.op} b înseamnă x ${n.op} (a ${n.b.op} b).`);
+  });
+  return w;
+}
+
+/* ---------- afișare ---------- */
+function plain(n) { return render(n, false, true, true); }
+function render(n, full = false, top = true, txt = false) {
+  const E = txt ? (s => s) : esc;
+  const R = x => render(x, full, false, txt);
+  const span = (c, s) => txt ? s : `<span class="${c}">${s}</span>`;
+  let s;
+  switch (n.k) {
+    case 'num': s = span('lit', E(n.src != null && !n.hl ? n.src : fmtLit(n))); break;
+    case 'var': s = span('var', E(n.name)); break;
+    case 'paren': s = full ? render(n.a, full, top, txt) : `(${R(n.a)})`; break;
+    case 'conv': s = render(n.a, full, top, txt); break;
+    case 'un': { const c = n.a; const sp = (c.k === 'num' && c.v < 0) || (c.k === 'un' && (c.op === '-' || c.op === '+') && (n.op === '-' || n.op === '+')) || c.k === 'pre' ? ' ' : ''; s = `${E(n.op)}${sp}${R(c)}`; break; }
+    case 'cast': s = n.style === 'sc' ? `static_cast${E('<')}${n.type}${E('>')}(${render(n.a, full, true, txt)})` : `(${n.type})${R(n.a)}`; break;
+    case 'bin': s = n.op === ',' ? `${R(n.a)}, ${R(n.b)}` : `${R(n.a)} ${E(n.op)} ${R(n.b)}`; break;
+    case 'tern': s = `${R(n.c)} ? ${R(n.a)} : ${R(n.b)}`; break;
+    case 'assign': s = `${span('var', n.name)} ${E(n.op)} ${R(n.b)}`; break;
+    case 'pre': s = `${E(n.op)}${span('var', n.name)}`; break;
+    case 'post': s = `${span('var', n.name)}${E(n.op)}`; break;
+    case 'sizeof': s = n.type ? `sizeof(${n.type})` : (n.a.k === 'paren' ? `sizeof${R(n.a)}` : `sizeof ${R(n.a)}`); break;
+  }
+  if (full && !top && ['un', 'bin', 'tern', 'assign', 'cast'].includes(n.k)) s = `(${s})`;
+  if (n.hl && !txt) s = `<span class="hl">${s}</span>`;
+  return s;
+}
+function treeHTML(n) {
+  while (n.k === 'paren') n = n.a;
+  let lab, ch = [], cls = 'op';
+  switch (n.k) {
+    case 'num': lab = fmtLit(n); cls = 'leaf'; break;
+    case 'var': lab = n.name; cls = 'leaf'; break;
+    case 'un': lab = n.op; ch = [n.a]; break;
+    case 'cast': lab = `(${n.type})`; ch = [n.a]; break;
+    case 'bin': lab = n.op; ch = [n.a, n.b]; break;
+    case 'tern': lab = '? :'; ch = [n.c, n.a, n.b]; break;
+    case 'assign': lab = n.op; ch = [{ k: 'var', name: n.name }, n.b]; break;
+    case 'pre': lab = n.op + n.name; cls = 'leaf'; break;
+    case 'post': lab = n.name + n.op; cls = 'leaf'; break;
+    case 'sizeof': lab = 'sizeof'; ch = n.a ? [n.a] : [{ k: 'var', name: n.type }]; break;
+    default: lab = '?';
+  }
+  return `<li><span class="tn ${cls}">${esc(lab)}</span>${ch.length ? `<ul>${ch.map(treeHTML).join('')}</ul>` : ''}</li>`;
+}
+
+/* ---------- rulare ---------- */
+function evalQuiet(ast, env) {
+  const ctx = { env: env instanceof Map ? env : new Map(env), warns: [], changed: new Set() };
+  typeOf(ast, ctx);
+  let cur = ast, g = 0;
+  while (cur.k !== 'num') { if (++g > 2000) throw new CErr('Expresie prea lungă.'); cur = stripParens(reduce(cur, ctx).n); }
+  return { t: cur.t, v: cur.v, ctx };
+}
+function run(src, env) {
+  const ast = parse(src);
+  const ctx = { env: new Map([...env].map(([k, v]) => [k, { ...v }])), warns: [], changed: new Set() };
+  const type = typeOf(ast, ctx);
+  const pre = [...seqCheck(ast), ...lint(ast, ctx)];
+  const steps = []; let cur = ast;
+  if (!hasSide(ast) && hasVars(ast)) {
+    cur = substAll(cur, ctx);
+    steps.push({ html: render(cur), text: 'Se înlocuiește fiecare variabilă cu valoarea ei.', notes: [] });
+  }
+  let g = 0, pend = [];
+  while (cur.k !== 'num') {
+    if (++g > 600) throw new CErr('Expresie prea lungă pentru evaluarea pas cu pas.');
+    clearHl(cur);
+    const r = reduce(cur, ctx); cur = stripParens(r.n);
+    if (r.ev.silent) { if (r.ev.text) pend.push(r.ev.text); continue; }
+    steps.push({ html: render(cur), text: r.ev.text, notes: [...(pend.length ? [`se citește: ${pend.join(', ')}`] : []), ...(r.ev.notes || []).filter(Boolean)] });
+    pend = [];
+  }
+  return { ast, type, result: { t: cur.t, v: cur.v }, steps, warns: [...pre, ...ctx.warns], env: ctx.env, changed: ctx.changed, full: render(ast, true) };
+}
+
+/* =========================================================
+   Interfața evaluatorului
+   ========================================================= */
+const DEF_DECL = "int a = 14, b = 3, x = 5, i = 3, n = 742;\nchar c = '7';\ndouble f = 2.5;";
+const PRESETS = [
+  ['Împărțire întreagă: 2 * a / 5', 'int a = 14;', '2 * a / 5'],
+  ['Paranteze: 2 * (a / 5)', 'int a = 14;', '2 * (a / 5)'],
+  ['Prioritate: 10 / 20 - 10 % 3 * 3 + 3', '', '10 / 20 - 10 % 3 * 3 + 3'],
+  ['Conversie la double în mijlocul expresiei', '', '(20 - 10) / (30 + 40) + (60 - 50.0) / 70'],
+  ['8 / 2 * 5 % 3 - 10 + (9 / 5)', '', '8 / 2 * 5 % 3 - 10 + (9 / 5)'],
+  ['Paranteze imbricate', '', '(1 + 2 * (3 / 2 + (40 % 3 * 3) * 2) - 1) + 10'],
+  ['Atribuire înlănțuită cu conversii', 'int a = 0, b = 0; char c = 0;', 'a = c = b = (11 + 8) * 2'],
+  ['Logic + aritmetic', '', '!(3 < 4) + (3 && 4) * (!0) + (3 || 4)'],
+  ['Scurtcircuitare (x = 0)', 'int x = 0;', 'x != 0 && 10 / x > 2'],
+  ['Biți: 7 & 3, 7 | 3, 7 ^ 3', '', '(7 & 3) + (7 | 3) * 10 + (7 ^ 3) * 100'],
+  ['Capcană: x & 1 == 0', 'int x = 4;', 'x & 1 == 0'],
+  ['Capcană: 1 < x < 3', 'int x = 10;', '1 < x < 3'],
+  ['Capcană: a *= b + 1', 'int a = 5, b = 2;', 'a *= b + 1'],
+  ['Caracter → cifră: c - \'0\'', "char c = '7';", "c - '0'"],
+  ['Pre- și post-incrementare', 'int a = 5, b = 3;', 'a++ * 2 + --b'],
+  ['Operatorul virgulă', 'int a = 0, x = 0;', 'x = (a = 2, a + 3)'],
+  ['Tipul lui ?: (char și int)', '', "'A' + 2 > 'B' ? 'x' : 66"],
+  ['sizeof nu evaluează operandul', 'int i = 1;', 'sizeof(i++) + i'],
+  ['Depășire: INT_MAX + 1', '', '2147483647 + 1'],
+  ['Comportament nedefinit: i = i++ + 1', 'int i = 3;', 'i = i++ + 1'],
+  ['Numere reale: 0.1 + 0.2 == 0.3', '', '0.1 + 0.2 == 0.3'],
+  ['Constantă octală: 010 + 1', '', '010 + 1'],
+];
+let evState = null;
+
+function envTable(envA, envB, changed) {
+  const rows = [...envB.keys()].filter(k => changed.has(k)).map(k => {
+    const a = envA.get(k), b = envB.get(k);
+    return `<tr><td><code>${esc(b.t)} ${esc(k)}</code></td><td>${esc(fmtLit(a))}</td><td><b>${esc(fmtLit(b))}</b></td></tr>`;
+  });
+  return rows.length ? `<table style="width:auto"><tr><th>Variabilă</th><th>Înainte</th><th>După</th></tr>${rows.join('')}</table>` : '';
+}
+function warnHTML(w) {
+  const cls = w.kind === 'ub' ? 'ub' : w.kind === 'lint' ? 'warn' : 'note';
+  const t = w.kind === 'ub' ? '⚠ Comportament nedefinit' : w.kind === 'lint' ? '⚠ Posibilă greșeală' : 'ℹ Observație';
+  return `<div class="${cls}"><b>${t}</b>${esc(w.msg)}</div>`;
+}
+function errHTML(e) {
+  const t = e.kind === 'ub' ? '⛔ Comportament nedefinit — evaluarea se oprește' : e.kind === 'decl' ? '⛔ Eroare în declarații' : '⛔ Eroare';
+  return `<div class="err"><b>${t}</b><br>${esc(e.message)}</div>`;
+}
+function evaluate() {
+  const out = $('#ev-out'); const decl = $('#ev-decl').value, expr = $('#ev-expr').value.trim();
+  let D;
+  try { D = parseDecls(decl); } catch (e) { out.innerHTML = `<div class="ev-sec">${errHTML(e.kind === 'decl' ? e : new CErr(e.message, 'decl'))}</div>`; return; }
+  if (!expr) { out.innerHTML = ''; return; }
+  let res;
+  const partial = { steps: [] };
+  try { res = run(expr, D.env); }
+  catch (e) {
+    // pentru erori la execuție (UB) arătăm pașii parcurși până atunci
+    let pre = '';
+    try {
+      const ast = parse(expr); const ctx = { env: new Map([...D.env].map(([k, v]) => [k, { ...v }])), warns: [], changed: new Set() };
+      typeOf(ast, ctx);
+      let cur = ast; if (!hasSide(ast) && hasVars(ast)) { cur = substAll(cur, ctx); partial.steps.push({ html: render(cur), text: 'Se înlocuiește fiecare variabilă cu valoarea ei.', notes: [] }); }
+      let g = 0;
+      while (cur.k !== 'num' && g++ < 600) { clearHl(cur); const r = reduce(cur, ctx); cur = stripParens(r.n); if (!r.ev.silent) partial.steps.push({ html: render(cur), text: r.ev.text, notes: r.ev.notes || [] }); }
+    } catch (e2) { }
+    if (partial.steps.length) pre = `<div class="ev-sec"><h4>Pașii efectuați înainte de eroare</h4><ol class="steps">${partial.steps.map(stepLi).join('')}</ol></div>`;
+    let ast0 = null; try { ast0 = parse(expr); } catch (e3) { }
+    out.innerHTML = (ast0 ? `<div class="ev-sec"><h4>Forma complet parantezată</h4><div class="expr-line">${render(ast0, true)}</div></div>` : '') + pre + `<div class="ev-sec">${errHTML(e)}</div>`;
+    return;
+  }
+  evState = { res, shown: Math.min(1, res.steps.length), D };
+  drawEval();
+}
+function stepLi(s) {
+  return `<li><div class="expr-line">${s.html}</div><div class="why"><div><b>${esc(s.text)}</b></div>${s.notes.map(n => `<div>${esc(n)}</div>`).join('')}</div></li>`;
+}
+function drawEval() {
+  const { res, shown, D } = evState; const out = $('#ev-out');
+  const tot = res.steps.length;
+  const r = res.result;
+  const cout = coutFmt(r.t, r.v);
+  let h = '';
+  h += `<div class="ev-sec"><h4>Forma complet parantezată (gruparea stabilită de priorități și asociativitate)</h4><div class="expr-line">${res.full}</div></div>`;
+  h += `<div class="ev-sec"><h4>Arborele expresiei (operatorul din vârf se aplică ultimul)</h4><div class="tree"><ul>${treeHTML(res.ast)}</ul></div></div>`;
+  if (res.warns.length) h += `<div class="ev-sec">${res.warns.map(warnHTML).join('')}</div>`;
+  h += `<div class="ev-sec"><h4>Evaluarea pas cu pas ${tot ? `(${Math.min(shown, tot)} / ${tot})` : ''}</h4>`;
+  if (!tot) h += `<p>Expresia este deja o constantă: nu există operatori de aplicat.</p>`;
+  else {
+    h += `<div class="expr-line" style="margin-bottom:.4rem">${render(res.ast)}</div><ol class="steps">${res.steps.slice(0, shown).map(stepLi).join('')}</ol>`;
+    h += `<div class="row">${shown < tot ? '<button class="btn primary" id="ev-next">Pasul următor ▶</button><button class="btn" id="ev-all">Toți pașii</button>' : ''}${shown > 1 ? '<button class="btn" id="ev-reset">De la început</button>' : ''}</div>`;
+  }
+  h += `</div>`;
+  if (shown >= tot) {
+    h += `<div class="ev-sec card" style="margin-top:1rem"><div class="result"><span>Valoare: <span class="big">${esc(fmtLit(r))}</span></span><span>Tip: <span class="pill">${esc(res.type)}</span></span><span>Afișare cu <code>cout &lt;&lt; (…)</code>: <span class="pill">${esc(cout)}</span></span></div>`;
+    if (r.t === 'bool') h += `<p style="margin:.4rem 0 0; font-size:.9rem; color:var(--muted)">În C rezultatul ar fi de tip int, cu valoarea ${r.v}. Cu <code>cout &lt;&lt; boolalpha</code> s-ar afișa ${r.v ? 'true' : 'false'}.</p>`;
+    if (r.t === 'char') h += `<p style="margin:.4rem 0 0; font-size:.9rem; color:var(--muted)">Codul caracterului: ${r.v}. Un char se afișează cu cout ca un caracter.</p>`;
+    const et = envTable(D.env, res.env, res.changed);
+    if (et) h += `<h4 style="margin:.8rem 0 .3rem">Variabile modificate (efecte secundare)</h4>${et}`;
+    h += `</div>`;
+  }
+  if (D.notes.length) h += D.notes.map(n => warnHTML({ kind: 'note', msg: n })).join('');
+  out.innerHTML = h;
+  const nx = $('#ev-next'), al = $('#ev-all'), rs = $('#ev-reset');
+  if (nx) nx.onclick = () => { evState.shown++; drawEval(); };
+  if (al) al.onclick = () => { evState.shown = tot; drawEval(); };
+  if (rs) rs.onclick = () => { evState.shown = 1; drawEval(); };
+}
+function loadEval(decl, expr, scroll = true) {
+  $('#ev-decl').value = decl == null ? DEF_DECL : decl;
+  $('#ev-expr').value = expr;
+  evaluate();
+  if (scroll) $('#eval').scrollIntoView({ behavior: 'smooth' });
+}
+function initEvaluator() {
+  const sel = $('#ev-presets');
+  PRESETS.forEach((p, i) => { const o = document.createElement('option'); o.value = i; o.textContent = p[0]; sel.appendChild(o); });
+  sel.onchange = () => { if (sel.value === '') return; const p = PRESETS[+sel.value]; loadEval(p[1] || DEF_DECL, p[2], false); sel.value = ''; };
+  $('#ev-go').onclick = evaluate;
+  $('#ev-expr').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); evaluate(); } });
+  $('#ev-decl').value = DEF_DECL; $('#ev-expr').value = '10 + 5 * 4 / 2 - 3';
+  evaluate();
+  document.addEventListener('click', e => {
+    const b = e.target.closest('.try'); if (!b) return;
+    loadEval(b.dataset.decl ?? null, b.dataset.expr);
+  });
+}
+
+/* =========================================================
+   Tabelul priorităților
+   ========================================================= */
+const PREC = [
+  { p: 1, ops: [['::', 'rezoluție de domeniu (doar C++)']], a: 'stânga → dreapta', ex: 'std::cout — numele cout din spațiul de nume std' },
+  { p: 2, ops: [['a++  a--', 'post-incrementare / post-decrementare'], ['f(…)', 'apel de funcție'], ['a[i]', 'indexare'], ['.  ->', 'acces la membru'], ['tip(a)  tip{a}', 'conversie funcțională (C++)']], a: 'stânga → dreapta', ex: 'v[i]++ se grupează (v[i])++', L: 1 },
+  { p: 3, ops: [['++a  --a', 'pre-incrementare / pre-decrementare'], ['+a  -a', 'plus / minus unar'], ['!  ~', 'negare logică / pe biți'], ['(tip)', 'conversie explicită (cast)'], ['*p  &a', 'indirectare / adresă'], ['sizeof', 'dimensiune în octeți'], ['new  delete', 'alocare dinamică (C++)']], a: 'dreapta → stânga', ex: '-x * y se grupează (-x) * y;  !a == b se grupează (!a) == b;  (double)a / b se grupează ((double)a) / b', L: 1, try: ['int a = 0, b = 0;', '!a == b'] },
+  { p: 4, ops: [['.*  ->*', 'acces prin pointer la membru (C++)']], a: 'stânga → dreapta', ex: 'folosit rar, la pointeri către membrii unei clase' },
+  { p: 5, ops: [['*  /  %', 'înmulțire, împărțire, rest']], a: 'stânga → dreapta', ex: 'a / b * c se grupează (a / b) * c', L: 1, try: ['', '7 / 2 * 2'] },
+  { p: 6, ops: [['+  -', 'adunare, scădere']], a: 'stânga → dreapta', ex: 'a - b + c se grupează (a - b) + c', L: 1, try: ['', '10 - 4 + 2'] },
+  { p: 7, ops: [['<<  >>', 'deplasare pe biți (și afișare / citire cu cout / cin)']], a: 'stânga → dreapta', ex: '1 << n - 1 se grupează 1 << (n - 1)', L: 1, try: ['int n = 4;', '1 << n - 1'] },
+  { p: 8, ops: [['<=>', 'comparație în trei sensuri (C++20)']], a: 'stânga → dreapta', ex: '(a <=> b) < 0 este adevărat dacă a < b' },
+  { p: 9, ops: [['<  <=  >  >=', 'relaționali']], a: 'stânga → dreapta', ex: 'a < b < c se grupează (a < b) < c — capcană!', L: 1, try: ['int x = 10;', '1 < x < 3'] },
+  { p: 10, ops: [['==  !=', 'egalitate']], a: 'stânga → dreapta', ex: 'a < b == c < d se grupează (a < b) == (c < d)', L: 1, try: ['', '1 < 2 == 3 < 4'] },
+  { p: 11, ops: [['&', 'ȘI pe biți']], a: 'stânga → dreapta', ex: 'x & 1 == 0 se grupează x & (1 == 0) — capcană!', L: 1, try: ['int x = 4;', 'x & 1 == 0'] },
+  { p: 12, ops: [['^', 'SAU exclusiv pe biți']], a: 'stânga → dreapta', ex: 'a ^ b & c se grupează a ^ (b & c)', L: 1, try: ['', '6 ^ 3 & 1'] },
+  { p: 13, ops: [['|', 'SAU pe biți']], a: 'stânga → dreapta', ex: 'a | b ^ c se grupează a | (b ^ c)', L: 1 },
+  { p: 14, ops: [['&&', 'ȘI logic']], a: 'stânga → dreapta', ex: 'a && b == c se grupează a && (b == c)', L: 1 },
+  { p: 15, ops: [['||', 'SAU logic']], a: 'stânga → dreapta', ex: 'a || b && c se grupează a || (b && c)', L: 1, try: ['', '1 || 0 && 0'] },
+  { p: 16, ops: [['?:', 'operatorul condițional (ternar)'], ['=', 'atribuire simplă'], ['+=  -=  *=  /=  %=', 'atribuiri compuse aritmetice'], ['<<=  >>=  &=  ^=  |=', 'atribuiri compuse pe biți'], ['throw', 'aruncarea unei excepții (C++)']], a: 'dreapta → stânga', ex: 'a = b = c se grupează a = (b = c);  x = c ? 1 : 2 se grupează x = (c ? 1 : 2)', L: 1, try: ['int a = 0, b = 0, c = 7;', 'a = b = c'] },
+  { p: 17, ops: [[',', 'operatorul virgulă']], a: 'stânga → dreapta', ex: 'x = 1, 2 se grupează (x = 1), 2', L: 1, try: ['int x = 0;', 'x = 1, 2'] },
+];
+function initPrec() {
+  const tb = $('#prec-table'); let sel = null;
+  function draw() {
+    const q = $('#prec-search').value.trim(); const only = $('#prec-lesson').checked;
+    tb.innerHTML = '<tr><th>Nivel</th><th>Operatori</th><th>Asociativitate</th></tr>' + PREC.map((r, i) => {
+      const match = !q || r.ops.some(o => o[0].includes(q) || o[1].toLowerCase().includes(q.toLowerCase()));
+      if (only && !r.L) return '';
+      return `<tr data-i="${i}" class="${r.L ? 'lesson' : ''} ${match ? '' : 'dim'} ${sel === i ? 'sel' : ''}"><td>${r.p}</td><td class="ops">${r.ops.map(o => `<code>${esc(o[0])}</code> <span style="font-size:.86rem;color:var(--muted)">${esc(o[1])}</span>`).join('<br>')}</td><td>${r.a}</td></tr>`;
+    }).join('');
+  }
+  tb.addEventListener('click', e => {
+    const tr = e.target.closest('tr[data-i]'); if (!tr) return; sel = +tr.dataset.i; const r = PREC[sel];
+    $('#prec-detail').innerHTML = `<b>Nivelul ${r.p}</b> — asociativitate ${r.a}.<br>${esc(r.ex || '')}${r.try ? ` <button class="try" data-decl="${esc(r.try[0] || DEF_DECL)}" data-expr="${esc(r.try[1])}">▶ pas cu pas</button>` : ''}`;
+    draw();
+  });
+  $('#prec-search').oninput = draw; $('#prec-lesson').onchange = draw; draw();
+}
+
+/* =========================================================
+   Exploratorul conversiilor
+   ========================================================= */
+const CT = [
+  ['bool', 0, 1, 0], ['char', 1, 1, 1], ['signed char', 1, 1, 1], ['unsigned char', 1, 1, 0], ['short', 2, 2, 1], ['unsigned short', 2, 2, 0],
+  ['int', 3, 4, 1], ['unsigned int', 3, 4, 0], ['long', 4, 8, 1], ['unsigned long', 4, 8, 0], ['long long', 5, 8, 1], ['unsigned long long', 5, 8, 0],
+  ['float', 10, 4, 1], ['double', 11, 8, 1], ['long double', 12, 16, 1]];
+const cinfo = n => { const r = CT.find(x => x[0] === n); return { name: r[0], rank: r[1], size: r[2], signed: !!r[3], real: r[1] >= 10 }; };
+function usualConv(a, b) {
+  const A = cinfo(a), B = cinfo(b), steps = [];
+  if (A.real || B.real) {
+    const W = !B.real || (A.real && A.rank >= B.rank) ? A : B; const O = W === A ? B : A;
+    if (O.name !== W.name) steps.push(`Cel puțin un operand este real: operandul de tip <code>${O.name}</code> se convertește la <code>${W.name}</code>.`);
+    else steps.push('Ambii operanzi au același tip real: nu este nevoie de conversie.');
+    return { res: W.name, steps, warn: null };
+  }
+  const prom = X => { if (X.rank < 3) { steps.push(`Promovarea întregilor: <code>${X.name}</code> → <code>int</code>.`); return cinfo('int'); } return X; };
+  let P = prom(A), Q = A === B ? P : prom(B);
+  if (A === B && A.rank < 3) { /* deja notat o dată */ }
+  if (P.name === Q.name) { steps.push(`După promovare ambii operanzi au tipul <code>${P.name}</code>.`); return { res: P.name, steps, warn: null }; }
+  if (P.signed === Q.signed) { const W = P.rank >= Q.rank ? P : Q; steps.push(`Ambii sunt ${P.signed ? 'cu semn' : 'fără semn'}: se alege tipul de rang mai mare, <code>${W.name}</code>.`); return { res: W.name, steps, warn: null }; }
+  const U = P.signed ? Q : P, S = P.signed ? P : Q; let res;
+  if (U.rank >= S.rank) { res = U.name; steps.push(`Un operand fără semn (<code>${U.name}</code>) are rang cel puțin egal cu cel cu semn (<code>${S.name}</code>) → se alege tipul fără semn <code>${U.name}</code>.`); }
+  else if (S.size > U.size) { res = S.name; steps.push(`Tipul cu semn <code>${S.name}</code> (${S.size} octeți) poate reprezenta toate valorile lui <code>${U.name}</code> (${U.size} octeți) → se alege <code>${S.name}</code>.`); }
+  else { res = 'unsigned ' + S.name; steps.push(`<code>${S.name}</code> nu poate reprezenta toate valorile lui <code>${U.name}</code> (au aceeași dimensiune) → se alege varianta fără semn: <code>${res}</code>.`); }
+  const warn = res.startsWith('unsigned') ? `Operandul cu semn devine fără semn: o valoare negativă se transformă într-un număr pozitiv foarte mare (de exemplu -1 devine ${cinfo(res).size === 4 ? '4294967295' : '18446744073709551615'}). Comparațiile de tipul <code>-1 &lt; x</code> pot da rezultate „imposibile”.` : null;
+  return { res, steps, warn };
+}
+function initConv() {
+  const a = $('#conv-a'), b = $('#conv-b');
+  CT.forEach(t => { a.add(new Option(t[0], t[0])); b.add(new Option(t[0], t[0])); });
+  a.value = 'int'; b.value = 'unsigned int';
+  const draw = () => {
+    const r = usualConv(a.value, b.value);
+    $('#conv-out').innerHTML = `<ol style="margin:.2rem 0 .5rem">${r.steps.map(s => `<li>${s}</li>`).join('')}</ol><div>Rezultatul expresiei <code>x + y</code> are tipul <span class="pill">${r.res}</span> (${cinfo(r.res).size} octeți).</div>${r.warn ? `<div class="warn"><b>Atenție</b>${r.warn}</div>` : ''}`;
+  };
+  a.onchange = b.onchange = draw; draw();
+}
+
+/* =========================================================
+   Laboratorul de biți
+   ========================================================= */
+function initBitlab() {
+  let op = '&';
+  const A = $('#blA'), B = $('#blB'), N = $('#blN');
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, Math.trunc(+v || 0)));
+  function row(label, v, cls, editable, key) {
+    let h = `<div class="bitrow ${cls || ''}"><span class="lab">${label}</span>`;
+    for (let i = 7; i >= 0; i--) { const on = (v >> i) & 1; h += `<button class="bit ${on ? 'on' : ''} ${editable ? '' : 'ro'} ${cls === 'sep' ? 'res' : ''}" ${editable ? `data-k="${key}" data-b="${i}"` : 'tabindex="-1"'}>${on}</button>`; }
+    return h + `<span class="val">= ${v} &nbsp;<span style="color:var(--muted)">0x${v.toString(16).toUpperCase().padStart(2, '0')}</span></span></div>`;
+  }
+  function draw() {
+    const a = clamp(A.value, 0, 255), b = clamp(B.value, 0, 255), n = clamp(N.value, 0, 7);
+    let r, full, label, note = '';
+    switch (op) {
+      case '&': r = full = a & b; label = 'A & B'; note = 'Bitul rezultatului este 1 doar unde ambii biți sunt 1 — util pentru a <b>testa</b> sau a <b>păstra</b> anumiți biți (mască).'; break;
+      case '|': r = full = a | b; label = 'A | B'; note = 'Bitul rezultatului este 1 unde cel puțin un bit este 1 — util pentru a <b>seta</b> biți.'; break;
+      case '^': r = full = a ^ b; label = 'A ^ B'; note = 'Bitul rezultatului este 1 unde biții diferă — util pentru a <b>comuta</b> biți. Observă: (A ^ B) ^ B == A.'; break;
+      case '~': full = ~a; r = full & 255; label = '~A'; note = `Pe 8 biți fără semn (unsigned char) rezultatul este ${r}. Într-un <code>int</code> (32 de biți, cu semn) se inversează toți cei 32 de biți: <code>~${a}</code> = <b>${full}</b> (= -${a} - 1).`; break;
+      case '<<': full = a << n; r = full & 255; label = `A << ${n}`; note = `Deplasare cu ${n} poziții la stânga = înmulțire cu 2<sup>${n}</sup> = ${2 ** n}: ${a} · ${2 ** n} = <b>${full}</b> (ca int).` + (full > 255 ? ` Pe 8 biți se pierd biții care ies în stânga, rămânând ${r}.` : ''); break;
+      case '>>': r = full = a >> n; label = `A >> ${n}`; note = `Deplasare cu ${n} poziții la dreapta = împărțire întreagă la 2<sup>${n}</sup> = ${2 ** n}: ${a} / ${2 ** n} = <b>${r}</b>. Biții care ies în dreapta se pierd.`; break;
+    }
+    const two = ['&', '|', '^'].includes(op);
+    let h = `<div class="bitrow hdr"><span></span>${[7, 6, 5, 4, 3, 2, 1, 0].map(i => `<span>2<sup>${i}</sup><span class="w">=${2 ** i}</span></span>`).join('')}<span></span></div>`;
+    h += row('A', a, '', true, 'A');
+    if (two) h += row('B', b, '', true, 'B');
+    h += row(label, r, 'sep', false);
+    $('#blGrid').innerHTML = h;
+    $('#blNote').innerHTML = note + ` <button class="try" data-decl="" data-expr="${esc(op === '~' ? `~${a}` : op === '<<' || op === '>>' ? `${a} ${op} ${n}` : `${a} ${op} ${b}`)}">▶ în evaluator</button>`;
+  }
+  $('#blGrid').addEventListener('click', e => {
+    const bt = e.target.closest('.bit[data-k]'); if (!bt) return;
+    const inp = bt.dataset.k === 'A' ? A : B; inp.value = clamp(inp.value, 0, 255) ^ (1 << +bt.dataset.b); draw();
+  });
+  $('#blOps').addEventListener('click', e => { const bt = e.target.closest('button[data-op]'); if (!bt) return; op = bt.dataset.op; $$('#blOps button').forEach(x => x.classList.toggle('on', x === bt)); draw(); });
+  [A, B, N].forEach(i => i.addEventListener('input', draw));
+  draw();
+}
+
+/* =========================================================
+   Seminar: evaluări manuale
+   ========================================================= */
+const MANUAL = [
+  { l: 1, d: 'int x = 0;', e: 'x = 10 + 5 * 4 / 2 - 3' },
+  { l: 1, d: 'int x = 0;', e: 'x = 3 % 3 + 3 * 3 - 3 / 3' },
+  { l: 1, d: 'int x = 0;', e: 'x = (2 * 9 * (2 + (9 * 2 / (2))))' },
+  { l: 2, d: '', e: '8 / 2 * 5 % 3 - 10 + (9 / 5)' },
+  { l: 2, d: '', e: '(1 + 2 * (3 / 2 + (40 % 3 * 3) * 2) - 1) + 10' },
+  { l: 2, d: '', e: '10 / 20 - 10 % 3 * 3 + 3' },
+  { l: 2, d: '', e: '(20 - 10) / (30 + 40) + (60 - 50.0) / 70', hint: 'Atenție: un singur operand real schimbă tipul unei singure operații.' },
+  { l: 2, d: '', e: '!(3 < 4) + (3 && 4) * (!0) + (3 || 4)' },
+  { l: 3, d: 'int x = 7, y = 2;', e: 'x / y * y + x % y == x', hint: 'Răspunsul este ceea ce afișează cout: 1 sau 0.' },
+  { l: 3, d: '', e: '~5 & 0xF | 1 << 3', hint: 'Ordinea: ~, apoi <<, apoi &, apoi |. 0xF = 15 = 1111.' },
+  { l: 3, d: 'int a = 5, b = 3;', e: 'a++ * 2 + --b', hint: 'Calculează și valorile finale ale lui a și b.' },
+  { l: 3, d: '', e: "'A' + 2 > 'B' ? 'x' : 66", hint: "Ce tip are rezultatul lui ?: când ramurile sunt char și int? Codul lui 'x' este 120." },
+];
+function sameAnswer(user, t, v) {
+  const u = user.trim().replace(',', '.').toLowerCase(); if (!u) return null;
+  if (t === 'bool' && (u === 'true' || u === 'false')) return (u === 'true') === !!v;
+  if (t === 'char' && /^'.'$/.test(u)) return u.charCodeAt(1) === v;
+  const x = Number(u); if (!Number.isFinite(x)) return false;
+  if (t === 'float' || t === 'double') return Math.abs(x - v) <= 1e-6 * Math.max(1, Math.abs(v));
+  return x === v;
+}
+function initManual() {
+  const box = $('#manual');
+  box.innerHTML = MANUAL.map((m, i) => `<div class="task blk" data-level="${m.l}" data-i="${i}">
+    ${m.d ? `<div style="font-size:.88rem;color:var(--muted)">Declarații: <code>${esc(m.d)}</code></div>` : ''}
+    <div class="expr">${i + 1}. ${esc(m.e)}</div>
+    ${m.hint ? `<div style="font-size:.88rem;color:var(--muted)">💡 ${esc(m.hint)}</div>` : ''}
+    <div class="row" style="margin-top:.4rem"><input type="text" placeholder="rezultatul" aria-label="rezultatul"><button class="btn primary chk">Verifică</button><button class="try" data-decl="${esc(m.d || DEF_DECL)}" data-expr="${esc(m.e)}">▶ rezolvarea pas cu pas</button></div>
+    <div class="fb"></div></div>`).join('');
+  box.addEventListener('click', e => {
+    const b = e.target.closest('.chk'); if (!b) return;
+    const t = b.closest('.task'); const m = MANUAL[+t.dataset.i];
+    const inp = t.querySelector('input'); const fb = t.querySelector('.fb');
+    let R; try { const D = parseDecls(m.d); R = evalQuiet(parse(m.e), D.env); } catch (er) { fb.textContent = er.message; return; }
+    const ok = sameAnswer(inp.value, R.t, R.v);
+    if (ok === null) { fb.innerHTML = 'Scrie mai întâi un răspuns.'; return; }
+    fb.innerHTML = ok ? `<span class="ok-t">✔ Corect!</span> Valoarea este ${esc(fmtLit(R.t, R.v))} (tip ${R.t}); cout afișează ${esc(coutFmt(R.t, R.v))}.` : `<span class="bad-t">✘ Nu este corect.</span> Reia ordinea operatorilor; dacă nu găsești greșeala, deschide rezolvarea pas cu pas.`;
+  });
+  box.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('.task input')) e.target.closest('.task').querySelector('.chk').click(); });
+}
+
+/* =========================================================
+   Seminar: scrie expresia
+   ========================================================= */
+const WRITE = [
+  { l: 1, t: 'Numărul natural `a` este impar.', vars: [['a', 'int', 0, 60]], ref: 'a % 2 != 0', sol: 'a % 2 != 0   sau   a % 2 == 1   sau   a & 1' },
+  { l: 1, t: '`a` aparține intervalului închis [10, 20].', vars: [['a', 'int', -5, 35]], ref: 'a >= 10 && a <= 20', sol: 'a >= 10 && a <= 20' },
+  { l: 1, t: 'Caracterul `c` este o cifră.', vars: [['c', 'char', 32, 126]], ref: "c >= '0' && c <= '9'", sol: "c >= '0' && c <= '9'" },
+  { l: 2, t: 'Caracterul `c` este o literă (mică sau mare).', vars: [['c', 'char', 32, 126]], ref: "(c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')", sol: "(c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')" },
+  { l: 2, t: 'Întregul `a` este par și nenegativ (a ≥ 0) sau impar și negativ.', vars: [['a', 'int', -30, 30]], ref: '(a % 2 == 0 && a >= 0) || (a % 2 != 0 && a < 0)', sol: '(a % 2 == 0 && a >= 0) || (a % 2 != 0 && a < 0)' },
+  { l: 2, t: '`x` și `y` sunt numere consecutive, în orice ordine (diferă exact prin 1).', vars: [['x', 'int', -6, 6], ['y', 'int', -6, 6]], ref: 'x - y == 1 || y - x == 1', sol: 'x - y == 1 || y - x == 1' },
+  { l: 2, t: 'Anul `an` este bisect: divizibil cu 4 și nu cu 100, sau divizibil cu 400.', vars: [['an', 'int', 1590, 2410]], ref: '(an % 4 == 0 && an % 100 != 0) || an % 400 == 0', sol: '(an % 4 == 0 && an % 100 != 0) || an % 400 == 0' },
+  { l: 3, t: 'Bitul de pe poziția `k` al lui `n` este 1 (pozițiile se numără de la 0, din dreapta).', vars: [['n', 'int', 0, 255], ['k', 'int', 0, 7]], ref: '(n >> k) & 1', sol: '(n >> k) & 1   sau   (n & (1 << k)) != 0' },
+  { l: 3, t: '`n` (n ≥ 0) este o putere a lui 2.', vars: [['n', 'int', 0, 1100]], ref: 'n > 0 && (n & (n - 1)) == 0', sol: 'n > 0 && (n & (n - 1)) == 0' },
+  { l: 3, t: '`a`, `b`, `c` pot fi lungimile laturilor unui triunghi (nedegenerat).', vars: [['a', 'int', 0, 7], ['b', 'int', 0, 7], ['c', 'int', 0, 7]], ref: 'a + b > c && a + c > b && b + c > a', sol: 'a + b > c && a + c > b && b + c > a' },
+];
+function* combos(vars, i = 0, cur = {}) {
+  if (i === vars.length) { yield { ...cur }; return; }
+  const [name, , lo, hi] = vars[i];
+  for (let v = lo; v <= hi; v++) { cur[name] = v; yield* combos(vars, i + 1, cur); }
+}
+function compareExprs(e1, e2, vars) {
+  const A = parse(e1), B = parse(e2);
+  for (const [n, a] of [[e1, A], [e2, B]]) if (hasSide(a)) throw new CErr(`Expresia „${n}” conține atribuiri sau ++/-- — scrie doar o condiție, fără efecte secundare.`);
+  let count = 0;
+  for (const c of combos(vars)) {
+    const env = () => new Map(vars.map(([nm, t]) => [nm, { t, v: c[nm] }]));
+    const r1 = evalQuiet(A, env()), r2 = evalQuiet(B, env());
+    count++;
+    if ((r1.v !== 0) !== (r2.v !== 0)) return { ok: false, c, r1, r2, count };
+  }
+  return { ok: true, count };
+}
+const showVal = (t, v) => t === 'char' ? charLit(v) : String(v);
+function initWrite() {
+  const box = $('#write');
+  box.innerHTML = WRITE.map((w, i) => `<div class="task blk" data-level="${w.l}" data-i="${i}">
+    <div><b>${i + 1}.</b> ${md(w.t)}</div>
+    <div style="font-size:.85rem;color:var(--muted)">Verificare pentru: ${w.vars.map(v => `${v[0]} ∈ [${showVal(v[1], v[2])}, ${showVal(v[1], v[3])}] (${v[1]})`).join(', ')}</div>
+    <div class="row" style="margin-top:.4rem"><input type="text" class="mono wide" placeholder="expresia ta" spellcheck="false"><button class="btn primary chk">Verifică</button></div>
+    <div class="fb"></div>
+    <details><summary>Soluție</summary><code>${esc(w.sol)}</code></details></div>`).join('');
+  box.addEventListener('click', e => {
+    const b = e.target.closest('.chk'); if (!b) return;
+    const t = b.closest('.task'); const w = WRITE[+t.dataset.i]; const fb = t.querySelector('.fb');
+    const user = t.querySelector('input').value.trim();
+    if (!user) { fb.textContent = 'Scrie mai întâi o expresie.'; return; }
+    try {
+      const allowed = new Set(w.vars.map(v => v[0]));
+      walk(parse(user), n => { if (n.k === 'var' && !allowed.has(n.name)) throw new CErr(`Variabila „${n.name}” nu face parte din enunț (folosește: ${[...allowed].join(', ')}).`); });
+      const r = compareExprs(user, w.ref, w.vars);
+      if (r.ok) fb.innerHTML = `<span class="ok-t">✔ Corect!</span> Expresia ta dă rezultatul corect pentru toate cele ${r.count} cazuri verificate.`;
+      else {
+        const where = w.vars.map(v => `${v[0]} = ${showVal(v[1], r.c[v[0]])}`).join(', ');
+        fb.innerHTML = `<span class="bad-t">✘ Nu încă.</span> Contraexemplu: pentru <code>${esc(where)}</code> expresia ta dă ${r.r1.v !== 0 ? '<b>adevărat</b>' : '<b>fals</b>'} (valoarea ${esc(fmtLit(r.r1.t, r.r1.v))}), dar răspunsul corect este ${r.r2.v !== 0 ? 'adevărat' : 'fals'}.`;
+      }
+    } catch (er) { fb.innerHTML = `<span class="bad-t">Eroare:</span> ${esc(er.message)}`; }
+  });
+  box.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('.task input')) e.target.closest('.task').querySelector('.chk').click(); });
+}
+
+/* =========================================================
+   Verificatorul de echivalență
+   ========================================================= */
+const EQ_PRE = [
+  ['De Morgan (1)', '!(p && q)', '!p || !q'],
+  ['De Morgan (2)', '!(p || q)', '!p && !q'],
+  ['Greșeală tipică la negare', '!(p && q)', '!p && !q'],
+  ['num != 10 și num - 10', 'num != 10', 'num - 10'],
+  ['!(num - 10)', 'num != 10', '!(num - 10)'],
+  ['Paritate: % sau &', 'x % 2 != 0', 'x & 1'],
+  ['Paritate greșită pentru negative', 'x % 2 != 0', 'x % 2 == 1'],
+  ['Negația unui interval', '!(x >= 2 && x <= 7)', 'x < 2 || x > 7'],
+  ['Interval scris ca în matematică', 'x > 1 && x < 5', '1 < x < 5'],
+  ['Prioritatea lui && față de ||', 'a || b && c', '(a || b) && c'],
+];
+function initEqv() {
+  const sel = $('#eqPre');
+  EQ_PRE.forEach((p, i) => sel.add(new Option(p[0], i)));
+  sel.onchange = () => { if (sel.value === '') return; const p = EQ_PRE[+sel.value]; $('#eq1').value = p[1]; $('#eq2').value = p[2]; sel.value = ''; go(); };
+  function go() {
+    const out = $('#eqOut');
+    try {
+      const e1 = $('#eq1').value.trim(), e2 = $('#eq2').value.trim();
+      if (!e1 || !e2) { out.textContent = 'Completează ambele expresii.'; return; }
+      let lo = Math.trunc(+$('#eqMin').value), hi = Math.trunc(+$('#eqMax').value);
+      if (!(lo <= hi)) throw new CErr('Intervalul de valori nu este valid.');
+      const names = new Set(); [e1, e2].forEach(e => walk(parse(e), n => { if (n.k === 'var') names.add(n.name); }));
+      if (names.size > 3) throw new CErr('Folosește cel mult trei variabile.');
+      const span = hi - lo + 1;
+      if (span ** names.size > 60000) throw new CErr('Prea multe combinații: micșorează intervalul.');
+      const vars = [...names].map(n => [n, 'int', lo, hi]);
+      const r = compareExprs(e1, e2, vars);
+      if (r.ok) out.innerHTML = `<div class="tip"><b>✔ Echivalente</b>Cele două expresii au aceeași valoare de adevăr în toate cele ${r.count} combinații verificate${names.size ? ` (${[...names].join(', ')} ∈ [${lo}, ${hi}])` : ''}.</div>`;
+      else {
+        const where = vars.map(v => `${v[0]} = ${r.c[v[0]]}`).join(', ');
+        out.innerHTML = `<div class="ub"><b>✘ Nu sunt echivalente</b>Contraexemplu: pentru <code>${esc(where)}</code> prima expresie este ${r.r1.v ? 'adevărată' : 'falsă'} (${esc(fmtLit(r.r1.t, r.r1.v))}), iar a doua este ${r.r2.v ? 'adevărată' : 'falsă'} (${esc(fmtLit(r.r2.t, r.r2.v))}).</div>`;
+      }
+    } catch (er) { out.innerHTML = errHTML(er); }
+  }
+  $('#eqGo').onclick = go;
+  ['#eq1', '#eq2'].forEach(s => $(s).addEventListener('keydown', e => { if (e.key === 'Enter') go(); }));
+}
+
+/* =========================================================
+   Grile
+   ========================================================= */
+const QSEM = [
+  { l: 1, q: 'Expresia `x % 10 > 9` (x de tip int):', o: ['poate fi falsă sau adevărată, în funcție de x', 'este adevărată întotdeauna', 'este falsă întotdeauna', 'este incorectă sintactic'], a: 2, e: 'Restul împărțirii la 10 este între 0 și 9 (sau între -9 și 0 pentru x negativ), deci nu poate fi niciodată mai mare decât 9.' },
+  { l: 1, q: 'Care expresie are valoarea 15?', o: ['`10/9 + 14`', '`5 * 2+6`', '`30 % 2`', '`3(5)`'], a: 0, e: '`10/9` este împărțire întreagă = 1, iar 1 + 14 = 15. `5*2+6` = 16, `30 % 2` = 0, iar `3(5)` este eroare de sintaxă: înmulțirea se scrie explicit, `3 * 5`.' },
+  { l: 1, q: 'Dacă a este de tip int, care expresie este **întotdeauna** adevărată?', o: ['`(a > 0) && (a == 0)`', '`(a >= 0) || (a == 0)`', '`(a > 0) && (a <= 0)`', '`(a > 0) || (a <= 0)`'], a: 3, e: 'Orice întreg este fie > 0, fie ≤ 0, deci SAU-ul celor două este o tautologie. Variantele a) și c) sunt mereu false, iar b) este falsă pentru a negativ.' },
+  { l: 2, q: 'Ce valoare are expresia `(20 - 10) / (30 + 40) + (60 - 50.0) / 70`?', o: ['-0.142857', '0.142857', '0', '0.000000'], a: 1, e: 'Prima fracție este împărțire întreagă: 10 / 70 = 0. A doua conține 50.0, deci este reală: 10.0 / 70 ≈ 0.142857. Suma: 0.142857.' },
+  { l: 2, q: 'Care condiție **nu** este echivalentă cu `if (num != 10)`?', o: ['`if (num > 10 || num < 10)`', '`if (!(num == 10))`', '`if (num - 10)`', '`if (!(num - 10))`'], a: 3, e: '`num - 10` este nenul exact când num ≠ 10, deci c) este echivalentă. Negând-o, `!(num - 10)` este adevărată exact când num == 10 — opusul.' },
+  { l: 2, q: 'Expresia `!(p && q)` este echivalentă cu:', o: ['`!p || !q`', '`!p && !q`', '`!p && q`', '`p || q`'], a: 0, e: 'Legea lui De Morgan: negația unei conjuncții este disjuncția negațiilor.' },
+  { l: 1, q: 'Care expresie calculează (a − b) / (c + d) · e, toate variabilele fiind double?', o: ['`a-b / c+d * e`', '`(a-b) / (c+d) * e`', '`(a-b)/c+d * e`', '`a-b / (c+d) * e`'], a: 1, e: 'Fără paranteze, / și * au prioritate mai mare decât + și -. Numărătorul și numitorul trebuie puși între paranteze; apoi `/` și `*` se aplică de la stânga la dreapta, deci rezultatul se înmulțește cu e.' },
+  { l: 1, q: 'Care expresie are valoarea reală 0.25 (o pătrime)?', o: ['`1/4`', '`1%4`', '`1./4`', '`1.%4`'], a: 2, e: '`1/4` = 0 (împărțire întreagă), `1%4` = 1, iar `1.%4` este eroare de compilare (% nu acceptă reali). `1.` este constanta reală 1.0.' },
+  { l: 2, q: 'Ce valoare are `10 / 20 - 10 % 3 * 3 + 3`?', o: ['2', '0', '3', '1'], a: 1, e: '10 / 20 = 0; 10 % 3 = 1; 1 * 3 = 3; 0 - 3 + 3 = 0.' },
+  { l: 2, q: 'Când afișează secvența `if (valoare == 10 || 1) cout << "da";` mesajul „da”?', o: ['când valoare este 10', 'când valoare este diferită de 10', 'întotdeauna', 'niciodată'], a: 2, e: '`|| 1` face condiția mereu adevărată. Probabil autorul voia `valoare == 10 || valoare == 1`.' },
+  { l: 1, q: 'Pentru `int a = 7, b = 2;` ce valori au `a / b` și `a % b`?', o: ['3.5 și 0', '3 și 1', '3 și 0.5', '4 și 1'], a: 1, e: 'Ambii operanzi sunt întregi: câtul este 3, restul 1 (7 = 3·2 + 1).' },
+  { l: 1, q: 'Ce valoare are `\'a\' + 1`?', o: ['`\'b\'`', '98', '`"a1"`', 'eroare de compilare'], a: 1, e: 'Caracterul este promovat la int (codul 97), deci rezultatul este întregul 98. Abia `(char)(\'a\' + 1)` este caracterul \'b\'.' },
+  { l: 2, q: 'Pentru `int x = 5;` ce valoare are x după `x *= 2 + 3;`?', o: ['13', '25', '10', '15'], a: 1, e: '`x *= 2 + 3` înseamnă `x = x * (2 + 3)` = 5 · 5 = 25.' },
+  { l: 2, q: 'Ce afișează `cout << (x & 1 == 0);` pentru x = 4?', o: ['1, pentru că 4 este par', '0', '4', 'eroare de compilare'], a: 1, e: '`==` are prioritate mai mare decât `&`: se calculează `1 == 0` = 0, apoi `4 & 0` = 0. Corect: `(x & 1) == 0`.' },
+  { l: 2, q: 'Pentru `int x = 10;` ce valoare are `1 < x < 3`?', o: ['0, pentru că 10 nu este între 1 și 3', '1', 'eroare de compilare', 'comportament nedefinit'], a: 1, e: 'Se grupează `(1 < x) < 3` = `1 < 3` = 1. Pentru intervale se scrie `1 < x && x < 3`.' },
+  { l: 2, q: 'Pentru `int i = 0;` ce se întâmplă la evaluarea lui `i != 0 && 10 / i > 1`?', o: ['împărțire la zero', 'rezultatul este 0, fără nicio împărțire', 'rezultatul este 1', 'eroare de compilare'], a: 1, e: 'Operandul stâng este fals, deci prin scurtcircuitare operandul drept nu se mai evaluează.' },
+  { l: 3, q: 'Ce valori au `-7 / 2` și `-7 % 2`?', o: ['-4 și 1', '-3 și -1', '-3 și 1', '-4 și -1'], a: 1, e: 'Împărțirea întreagă trunchiază spre zero: -3,5 → -3. Restul are semnul deîmpărțitului: -7 = (-3)·2 + (-1).' },
+  { l: 3, q: 'Ce valoare are `~0` pentru un int?', o: ['1', '0', '-1', '4294967295'], a: 2, e: 'Toți cei 32 de biți devin 1, ceea ce în complement față de 2 înseamnă -1 (~x = -x - 1).' },
+  { l: 3, q: 'Ce afișează `cout << (-1 < 0u);` (0u este o constantă unsigned)?', o: ['1', '0', '-1', 'eroare de compilare'], a: 1, e: 'Conversiile aritmetice uzuale transformă -1 în unsigned: 4294967295, care nu este mai mic decât 0. Rezultatul este fals.' },
+  { l: 3, q: 'Pentru `int i = 3;` ce rezultat are `i++ + i++`?', o: ['7', '8', '6', 'comportament nedefinit'], a: 3, e: 'i este modificat de două ori fără o ordine garantată între modificări: comportament nedefinit, în C și în C++.' },
+];
+const QFIN = [
+  { l: 1, q: 'Adevărat sau fals: operatorul `%` poate fi folosit numai cu operanzi întregi.', o: ['Adevărat', 'Fals'], a: 0, e: 'Adevărat. Pentru numere reale există funcția `fmod`.' },
+  { l: 1, q: 'Adevărat sau fals: operatorii `*`, `/`, `%`, `+` și `-` au același nivel de prioritate.', o: ['Adevărat', 'Fals'], a: 1, e: 'Fals: `*`, `/`, `%` au aceeași prioritate, mai mare decât cea a lui `+` și `-`.' },
+  { l: 1, q: 'Adevărat sau fals: toți operatorii din C++ se evaluează de la stânga la dreapta.', o: ['Adevărat', 'Fals'], a: 1, e: 'Fals. Operatorii unari, operatorul condițional și atribuirile se grupează de la dreapta la stânga (`a = b = c` înseamnă `a = (b = c)`).' },
+  { l: 2, q: 'Adevărat sau fals: în C++, o expresie aritmetică fără paranteze se evaluează de la stânga la dreapta.', o: ['Adevărat', 'Fals'], a: 1, e: 'Fals. Ordinea este dictată de priorități: în `a = b + c * d` se calculează întâi `c * d`, deși este cel mai din dreapta.' },
+  { l: 1, q: 'Care operatori aritmetici au aceeași prioritate ca înmulțirea?', o: ['`+` și `-`', '`/` și `%`', 'doar `/`', '`/`, `%`, `+`, `-`'], a: 1, e: 'Operatorii multiplicativi: `*`, `/`, `%`.' },
+  { l: 1, q: 'Într-o expresie cu paranteze imbricate, care paranteze se evaluează primele?', o: ['cele mai din stânga', 'cele mai exterioare', 'cele mai interioare', 'cele mai din dreapta'], a: 2, e: 'Se grupează întâi expresia din parantezele cele mai interioare.' },
+  { l: 2, q: 'Ce afișează `cout << (8 / 2 * 5 % 3 - 10 + (9/5));`?', o: ['1', '2', '-7', '-9'], a: 2, e: '8/2 = 4; 4*5 = 20; 20%3 = 2; 9/5 = 1; 2 - 10 + 1 = -7.' },
+  { l: 2, q: 'Ce afișează `cout << ((1+2*(3/2+(40%3*3)*2)-1)+10);`?', o: ['20', '24', '30', '22'], a: 1, e: '40%3 = 1; 1*3 = 3; 3*2 = 6; 3/2 = 1; 1 + 6 = 7; 2*7 = 14; 1 + 14 - 1 = 14; 14 + 10 = 24.' },
+  { l: 1, q: 'Care expresie calculează 1 / (x·y + 1), x și y fiind double?', o: ['`1/(xy+1)`', '`1/x*y+1`', '`1/(x*y+1)`', '`1/xy+1`'], a: 2, e: '`xy` ar fi numele unei variabile, nu un produs; numitorul trebuie pus între paranteze.' },
+  { l: 2, q: 'Care expresie este adevărată dacă și numai dacă x și y sunt numere naturale consecutive?', o: ['`x-y==1`', '`(x==1) && (y==2)`', '`(x-y==1) && (y-x==1)`', '`(x-y==1) || (y-x==1)`'], a: 3, e: 'Numerele sunt consecutive dacă diferența, în oricare ordine, este 1. Varianta c) este mereu falsă; a) acoperă doar o ordine.' },
+  { l: 1, q: 'Care operator are cea mai mare prioritate?', o: ['`+`', '`*`', '`&&`', '`=`'], a: 1, e: 'Dintre cele patru, ordinea priorităților este `*` > `+` > `&&` > `=`.' },
+  { l: 2, q: 'Pentru `char c = \'A\'; c = c + 2;` ce conține c?', o: ['67, afișat ca număr', 'caracterul C', 'caracterul A2', 'eroare de compilare'], a: 1, e: '`c + 2` este int 67; la atribuire se convertește înapoi la char, adică \'C\'.' },
+  { l: 2, q: 'Ce valoare are `5 > 3 ? 10 : 20`?', o: ['5', '10', '20', '1'], a: 1, e: 'Condiția este adevărată, deci valoarea este al doilea operand, 10.' },
+  { l: 2, q: 'Pentru `int n = 16;` ce valoare are `n & (n - 1)`?', o: ['16', '15', '0', '1'], a: 2, e: '16 = 10000, 15 = 01111; ȘI pe biți dă 0. Asta arată că 16 este putere a lui 2.' },
+  { l: 3, q: 'După `int i = 1; int s = sizeof(i++);` ce valoare are i?', o: ['1', '2', '4', 'nedefinită'], a: 0, e: 'Operandul lui `sizeof` nu se evaluează; contează doar tipul lui. i rămâne 1.' },
+  { l: 3, q: 'Ce afișează `cout << (true ? \'A\' : 66);`?', o: ['A', '65', '66', 'B'], a: 1, e: 'Tipul rezultatului lui `?:` este tipul comun al ramurilor (char și int → int), deci se afișează codul 65.' },
+  { l: 3, q: 'Pentru `double d = 0.1 + 0.2;` ce valoare are `d == 0.3`?', o: ['1 (adevărat)', '0 (fals)', 'depinde de compilator', 'eroare de compilare'], a: 1, e: '0.1 și 0.2 nu au reprezentare exactă în binar; suma este 0.30000000000000004. Realii se compară cu toleranță.' },
+  { l: 3, q: 'Pentru `int a = 50000, b = 50000; long long p = a * b;` ce este adevărat?', o: ['p este 2500000000', 'înmulțirea se face în int și depășește domeniul: comportament nedefinit', 'compilatorul convertește automat la long long înainte de înmulțire', 'eroare de compilare'], a: 1, e: 'Tipul operației se stabilește din tipurile operanzilor (int), nu din tipul destinației. Corect: `(long long)a * b`.' },
+];
+function renderQuiz(el, qs, id) {
+  el.innerHTML = qs.map((q, i) => `<div class="q blk" data-level="${q.l}" data-i="${i}">
+     <div class="qh"><span class="qn">${i + 1}.</span> ${md(q.q)}</div>
+     <div class="opts">${q.o.map((o, j) => `<button class="opt" data-j="${j}">${String.fromCharCode(97 + j)}) ${md(o)}</button>`).join('')}</div>
+     <div class="expl" hidden></div></div>`).join('') +
+    `<div class="scorebar" id="${id}-score"><span></span><button class="btn" data-reset>Reia grila</button></div>`;
+  const st = {};
+  const upd = () => {
+    const vis = $$('.q', el).filter(q => q.offsetParent !== null).map(q => +q.dataset.i);
+    const ans = vis.filter(i => st[i] !== undefined), ok = ans.filter(i => st[i]);
+    const per = [1, 2, 3].map(l => { const v = ans.filter(i => qs[i].l === l); return v.length ? `${['', 'începător', 'mediu', 'avansat'][l]}: ${v.filter(i => st[i]).length}/${v.length}` : null; }).filter(Boolean).join(' · ');
+    $(`#${id}-score > span`).innerHTML = `<b>Scor: ${ok.length} / ${vis.length}</b> &nbsp; <span style="color:var(--muted);font-size:.9rem">răspunse: ${ans.length}${per ? ' · ' + per : ''}</span>`;
+  };
+  el.addEventListener('click', e => {
+    if (e.target.closest('[data-reset]')) { Object.keys(st).forEach(k => delete st[k]); renderQuiz(el, qs, id); return; }
+    const b = e.target.closest('.opt'); if (!b) return;
+    const qd = b.closest('.q'); const i = +qd.dataset.i; if (st[i] !== undefined) return;
+    const j = +b.dataset.j; const q = qs[i]; st[i] = j === q.a;
+    $$('.opt', qd).forEach((x, k) => { x.disabled = true; if (k === q.a) x.classList.add('right'); else if (k === j) x.classList.add('wrong'); });
+    const ex = $('.expl', qd); ex.hidden = false; ex.innerHTML = (st[i] ? '<span class="ok-t">✔ Corect.</span> ' : '<span class="bad-t">✘ Greșit.</span> ') + md(q.e);
+    qd.style.borderLeftColor = st[i] ? 'var(--okb)' : 'var(--badb)';
+    upd();
+  });
+  el._upd = upd; upd();
+}
+
+/* =========================================================
+   Niveluri, cuprins, temă, progres
+   ========================================================= */
+function addBadges() {
+  const N = { 1: ['l1', 'Începător'], 2: ['l2', 'Mediu'], 3: ['l3', 'Avansat'] };
+  $$('.blk[data-level]').forEach(b => { if (b.dataset.badged) return; b.dataset.badged = '1'; const [c, t] = N[b.dataset.level]; const s = document.createElement('span'); s.className = `badge ${c}`; s.textContent = t; if (b.tagName === 'DETAILS') b.querySelector('summary').append(' ', s); else b.prepend(s); });
+  $$('section[data-level] > h2').forEach(h => { if (h.querySelector('.badge')) return; const [c, t] = N[h.parentElement.dataset.level]; h.insertAdjacentHTML('beforeend', ` <span class="badge ${c}">${t}</span>`); });
+}
+function buildToc() {
+  const nav = $('#toc'); let h = '<a href="#start" style="font-weight:600">Început</a>';
+  $$('main h2').forEach(x => {
+    if (x.offsetParent === null) return;
+    if (x.classList.contains('part')) { h += `<div class="grp">${esc(x.textContent.replace(/^Partea [^—]+— /, ''))}</div>`; return; }
+    const sec = x.closest('section'); const id = x.id || (sec && sec.id); if (!id) return;
+    h += `<a href="#${id}" data-t="${id}">${esc(x.childNodes[0].textContent.trim())}</a>`;
+  });
+  nav.innerHTML = h;
+}
+function setLevel(l) {
+  document.body.dataset.lv = l;
+  $$('.lvb').forEach(b => b.classList.toggle('on', b.dataset.set === String(l)));
+  store('ui7-level', String(l));
+  buildToc();
+  ['quiz-sem', 'quiz-final'].forEach(id => { const el = $('#' + id); if (el && el._upd) el._upd(); });
+}
+function initChrome() {
+  $$('.lvb').forEach(b => b.onclick = () => setLevel(+b.dataset.set));
+  const th = store('ui7-theme'); if (th) document.documentElement.dataset.theme = th;
+  else if (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.dataset.theme = 'dark';
+  $('#themeBtn').onclick = () => { const d = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = d; store('ui7-theme', d); };
+  const onScroll = () => {
+    const h = document.documentElement; const p = h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight);
+    $('#progress').style.width = (p * 100).toFixed(1) + '%';
+    let cur = null; $$('main section[id]').forEach(s => { if (s.offsetParent !== null && s.getBoundingClientRect().top < 120) cur = s.id; });
+    $$('#toc a[data-t]').forEach(a => a.classList.toggle('act', a.dataset.t === cur));
+  };
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+}
+
+/* =========================================================
+   Pornire
+   ========================================================= */
+document.addEventListener('DOMContentLoaded', () => {
+  mountCode();
+  addBadges();
+  initChrome();
+  initPrec();
+  initConv();
+  initBitlab();
+  initManual();
+  renderQuiz($('#quiz-sem'), QSEM, 'qs');
+  initWrite();
+  initEqv();
+  renderQuiz($('#quiz-final'), QFIN, 'qf');
+  addBadges();
+  initEvaluator();
+  const saved = store('ui7-level'); setLevel(saved ? +saved : 3);
+});
+</script>
+</body>
+</html>
