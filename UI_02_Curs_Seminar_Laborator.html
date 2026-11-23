@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UI 2 · Reprezentarea informației; formate binare de reprezentare. Coduri pentru reprezentarea datelor — PCLP I</title>
+<style>
+:root{
+  --paper:#f6f4ee; --card:#ffffff; --ink:#1c2230; --muted:#5d6678; --line:#e2ddd2;
+  --acc:#2f5bd3; --acc2:#e8a33d; --acc-soft:#e7edfb; --ok:#1f8a5b; --ok-soft:#e3f4ec;
+  --bad:#c23a3a; --bad-soft:#fbe9e9; --warn:#a86a00; --warn-soft:#fff4dc;
+  --mono:"JetBrains Mono","Cascadia Code","Fira Code",Consolas,"DejaVu Sans Mono",monospace;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"DejaVu Serif",serif;
+  --sans:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+  --r:12px; --shadow:0 1px 2px rgba(20,25,40,.06),0 4px 14px rgba(20,25,40,.06);
+}
+body.dark{
+  --paper:#12151c; --card:#1b2029; --ink:#e6e9f0; --muted:#9aa3b5; --line:#2c3340;
+  --acc-soft:#1f2a44; --ok-soft:#14302a; --bad-soft:#3a1d1f; --warn-soft:#3a2e14;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);transition:background .3s,color .3s}
+h1,h2,h3,h4{font-family:var(--serif);line-height:1.25;margin:1.2em 0 .5em}
+h1{font-size:1.9rem;margin:0}
+h2{font-size:1.55rem;border-bottom:2px solid var(--line);padding-bottom:.3em}
+h3{font-size:1.2rem;color:var(--acc)}
+h4{font-size:1.05rem}
+a{color:var(--acc)}
+code,.mono{font-family:var(--mono);font-size:.92em}
+p{margin:.5em 0 .8em}
+small{color:var(--muted)}
+
+/* ===== Header ===== */
+header.top{position:sticky;top:0;z-index:50;background:var(--card);border-bottom:1px solid var(--line);box-shadow:var(--shadow)}
+.top-inner{max-width:1240px;margin:0 auto;padding:.8rem 1.2rem .3rem;display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
+.badge-ui{background:var(--acc);color:#fff;font-weight:700;border-radius:10px;padding:.35rem .7rem;font-family:var(--mono);letter-spacing:.03em}
+.top-title{flex:1;min-width:260px}
+.top-title .sub{color:var(--muted);font-size:.9rem}
+.top-title h1{font-size:1.25rem}
+.icon-btn{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:8px;padding:.35rem .6rem;cursor:pointer;font-size:.95rem}
+.icon-btn:hover{background:var(--acc-soft)}
+nav.tabs{max-width:1240px;margin:0 auto;padding:0 1.2rem;display:flex;gap:.25rem;overflow-x:auto}
+nav.tabs button{border:none;background:none;color:var(--muted);font:600 .98rem var(--sans);padding:.6rem 1rem;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+nav.tabs button:hover{color:var(--ink)}
+nav.tabs button.active{color:var(--acc);border-bottom-color:var(--acc)}
+.progress{height:3px;background:var(--line)}
+.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .15s}
+
+/* ===== Layout ===== */
+main{max-width:1240px;margin:0 auto;padding:1.2rem}
+.panel{display:none;animation:fadeUp .35s ease}
+.panel.active{display:block}
+.with-toc{display:grid;grid-template-columns:240px 1fr;gap:1.6rem;align-items:start}
+.toc{position:sticky;top:120px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:.8rem;font-size:.9rem;max-height:calc(100vh - 140px);overflow:auto}
+.toc b{display:block;font-family:var(--serif);margin-bottom:.4rem}
+.toc a{display:block;color:var(--muted);text-decoration:none;padding:.25rem .5rem;border-radius:6px;border-left:3px solid transparent}
+.toc a:hover{background:var(--acc-soft);color:var(--ink)}
+.toc a.on{border-left-color:var(--acc);color:var(--acc);background:var(--acc-soft);font-weight:600}
+@media(max-width:900px){.with-toc{grid-template-columns:1fr}.toc{position:static;max-height:none}}
+
+section.unit-sec{scroll-margin-top:120px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1.1rem 1.3rem;margin:1rem 0;box-shadow:var(--shadow)}
+.card>h3:first-child,.card>h4:first-child{margin-top:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+@media(max-width:800px){.grid2,.grid3{grid-template-columns:1fr}}
+.hero{background:linear-gradient(135deg,var(--acc) 0%,#20366f 100%);color:#fff;border-radius:16px;padding:1.6rem 1.8rem;margin-bottom:1.2rem;position:relative;overflow:hidden}
+.hero h2{border:none;color:#fff;margin:0 0 .4rem;font-size:1.7rem}
+.hero ul{margin:.3rem 0 0;padding-left:1.2rem}
+.hero .meta{opacity:.85;font-size:.9rem;margin-top:.8rem}
+.hero canvas{position:absolute;inset:0;opacity:.18;pointer-events:none}
+.hero>*{position:relative}
+
+.note{border-left:4px solid var(--acc);background:var(--acc-soft);padding:.6rem .9rem;border-radius:0 8px 8px 0;margin:.8rem 0}
+.note.obs{border-color:var(--acc2);background:var(--warn-soft)}
+.note.fix{border-color:var(--bad);background:var(--bad-soft)}
+.note.fix::before{content:"Notă de corectură · ";font-weight:700;color:var(--bad)}
+.note.obs::before{content:"Obs. · ";font-weight:700;color:var(--warn)}
+.def{border:1px dashed var(--acc);border-radius:10px;padding:.6rem .9rem;margin:.8rem 0}
+.def b:first-child{color:var(--acc)}
+.formula{font-family:var(--serif);font-size:1.15rem;text-align:center;padding:.7rem;margin:.6rem 0;background:var(--paper);border-radius:8px;overflow-x:auto}
+
+table.t{border-collapse:collapse;width:100%;margin:.6rem 0;font-size:.93rem}
+table.t th,table.t td{border:1px solid var(--line);padding:.35rem .55rem;text-align:center}
+table.t th{background:var(--acc-soft);font-weight:600}
+table.t tr:hover td{background:rgba(127,127,127,.06)}
+table.t td.l,table.t th.l{text-align:left}
+.scroll-x{overflow-x:auto}
+
+/* ===== Controls ===== */
+button.btn,.btn{border:1px solid var(--acc);background:var(--acc);color:#fff;border-radius:8px;padding:.42rem .9rem;font:600 .92rem var(--sans);cursor:pointer;transition:transform .1s,filter .15s}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;color:var(--acc)}
+.btn.small{padding:.25rem .6rem;font-size:.85rem}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+input[type=text],input[type=number],select,textarea{font:1rem var(--mono);padding:.4rem .55rem;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);min-width:0}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--acc);outline-offset:1px}
+input[type=range]{accent-color:var(--acc);width:100%}
+.row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin:.5rem 0}
+.row label{font-size:.9rem;color:var(--muted)}
+.out{font-family:var(--mono);background:var(--paper);border-radius:8px;padding:.6rem .8rem;margin:.5rem 0;white-space:pre-wrap;word-break:break-all;min-height:2.2em}
+.pill{display:inline-block;padding:.05rem .5rem;border-radius:999px;background:var(--acc-soft);color:var(--acc);font-size:.8rem;font-weight:600}
+.ok{color:var(--ok);font-weight:600}.bad{color:var(--bad);font-weight:600}
+.hl{background:var(--acc2);color:#111;border-radius:4px;padding:0 .2em;transition:background .3s}
+
+/* ===== Bits ===== */
+.bits{display:inline-flex;gap:3px;flex-wrap:wrap;font-family:var(--mono)}
+.bit{width:30px;height:36px;display:inline-flex;align-items:center;justify-content:center;border:1.5px solid var(--line);border-radius:6px;background:var(--card);font-weight:700;font-size:1.05rem;transition:all .35s;position:relative;user-select:none}
+.bit.one{background:var(--acc);border-color:var(--acc);color:#fff}
+.bit.click{cursor:pointer}.bit.click:hover{transform:translateY(-2px)}
+.bit.flip{animation:flip .45s}
+.bit.sign{box-shadow:0 0 0 2px var(--bad) inset}
+.bit.exp{border-color:var(--acc2)}
+.bit.exp.one{background:var(--acc2);border-color:var(--acc2);color:#111}
+.bit.err{background:var(--bad)!important;border-color:var(--bad)!important;color:#fff!important;animation:shake .4s}
+.bit.par{border-style:dashed}
+.bit.gap{margin-left:10px}
+.bit .w{position:absolute;top:-17px;font-size:.62rem;color:var(--muted);font-weight:500}
+.bitlbl{display:flex;gap:3px;font:600 .7rem var(--mono);color:var(--muted)}
+.bitlbl span{width:30px;text-align:center}
+
+/* ===== Stepper ===== */
+.stepper{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin:.8rem 0;background:var(--card)}
+.stepper .st-head{display:flex;align-items:center;gap:.4rem;padding:.5rem .7rem;background:var(--acc-soft);flex-wrap:wrap}
+.stepper .st-title{font-weight:700;flex:1;min-width:140px}
+.stepper .st-count{font:600 .85rem var(--mono);color:var(--muted)}
+.stepper .st-body{padding:.9rem 1rem;min-height:90px}
+.stepper .st-bar{height:3px;background:var(--line)}
+.stepper .st-bar>div{height:100%;background:var(--acc);transition:width .3s}
+.step-line{opacity:0;transform:translateX(-8px);animation:slideIn .4s forwards}
+
+/* ===== Quiz ===== */
+.q{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1rem 1.2rem;margin:.9rem 0}
+.q .qn{font:700 .8rem var(--mono);color:var(--acc)}
+.q .qt{font-weight:600;margin:.2rem 0 .6rem}
+.q .opts{display:grid;gap:.4rem}
+.q .opt{border:1.5px solid var(--line);border-radius:8px;padding:.45rem .7rem;cursor:pointer;transition:all .2s;font-family:var(--mono);background:var(--paper)}
+.q .opt:hover{border-color:var(--acc)}
+.q .opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.q .opt.wrong{border-color:var(--bad);background:var(--bad-soft);animation:shake .35s}
+.q .expl{display:none;margin-top:.6rem;padding:.6rem .8rem;border-radius:8px;background:var(--paper);border-left:3px solid var(--ok)}
+.q.done .expl{display:block;animation:fadeUp .3s}
+.score{position:sticky;bottom:12px;margin-left:auto;width:max-content;background:var(--ink);color:var(--paper);padding:.5rem 1rem;border-radius:999px;font-weight:700;box-shadow:var(--shadow)}
+
+/* ===== Exercise ===== */
+.ex{border:1px solid var(--line);border-radius:var(--r);padding:.9rem 1.1rem;background:var(--card);margin:.8rem 0}
+.ex .ex-q{font-weight:600}
+.ex .fb{margin-top:.4rem;min-height:1.4em}
+.ex details{margin-top:.5rem}
+.ex summary{cursor:pointer;color:var(--acc);font-weight:600}
+.streak{font:700 .85rem var(--mono);color:var(--acc2)}
+
+/* ===== Code ===== */
+pre.code{background:#0f1420;color:#d8dee9;border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:13.5px/1.55 var(--mono);margin:.6rem 0;position:relative}
+pre.code .k{color:#81a1c1}pre.code .s{color:#a3be8c}pre.code .c{color:#6b7891;font-style:italic}pre.code .n{color:#b48ead}pre.code .f{color:#88c0d0}pre.code .p{color:#ebcb8b}
+.copy{position:absolute;top:6px;right:6px;background:#2b3245;color:#cdd6e4;border:none;border-radius:6px;padding:.15rem .5rem;font-size:.75rem;cursor:pointer}
+.term{background:#0b0d12;color:#9ef0a8;font:13px/1.5 var(--mono);border-radius:10px;padding:.8rem 1rem;white-space:pre-wrap;min-height:3em}
+
+/* ===== SVG helpers ===== */
+svg text{font-family:var(--sans)}
+.svgbox{width:100%;overflow-x:auto;background:var(--paper);border-radius:10px;padding:.4rem}
+svg .node circle,svg .node rect{transition:all .4s}
+.fadein{animation:fadeUp .5s both}
+
+/* ===== Animations ===== */
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes slideIn{to{opacity:1;transform:none}}
+@keyframes flip{0%{transform:rotateX(0)}50%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(47,91,211,.45)}50%{box-shadow:0 0 0 8px rgba(47,91,211,0)}}
+.pulse{animation:pulse 1.2s infinite}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+footer{max-width:1240px;margin:2rem auto 1rem;padding:1rem 1.2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--line)}
+.biblio li{margin:.2rem 0}
+@media print{header.top,.toc,.btn,.stepper .st-head{display:none!important}.panel{display:block!important}.with-toc{display:block}}
+
+:root{--acc:#2f5bd3;--acc2:#e8a33d;--acc-soft:#e7edfb}
+body.dark{--acc-soft:color-mix(in srgb,#2f5bd3 22%,#1b2029)}
+.hero{background:linear-gradient(135deg,#2f5bd3 0%,#1b2340 100%)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <span class="badge-ui">UI 02</span>
+    <div class="top-title"><div class="sub">Programarea calculatoarelor și limbaje de programare I · Unitatea de învățare nr. 2</div><h1>Reprezentarea informației; formate binare de reprezentare. Coduri pentru reprezentarea datelor</h1></div>
+    <button class="icon-btn" id="themeBtn" title="Temă luminoasă / întunecată">◐ Temă</button>
+    <button class="icon-btn" onclick="window.print()" title="Tipărire">⎙</button>
+  </div>
+  <nav class="tabs">
+    <button data-tab="curs">📘 Curs</button>
+    <button data-tab="seminar">✏️ Seminar</button>
+    <button data-tab="laborator">💻 Laborator</button>
+    <button data-tab="test">✅ Autoevaluare</button>
+  </nav>
+  <div class="progress"><div></div></div>
+</header>
+<main>
+<!-- ===================== CURS ===================== -->
+<div class="panel" id="curs">
+<div class="hero">
+  <h2>Reprezentarea informației. Formate binare. Coduri</h2>
+  <div>Obiectivele unității de învățare nr. 2:</div>
+  <ul>
+    <li>Înțelegerea modului de reprezentare a informației în sistemele de calcul</li>
+    <li>Înțelegerea operațiilor de conversie între sistemele de numerație și a avantajelor utilizării diferitelor sisteme de numerație</li>
+    <li>Familiarizarea cu sistemele de codificare numerice și alfanumerice</li>
+  </ul>
+  <div class="meta">⏱ Timp mediu de studiu: 2–3 ore · Reprodu individual elementele grafice, nu te limita la vizionare.</div>
+</div>
+<div class="with-toc">
+<aside class="toc" data-for="curs"></aside>
+<div>
+
+<section class="unit-sec" id="c1" data-title="1. Sisteme de numerație">
+<h2>1. Reprezentarea informației numerice. Sistemul binar</h2>
+<p>Calculatoarele și circuitele digitale prelucrează informația în <b>format binar</b>. Fiecare caracter are asociat un cod binar de 7 sau 8 biți. De exemplu, șirul <code>1000010</code> reprezintă <b>66</b> (zecimal), litera <b>B</b> în cod ASCII și <b>42</b> (zecimal) în cod BCD.</p>
+<div class="grid3">
+  <div class="card"><h4>⚡ Componente binare</h4>Un comutator este <i>on</i> (1) sau <i>off</i> (0); un tranzistor MOS de memorare conduce (1 logic) sau nu (0 logic).</div>
+  <div class="card"><h4>🧮 Calcule simple</h4>Doar două cifre (biți) ⇒ implementare hardware simplă și calcule mai exacte.</div>
+  <div class="card"><h4>♾ Universal</h4>Tot ce se poate reprezenta în zecimal se poate reprezenta și în binar.</div>
+</div>
+<p>Deoarece numerele binare necesită mulți biți, se folosesc și sistemele <b>octal</b> și <b>hexazecimal</b>, care „comprimă” șirurile lungi de biți.</p>
+<table class="t"><tr><th>Sistem de numerație</th><th>Baza</th><th class="l">Cifre</th></tr>
+<tr><td>Zecimal</td><td>10</td><td class="l mono">0 1 2 3 4 5 6 7 8 9</td></tr>
+<tr><td>Binar</td><td>2</td><td class="l mono">0 1</td></tr>
+<tr><td>Octal</td><td>8</td><td class="l mono">0 1 2 3 4 5 6 7</td></tr>
+<tr><td>Hexazecimal</td><td>16</td><td class="l mono">0 1 2 3 4 5 6 7 8 9 A B C D E F</td></tr></table>
+<p>Acestea sunt <b>sisteme poziționale</b>: valoarea unei cifre depinde de poziția ei în număr. Fiecare cifră se înmulțește cu o putere a bazei:</p>
+<div class="formula">r = a<sub>n</sub>·b<sup>n</sup> + a<sub>n−1</sub>·b<sup>n−1</sup> + … + a<sub>0</sub>·b<sup>0</sup> + f<sub>1</sub>·b<sup>−1</sup> + … + f<sub>m</sub>·b<sup>−m</sup>,&nbsp;&nbsp; 0 ≤ a<sub>i</sub>, f<sub>i</sub> &lt; b,&nbsp; a<sub>n</sub> ≠ 0</div>
+<div class="card">
+  <h3>🔍 Explorator pozițional</h3>
+  <p>Scrie un număr și alege baza: vezi ponderea fiecărei cifre și cum se adună valoarea zecimală.</p>
+  <div class="row"><label>Număr</label><input id="pzN" type="text" value="10100101.101" style="width:180px"><label>Baza</label>
+  <select id="pzB"><option>2</option><option>8</option><option>10</option><option>16</option></select><button class="btn small" id="pzGo">▶ Animează</button></div>
+  <div id="pzOut"></div>
+</div>
+</section>
+
+<section class="unit-sec" id="c2" data-title="2. Conversii între baze">
+<h2>2. Conversii între sisteme de numerație</h2>
+<p>Există două grupuri importante de conversii: (1) din zecimal în baza r și (2) din baza r în zecimal.</p>
+
+<h3>Zecimal → binar (numere întregi): împărțiri succesive</h3>
+<p>Se împarte succesiv la 2 (baza) până când câtul devine 0. Fiecare rest dă o nouă cifră, <b>începând cu cea mai puțin semnificativă</b>. Același algoritm funcționează pentru orice bază.</p>
+<div class="row"><label>Număr zecimal</label><input id="divN" type="number" value="37" style="width:110px"><label>în baza</label><select id="divB"><option>2</option><option>8</option><option>16</option></select><button class="btn small" id="divGo">Încarcă</button></div>
+<div id="divSt"></div>
+
+<h3>Zecimal → binar (numere subunitare): înmulțiri succesive</h3>
+<p>Se înmulțește succesiv cu 2. Partea întreagă a fiecărui rezultat dă o nouă cifră, <b>începând cu cea mai semnificativă</b>. Te poți opri când ai atins precizia dorită.</p>
+<div class="row"><label>Fracție</label><input id="mulN" type="text" value="0.37" style="width:110px"><label>precizie (biți)</label><input id="mulP" type="number" value="8" style="width:70px"><button class="btn small" id="mulGo">Încarcă</button></div>
+<div id="mulSt"></div>
+
+<h3>Zecimal → binar (numere reale)</h3>
+<p>Un număr real x = [x] + {x} (parte întreagă + parte fracționară). Se convertesc separat cele două părți, apoi se alătură cu virgula între ele:</p>
+<div class="out">147(10)    → 10010011(2)
+0.37(10)   → 0.01011110(2)
+───────────────────────────────
+147.37(10) → 10010011.01011110(2)</div>
+
+<h3>Binar → zecimal</h3>
+<p>Se adună produsele dintre fiecare bit și puterea lui 2 corespunzătoare poziției: 2<sup>0</sup>, 2<sup>1</sup>, 2<sup>2</sup>… spre stânga și 2<sup>−1</sup>, 2<sup>−2</sup>… spre dreapta virgulei. <b>Apasă pe biți</b> pentru a-i comuta:</p>
+<div class="card" style="text-align:center">
+  <div id="bitBoard"></div>
+  <div class="out" id="bitBoardOut" style="text-align:left"></div>
+  <div class="row" style="justify-content:center"><button class="btn small ghost" id="bbEx">Exemplul din curs: 10100101.101</button><button class="btn small ghost" id="bbClr">Șterge</button></div>
+</div>
+<details class="card"><summary><b>Tabel: fracții zecimale și echivalentul lor în baza 2</b></summary>
+<table class="t"><tr><th>Fracție ordinară</th><th>Putere a lui 2</th><th>Fracție zecimală</th><th>Echivalent în baza 2</th></tr>
+<tbody id="fracTbl"></tbody></table>
+<div class="note fix">în tabelul din suport, prima linie apare ca „0.0”; valoarea corectă pentru 1/2 este 0.1<sub>(2)</sub>.</div></details>
+
+<h3>Binar → octal și binar → hexazecimal: gruparea biților</h3>
+<p>Se împarte numărul binar în grupuri de câte <b>3</b> biți (octal) sau <b>4</b> biți (hexazecimal), pornind de la dreapta; dacă e nevoie, se completează la stânga cu zerouri. Fiecare grup se înlocuiește cu cifra corespunzătoare.</p>
+<div class="note fix">suportul de curs spune la conversia binar–octal „cifră hexazecimală echivalentă”; corect este <b>cifră octală</b>.</div>
+<div class="row"><label>Număr binar</label><input id="grpN" type="text" value="1100010101" style="width:220px"><select id="grpB"><option value="3">→ octal (grupuri de 3)</option><option value="4">→ hexazecimal (grupuri de 4)</option></select><button class="btn small" id="grpGo">Încarcă</button></div>
+<div id="grpSt"></div>
+<p>Conversia inversă (hexazecimal → binar) înlocuiește fiecare cifră cu grupul ei de 4 biți: <code>264E</code> → <code>0010 0110 0100 1110</code>.</p>
+<div class="row"><label>Hex / octal</label><input id="ungN" type="text" value="264E" style="width:140px"><select id="ungB"><option value="16">din hexazecimal</option><option value="8">din octal</option></select></div>
+<div id="ungOut" class="out"></div>
+<div class="grid2">
+<div class="card"><h4>Tabel octal ↔ binar</h4><div id="octTbl"></div></div>
+<div class="card"><h4>Tabel hexazecimal ↔ binar</h4><div id="hexTbl"></div></div>
+</div>
+
+<h3>Operații aritmetice în binar</h3>
+<div class="grid2">
+<table class="t"><tr><th>+</th><th>0</th><th>1</th></tr><tr><th>0</th><td>0</td><td>1</td></tr><tr><th>1</th><td>1</td><td>10</td></tr></table>
+<table class="t"><tr><th>−</th><th>0</th><th>1</th></tr><tr><th>0</th><td>0</td><td>1 (împrumut 1)</td></tr><tr><th>1</th><td>1</td><td>0</td></tr></table>
+</div>
+<p>Înmulțirea și împărțirea se fac ca în baza 10, cu regulile 0·0=0, 0·1=0, 1·0=0, 1·1=1 și 0:1=0, 1:1=1 (împărțirea la 0 e imposibilă).</p>
+<div class="row"><label>A</label><input id="addA" type="text" value="1101101" style="width:150px"><select id="addOp"><option value="+">+</option><option value="-">−</option><option value="*">×</option><option value="/">:</option></select><label>B</label><input id="addB" type="text" value="101" style="width:150px"><button class="btn small" id="addGo">Încarcă</button></div>
+<div id="addSt"></div>
+</section>
+
+<section class="unit-sec" id="c3" data-title="3. Întregi și reali">
+<h2>3. Reprezentarea numerelor întregi și reale</h2>
+<p>Numerele se reprezintă folosind un număr fix de biți: 8, 16, 32, 64, 80 (multipli de 8, pentru că memoria e organizată pe octeți). Pentru un întreg, cifra cea mai din stânga este <b>cea mai semnificativă</b> (MSB), iar cea din dreapta <b>cea mai puțin semnificativă</b> (LSB).</p>
+<h3>Domeniu de reprezentare și depășire</h3>
+<p>Cu n biți fără semn se pot reprezenta valorile din [0, 2<sup>n</sup>−1]. Dacă rezultatul nu încape, apare <b>depășirea (overflow)</b>: biții cei mai semnificativi se pierd.</p>
+<table class="t" style="max-width:460px"><tr><th>n</th><th>domeniu fără semn</th></tr><tr><td>8 biți</td><td>0 – 255</td></tr><tr><td>16 biți</td><td>0 – 65 535</td></tr><tr><td>32 biți</td><td>0 – 4 294 967 295</td></tr></table>
+<div class="note fix">suportul indică pentru 32 de biți domeniul 0 – 2 147 483 647; acela este maximul pentru <i>întregi cu semn</i> (2<sup>31</sup>−1). Pentru întregi fără semn pe 32 de biți maximul este 2<sup>32</sup>−1 = 4 294 967 295.</div>
+<div class="card">
+  <h3>🧪 Sumator pe 8 biți: vezi depășirea</h3>
+  <div class="grid2">
+    <div><label>A = <b id="ovAv">64</b></label><input type="range" id="ovA" min="0" max="255" value="64"></div>
+    <div><label>B = <b id="ovBv">250</b></label><input type="range" id="ovB" min="0" max="255" value="250"></div>
+  </div>
+  <div id="ovOut" style="margin-top:.6rem"></div>
+</div>
+
+<h3>Numere cu semn: codul complementar față de 2</h3>
+<p>Cea mai uzuală reprezentare a numerelor cu semn. Avantaj: aceleași circuite din unitatea aritmetico-logică fac operațiile, indiferent dacă numerele sunt cu sau fără semn; diferă doar <i>interpretarea</i> biților.</p>
+<div class="def"><b>Regula:</b> complementul față de 2 se obține <b>inversând toți biții</b> și <b>adunând 1</b>. Cu n biți se reprezintă intervalul [−2<sup>n−1</sup>, 2<sup>n−1</sup>−1]. Bitul cel mai din stânga este bitul de semn (0 = pozitiv, 1 = negativ).</div>
+<div class="row"><label>Număr (−128…127)</label><input id="c2N" type="number" value="-72" min="-128" max="127" style="width:110px"><button class="btn small" id="c2Go">Încarcă</button></div>
+<div id="c2St"></div>
+<div class="grid2">
+<div class="card">
+  <h4>Roata codului complementar (4 biți)</h4>
+  <p style="font-size:.9rem">Trece cu mouse-ul peste roată. Adunarea înseamnă rotire în sens orar; trecerea de la 0111 (7) la 1000 (−8) este depășirea cu semn.</p>
+  <div class="svgbox" style="text-align:center"><svg id="wheel" viewBox="0 0 300 300" width="300" height="300"></svg></div>
+</div>
+<div class="card">
+  <h4>Observații</h4>
+  <ol style="font-size:.95rem">
+    <li>Bitul de semn nu se modifică la complementare dacă pornești de la reprezentarea „semn + mărime” (ca în curs).</li>
+    <li>Valoarea fără semn a unui număr negativ x pe n biți: C2(x) = 2<sup>n</sup> − |x|. Ex.: −72 pe 8 biți → 256 − 72 = <b>184</b> = 10111000<sub>(2)</sub>.</li>
+    <li>x + (−x) = 0: 01001000 + 10111000 = (1)00000000.</li>
+    <li>Și la numerele cu semn poate apărea depășirea: −100 − 30 = −130 &lt; −128 ⇒ rezultat pozitiv incorect (01111110 = 126).</li>
+  </ol>
+  <button class="btn small ghost" id="ov2Go">Arată exemplul −100 − 30</button>
+  <div id="ov2Out"></div>
+</div>
+</div>
+
+<h3>Virgulă fixă și virgulă mobilă</h3>
+<div class="grid2">
+<div class="card"><h4>Virgulă fixă</h4>Utilă când numerele din calcule au un număr total de cifre aproximativ egal; punctul zecimal este fixat între două cifre.</div>
+<div class="card"><h4>Virgulă mobilă</h4>Utilă când numerele au ordine de mărime foarte diferite, ex. 9945000000 și 0.00023. Se bazează pe notația științifică.</div>
+</div>
+<div class="formula">a = ± m × 10<sup>E</sup>, 1 ≤ m &lt; 10&nbsp;&nbsp;&nbsp;&nbsp;→&nbsp;&nbsp;&nbsp;&nbsp;în calculator: a = ± m × 2<sup>E</sup>, 1 ≤ m &lt; 2, m = (1.b<sub>1</sub>b<sub>2</sub>b<sub>3</sub>…)<sub>(2)</sub></div>
+<p>Ex.: 264.39 = 2.6439 × 10<sup>2</sup>; 0.00026439 = 2.6439 × 10<sup>−4</sup>; 9/2 = 100.1<sub>(2)</sub> = <b>1.001<sub>(2)</sub> × 2<sup>2</sup></b> (formă normalizată, unică dacă 1 ≤ m &lt; 2).</p>
+<h3>Standardul IEEE 754</h3>
+<div class="grid2">
+<div class="card"><b>Simplă precizie (32 biți)</b><br>1 bit semn · 8 biți exponent (exces 127) · 23 biți mantisă</div>
+<div class="card"><b>Dublă precizie (64 biți)</b><br>1 bit semn · 11 biți exponent (exces 1023) · 52 biți mantisă</div>
+</div>
+<div class="formula">caracteristica = exponent + 2<sup>(nr. biți exponent − 1)</sup> − 1</div>
+<div class="card">
+  <h3>🔬 Laborator IEEE 754 (simplă precizie)</h3>
+  <p>Scrie un număr sau apasă pe biți: vezi semnul (roșu), caracteristica (portocaliu) și mantisa.</p>
+  <div class="row"><label>Valoare</label><input id="fpN" type="text" value="135.74356" style="width:180px"><button class="btn small" id="fpGo">Codifică</button><button class="btn small ghost" id="fpEx2">Exemplul 2 din curs (235)</button></div>
+  <div id="fpBits" style="margin-top:1.2rem;overflow-x:auto"></div>
+  <div id="fpOut" class="out"></div>
+</div>
+<div id="fpSt"></div>
+<div class="note fix">în exemplul din curs, partea fracționară .74356 este trunchiată la 4 biți (.1011), deci mantisa din suport este aproximativă. Pasul cu pasul de mai sus urmează exemplul din curs; laboratorul de deasupra arată reprezentarea exactă calculată de calculator.</div>
+</section>
+
+<section class="unit-sec" id="c4" data-title="4. Coduri numerice și alfanumerice">
+<h2>4. Coduri pentru reprezentarea datelor</h2>
+<p>Codurile se clasifică în <b>coduri numerice</b> (reprezintă datele numerice) și <b>coduri alfanumerice</b> (ASCII, EBCDIC, Unicode).</p>
+<h3>a) Coduri numerice ponderate și neponderate</h3>
+<p>În codurile <b>ponderate</b> fiecare cifră zecimală are un cod de 4 biți, iar fiecare poziție are o pondere: N = Σ a<sub>i</sub>·w<sub>i</sub>. În codurile <b>neponderate</b> biților nu li se asociază ponderi.</p>
+<div class="card">
+  <h3>🔢 Convertor de coduri</h3>
+  <div class="row"><label>Număr zecimal</label><input id="cdN" type="text" value="5463" style="width:150px"></div>
+  <div id="cdOut"></div>
+</div>
+<div class="scroll-x"><table class="t" id="codeTbl"></table></div>
+<p style="font-size:.9rem">Treci cu mouse-ul peste o coloană din tabel: bitul modificat față de cifra precedentă se evidențiază; la codul Gray se schimbă mereu <b>un singur bit</b>.</p>
+<div class="card">
+<h3>🔄 Codul Gray: numărător animat</h3>
+<p>Secvența e circulară (00 → 01 → 11 → 10 → 00). Compară câți biți se schimbă la fiecare pas în binar și în Gray.</p>
+<div class="row"><button class="btn small" id="grayPlay">⏵ Pornește</button><label>biți</label><select id="grayN"><option>3</option><option selected>4</option><option>5</option></select></div>
+<div class="grid2"><div><b>Binar</b><div id="grayBin"></div></div><div><b>Gray</b><div id="grayG"></div></div></div>
+<div class="out" id="grayInfo"></div>
+<pre class="code" data-c>
+// binar -> Gray                 // Gray -> binar
+g[1] = b[1];                     b[1] = valoare = g[1];
+for (i = 2; i <= m; i++)         for (i = 2; i <= m; i++) {
+    g[i] = b[i-1] ^ b[i];            if (g[i] == 1) valoare = !valoare;
+                                     b[i] = valoare;
+                                 }</pre>
+</div>
+
+<h3>Coduri detectoare și corectoare de erori</h3>
+<p>Pe lângă cei n biți de date se adaugă k biți de control; vectorul de k+n biți formează un <b>cuvânt de cod</b>.</p>
+<div class="grid2">
+<div class="card"><h4>Bit de paritate</h4>
+<p style="font-size:.92rem">Se adaugă un bit astfel încât numărul de 1 să fie par (sau impar). Apasă pe un bit de date pentru a simula o eroare de transmisie.</p>
+<div class="row"><label>Paritate</label><select id="parT"><option value="0">pară</option><option value="1">impară</option></select><button class="btn small ghost" id="parR">date noi</button></div>
+<div id="parBits"></div><div id="parOut" class="out"></div></div>
+<div class="card"><h4>Distanța Hamming</h4>
+<p style="font-size:.92rem">Numărul pozițiilor în care două cuvinte diferă.</p>
+<div class="row"><input id="hdA" type="text" value="10001001" style="width:130px"><input id="hdB" type="text" value="10110001" style="width:130px"></div>
+<div id="hdOut"></div>
+<p style="font-size:.92rem">Un cod cu distanța minimă D<sub>min</sub> detectează D<sub>min</sub>−1 erori și corectează ⌊(D<sub>min</sub>−1)/2⌋ erori.</p>
+<textarea id="dminIn" rows="4" style="width:100%">11101
+10110
+00000
+01011</textarea><div id="dminOut" class="out"></div></div>
+</div>
+
+<h3>Codul Hamming (7,4)</h3>
+<p>Pentru 4 biți de date se adaugă 3 biți de paritate pară, pe pozițiile puterilor lui 2: <code>D7 D6 D5 P4 D3 P2 P1</code>.</p>
+<ul><li>P1 – paritate pară pentru biții 1, 3, 5, 7</li><li>P2 – paritate pară pentru biții 2, 3, 6, 7</li><li>P4 – paritate pară pentru biții 4, 5, 6, 7</li></ul>
+<div class="row"><label>Date (4 biți)</label><input id="hmD" type="text" value="1011" style="width:90px"><button class="btn small" id="hmGo">Construiește codul</button></div>
+<div id="hmSt"></div>
+<div class="card">
+  <h3>📡 Simulator de canal: detectează și corectează</h3>
+  <p>Cuvântul recepționat: apasă pe un bit ca să introduci o eroare. Receptorul recalculează paritățile; numărul format de biții de control (P4 P2 P1) dă <b>poziția bitului greșit</b>.</p>
+  <div class="row"><label>Recepționat</label><input id="hmR" type="text" value="1111101" style="width:120px"><button class="btn small ghost" id="hmRex">Exemplul din curs</button></div>
+  <div id="hmRbits" style="margin-top:1rem"></div>
+  <div id="hmRout"></div>
+</div>
+
+<h3>Coduri polinomiale CRC</h3>
+<p>Un șir de biți se asociază unui polinom: <code>101011</code> → p(x) = x<sup>5</sup> ⊕ x<sup>3</sup> ⊕ x ⊕ 1. Aritmetica este modulo 2 (XOR). Receptorul împarte polinomul recepționat la polinomul generator; dacă <b>restul este 0</b>, transmisia a fost corectă.</p>
+<div class="row"><label>Mesaj</label><input id="crcM" type="text" value="11010011101100" style="width:200px"><label>Generator</label><input id="crcG" type="text" value="1011" style="width:90px"><button class="btn small" id="crcGo">Încarcă</button></div>
+<div id="crcSt"></div>
+<div class="note obs">Exemplul de împărțire CRC este o ilustrare suplimentară; suportul de curs prezintă doar principiul.</div>
+
+<h3>b) Coduri alfanumerice</h3>
+<p><b>ASCII</b> – cod de 7 biți (2<sup>7</sup> = 128 caractere); <b>ASCII extins</b> – 8 biți (256 caractere; primele 128 identice). Codul unui caracter: grupul de 3 biți (coloana) pe pozițiile cele mai semnificative, urmat de grupul de 4 biți (linia). Apasă pe o celulă:</p>
+<div class="scroll-x"><table class="t" id="asciiTbl" style="font-family:var(--mono);font-size:.85rem;cursor:pointer"></table></div>
+<div class="out" id="asciiOut">Ex.: a = 1100001 → 97 · A = 1000001 → 65 · z = 1111010 → 122</div>
+<div class="card"><h4>⌨️ Text → ASCII, în timp ce scrii</h4><input id="txtIn" type="text" value="PCLP 2026" style="width:100%"><div id="txtOut" style="margin-top:.6rem"></div></div>
+<p>Al 8-lea bit din ASCII-8 poate fi: bit de paritate, întotdeauna 0, sau bitul care extinde setul la 256 de caractere.</p>
+<div class="grid3">
+<div class="card"><h4>EBCDIC</h4>Cod de 8 biți (256 caractere), două grupuri de 4 biți: <b>zona</b> (categoria) și <b>digit</b>. Zona: cifre 1111, A–I 1100, J–R 1101, S–Z 1110.</div>
+<div class="card"><h4>Hollerith</h4>Folosit până în anii ’80 pentru cartele perforate: 12 rânduri × 80 coloane; o gaură = o cifră, două găuri = o literă.</div>
+<div class="card"><h4>UNICODE</h4>Cod pe 16 biți (65 536 caractere) cu un număr unic pentru fiecare caracter, indiferent de platformă sau limbă. ASCII este un subset al Unicode.</div>
+</div>
+<div class="card"><h4>🌍 Unicode: puncte de cod</h4><input id="uniIn" type="text" value="Știință – Ω ă î" style="width:100%"><div id="uniOut" class="out"></div></div>
+</section>
+
+<section class="unit-sec" id="c5" data-title="Rezumat">
+<h2>Rezumat</h2>
+<div class="card">
+<ul>
+<li>Calculatoarele prelucrează informația în binar; octalul și hexazecimalul comprimă șirurile lungi de biți.</li>
+<li>Sistemele de numerație sunt poziționale; conversiile se fac din zecimal în baza r (împărțiri/înmulțiri succesive) și din baza r în zecimal (sumă ponderată).</li>
+<li>Numerele se reprezintă pe un număr fix de biți (8, 16, 32, 64, 80); cu n biți fără semn domeniul este [0, 2<sup>n</sup>−1]; altfel apare depășirea.</li>
+<li>Numerele cu semn se reprezintă în cod complementar față de 2 (inversare + 1).</li>
+<li>Numerele reale: virgulă fixă sau virgulă mobilă (IEEE 754: simplă precizie 32 biți, dublă 64 biți).</li>
+<li>Coduri numerice (BCD, 2-4-2-1, XS-3, Gray, paritate, Hamming, CRC) și alfanumerice (ASCII, EBCDIC, Unicode).</li>
+</ul></div>
+<h3>Bibliografie</h3>
+<ol class="biblio"><li>Dinu, S., Pomazan, C. „Programarea calculatoarelor”, Ed. Nautica, 2013.</li><li>Kernighan, B. W., Ritchie, D. M. „Limbajul C”, Ed. Teora, 2003.</li><li>Năstac, I. „Programarea calculatoarelor în limbajul C – Elemente fundamentale”, Ed. Printech, 2006.</li><li>Negrescu, L. „Limbajele C și C++ pentru începători”, Vol. 1 și 2, Ed. Albastră, 2000.</li><li>Dinu, S., Vulcu, V. „Programarea Calculatoarelor – culegere de probleme”, Ed. Nautica, 2019.</li></ol>
+</section>
+</div></div></div>
+
+<!-- ===================== SEMINAR ===================== -->
+<div class="panel" id="seminar">
+<div class="with-toc"><aside class="toc" data-for="seminar"></aside><div>
+<section class="unit-sec" id="s1" data-title="Probleme rezolvate">
+<h2>Probleme rezolvate (pas cu pas)</h2>
+<p>Alege o problemă și parcurge rezolvarea pas cu pas. Încearcă să rezolvi singur pe hârtie înainte de fiecare pas.</p>
+<div class="row"><select id="prSel" style="max-width:100%"></select></div>
+<div id="prSt"></div>
+</section>
+<section class="unit-sec" id="s2" data-title="Exerciții generate">
+<h2>Exerciții de antrenament (generate aleator)</h2>
+<p>Fiecare exercițiu se generează din nou la cerere; răspunsul se verifică automat, iar rezolvarea completă e disponibilă.</p>
+<div class="grid2" id="exGrid"></div>
+</section>
+<section class="unit-sec" id="s3" data-title="Teme de seminar">
+<h2>Teme propuse pentru seminar</h2>
+<div class="card"><ol>
+<li>Convertiți în binar, octal și hexazecimal numerele: 255, 1000, 2026, 0.625, 13.875.</li>
+<li>Reprezentați pe 8 biți în cod complementar: −1, −64, −127, −128. Explicați de ce +128 nu se poate reprezenta.</li>
+<li>Calculați pe 8 biți 100 + 50 (fără semn) și 100 + 50 (cu semn). În care caz apare depășirea?</li>
+<li>Reprezentați în IEEE 754 simplă precizie: −0.75, 9/2, 0.1. De ce 0.1 nu se reprezintă exact?</li>
+<li>Scrieți în BCD împachetat, XS-3 și Gray numărul 2026.</li>
+<li>Construiți codul Hamming (7,4) pentru datele 0110 și 1101; introduceți o eroare pe bitul 6 și arătați corecția.</li>
+<li>Scrieți codurile ASCII (binar, zecimal, hexazecimal) pentru șirul „C++”.</li>
+</ol></div>
+</section>
+</div></div></div>
+
+<!-- ===================== LABORATOR ===================== -->
+<div class="panel" id="laborator">
+<div class="with-toc"><aside class="toc" data-for="laborator"></aside><div>
+<section class="unit-sec" id="l0" data-title="Introducere">
+<h2>Laborator: reprezentarea datelor în C</h2>
+<p>Programele de mai jos ilustrează în limbajul C noțiunile din curs. Le poți copia și compila (<code>gcc prog.c -o prog</code>). Pentru fiecare program există un <b>simulator</b> care reproduce în pagină ieșirea programului pentru datele introduse de tine.</p>
+</section>
+<section class="unit-sec" id="l1" data-title="L1. Conversie în baza b">
+<h2>L1. Conversia unui întreg în baza b (împărțiri succesive)</h2>
+<pre class="code" data-c>
+#include &lt;stdio.h&gt;
+
+int main(void) {
+    unsigned int n, b;
+    char cifre[] = "0123456789ABCDEF", rez[64];
+    int k = 0;
+    printf("n = "); scanf("%u", &n);
+    printf("baza (2..16) = "); scanf("%u", &b);
+    unsigned int x = n;
+    do {                       /* resturile dau cifrele, de la LSB la MSB */
+        rez[k++] = cifre[x % b];
+        x = x / b;
+    } while (x != 0);
+    printf("%u(10) = ", n);
+    while (k > 0) putchar(rez[--k]);   /* afisare in ordine inversa */
+    printf("(%u)\n", b);
+    printf("Verificare: octal %o, hex %X\n", n, n);
+    return 0;
+}</pre>
+<div class="row"><label>n</label><input id="l1n" type="number" value="2026" style="width:120px"><label>baza</label><input id="l1b" type="number" value="2" min="2" max="16" style="width:70px"><button class="btn small" id="l1run">▶ Rulează simularea</button></div>
+<div class="term" id="l1out"></div>
+</section>
+<section class="unit-sec" id="l2" data-title="L2. Biții unui întreg">
+<h2>L2. Afișarea biților și complementul față de 2</h2>
+<pre class="code" data-c>
+#include &lt;stdio.h&gt;
+
+void afis_biti(unsigned char v) {
+    for (int i = 7; i >= 0; i--)
+        putchar((v >> i) & 1 ? '1' : '0');   /* deplasare + masca */
+}
+
+int main(void) {
+    signed char x;
+    int t;
+    printf("x (-128..127) = "); scanf("%d", &t);
+    x = (signed char)t;
+    printf("x      = %4d  -> ", x); afis_biti((unsigned char)x);  putchar('\n');
+    printf("~x     = %4d  -> ", (signed char)~x); afis_biti((unsigned char)~x); putchar('\n');
+    printf("~x + 1 = %4d  -> ", (signed char)(~x + 1)); afis_biti((unsigned char)(~x + 1)); putchar('\n');
+    printf("fara semn: %u\n", (unsigned char)x);   /* 2^8 - |x| pentru x < 0 */
+
+    unsigned char a = 64, b = 250, s = a + b;      /* depasire pe 8 biti */
+    printf("64 + 250 pe 8 biti = %u\n", s);
+    return 0;
+}</pre>
+<div class="row"><label>x</label><input id="l2x" type="number" value="-72" style="width:100px"><button class="btn small" id="l2run">▶ Rulează simularea</button></div>
+<div class="term" id="l2out"></div>
+</section>
+<section class="unit-sec" id="l3" data-title="L3. float în memorie">
+<h2>L3. Cum arată un <code>float</code> în memorie (IEEE 754)</h2>
+<pre class="code" data-c>
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdint.h&gt;
+
+int main(void) {
+    float f;
+    uint32_t u;
+    printf("f = "); scanf("%f", &f);
+    memcpy(&u, &f, sizeof u);              /* copiem cei 32 de biti */
+    unsigned s = u >> 31;
+    unsigned e = (u >> 23) & 0xFF;         /* caracteristica (exces 127) */
+    unsigned m = u & 0x7FFFFF;             /* 23 biti de mantisa */
+    printf("hex: %08X\n", u);
+    printf("semn = %u, caracteristica = %u, exponent = %d\n", s, e, (int)e - 127);
+    printf("mantisa = 0x%06X\n", m);
+    return 0;
+}</pre>
+<div class="row"><label>f</label><input id="l3f" type="text" value="135.74356" style="width:140px"><button class="btn small" id="l3run">▶ Rulează simularea</button></div>
+<div class="term" id="l3out"></div>
+</section>
+<section class="unit-sec" id="l4" data-title="L4. Codul Hamming în C">
+<h2>L4. Codificarea Hamming (7,4) cu operații pe biți</h2>
+<pre class="code" data-c>
+#include &lt;stdio.h&gt;
+
+/* pozitiile 1..7 : P1 P2 D3 P4 D5 D6 D7 */
+int main(void) {
+    int d[4], c[8] = {0};
+    printf("4 biti de date (D7 D6 D5 D3): ");
+    scanf("%1d%1d%1d%1d", &d[0], &d[1], &d[2], &d[3]);
+    c[7] = d[0]; c[6] = d[1]; c[5] = d[2]; c[3] = d[3];
+    c[1] = c[3] ^ c[5] ^ c[7];          /* paritate para */
+    c[2] = c[3] ^ c[6] ^ c[7];
+    c[4] = c[5] ^ c[6] ^ c[7];
+    printf("Cod Hamming: ");
+    for (int i = 7; i >= 1; i--) printf("%d", c[i]);
+    printf("\n");
+    return 0;
+}</pre>
+<div class="row"><label>date</label><input id="l4d" type="text" value="1011" style="width:90px"><button class="btn small" id="l4run">▶ Rulează simularea</button></div>
+<div class="term" id="l4out"></div>
+</section>
+<section class="unit-sec" id="l5" data-title="L5. Coduri ASCII">
+<h2>L5. Caractere și coduri ASCII</h2>
+<pre class="code" data-c>
+#include &lt;stdio.h&gt;
+
+int main(void) {
+    char s[100];
+    printf("text: "); scanf("%99s", s);
+    for (int i = 0; s[i] != '\0'; i++)
+        printf("'%c' = %3d = 0x%02X\n", s[i], s[i], s[i]);
+    printf("'a' - 'A' = %d\n", 'a' - 'A');   /* diferenta litere mici/mari */
+    return 0;
+}</pre>
+<div class="row"><label>text</label><input id="l5s" type="text" value="PCLP" style="width:140px"><button class="btn small" id="l5run">▶ Rulează simularea</button></div>
+<div class="term" id="l5out"></div>
+</section>
+<section class="unit-sec" id="l6" data-title="Sarcini de laborator">
+<h2>Sarcini de laborator</h2>
+<div class="card"><ol>
+<li>Modificați programul L1 astfel încât să convertească și partea fracționară (înmulțiri succesive, precizie dată).</li>
+<li>Scrieți un program care citește un număr în baza b<sub>1</sub> și îl afișează în baza b<sub>2</sub>.</li>
+<li>Extindeți L2 pentru tipul <code>short</code> (16 biți). Ce valoare afișează <code>(short)40000</code>? Explicați.</li>
+<li>Completați L4 cu decodificarea: citiți 7 biți, calculați sindromul și corectați bitul eronat.</li>
+<li>Scrieți funcțiile <code>bin_to_gray</code> și <code>gray_to_bin</code> folosind operatorii <code>^</code> și <code>&gt;&gt;</code> (indiciu: g = b ^ (b &gt;&gt; 1)).</li>
+</ol></div>
+</section>
+</div></div></div>
+
+<!-- ===================== TEST ===================== -->
+<div class="panel" id="test">
+<h2>Test de autoevaluare – Unitatea de învățare nr. 2</h2>
+<p>Alege un răspuns; vei primi imediat explicația. Întrebările 9 și 10 au răspuns deschis.</p>
+<div id="quiz"></div>
+</div>
+
+</main>
+<footer>
+  Material interactiv realizat pe baza suportului de curs „Programarea calculatoarelor și limbaje de programare I – Curs și aplicații”, Unitatea de învățare nr. 2.
+  Funcționează offline, fără dependențe externe.
+</footer>
+<script>
+/* ===== Utilitare comune ===== */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+function h(tag,attrs={},...kids){const e=document.createElement(tag);for(const[k,v]of Object.entries(attrs||{})){if(k==='class')e.className=v;else if(k==='html')e.innerHTML=v;else if(k.startsWith('on'))e.addEventListener(k.slice(2),v);else e.setAttribute(k,v)}for(const c of kids.flat()){if(c==null)continue;e.append(c.nodeType?c:document.createTextNode(c))}return e}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pad=(s,n,c='0')=>String(s).padStart(n,c);
+const fmt=(x,d=4)=>{const r=Number(x.toFixed(d));return String(r).replace('.',',')};
+const fmtDot=(x,d=4)=>String(Number(x.toFixed(d)));
+const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+function bitsHTML(str,o={}){
+  // o: {click, cls:(i,ch)=>string, weights:true, gapEvery:n, id}
+  let s='<span class="bits"'+(o.id?` id="${o.id}"`:'')+'>';
+  const n=str.length;
+  for(let i=0;i<n;i++){const ch=str[i];
+    if(ch===' '||ch==='.'||ch===','){s+=`<span style="align-self:center;font-weight:700;padding:0 2px">${ch===' '?'':ch}</span>`;continue}
+    let c='bit'+(ch==='1'?' one':'')+(o.click?' click':'');
+    if(o.cls)c+=' '+o.cls(i,ch);
+    if(o.gapEvery&&i>0&&(n-i)%o.gapEvery===0)c+=' gap';
+    const w=o.weights?`<span class="w">${o.weights===true?(n-1-i):o.weights[i]}</span>`:'';
+    s+=`<span class="${c}" data-i="${i}">${w}${ch}</span>`}
+  return s+'</span>'}
+
+/* ===== Tab-uri, cuprins, progres, temă ===== */
+function initShell(){
+  const btns=$$('nav.tabs button');
+  function show(id,push=true){btns.forEach(b=>b.classList.toggle('active',b.dataset.tab===id));$$('.panel').forEach(p=>p.classList.toggle('active',p.id===id));if(push)try{history.replaceState(null,'','#'+id)}catch(e){}window.scrollTo({top:0});setTimeout(spy,50)}
+  btns.forEach(b=>b.onclick=()=>show(b.dataset.tab));
+  const hsh=(location.hash||'').slice(1); show(btns.some(b=>b.dataset.tab===hsh)?hsh:btns[0].dataset.tab,false);
+  // cuprinsuri
+  $$('.toc[data-for]').forEach(toc=>{const p=document.getElementById(toc.dataset.for);toc.innerHTML='<b>Cuprins</b>';$$('section.unit-sec',p).forEach(s=>{const t=s.dataset.title||$('h2',s).textContent;toc.append(h('a',{href:'#'+s.id,onclick:e=>{e.preventDefault();s.scrollIntoView({behavior:'smooth'})}},t))})});
+  const bar=$('.progress>div');
+  function spy(){const st=document.documentElement;const pr=st.scrollTop/(st.scrollHeight-st.clientHeight||1);if(bar)bar.style.width=(pr*100)+'%';
+    const p=$('.panel.active');if(!p)return;const secs=$$('section.unit-sec',p);let cur=null;for(const s of secs){if(s.getBoundingClientRect().top<160)cur=s.id}
+    $$('.toc a',p).forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+cur))}
+  addEventListener('scroll',spy,{passive:true});
+  // temă
+  const tb=$('#themeBtn');if(store.get('dark',false))document.body.classList.add('dark');
+  if(tb)tb.onclick=()=>{document.body.classList.toggle('dark');store.set('dark',document.body.classList.contains('dark'))};
+  // copiere cod
+  $$('pre.code').forEach(p=>{const b=h('button',{class:'copy'},'copiază');b.onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(p.dataset.raw||p.innerText.replace(/copiază$/,''));b.textContent='copiat ✓';setTimeout(()=>b.textContent='copiază',1200)};p.append(b)});
+  heroRain();
+}
+
+/* fundal animat în banner: cifre binare care cad */
+function heroRain(){const hero=$('.hero');if(!hero)return;const c=h('canvas');hero.prepend(c);const x=c.getContext('2d');let W,H,cols,drops;
+  function rs(){W=c.width=hero.clientWidth;H=c.height=hero.clientHeight;cols=Math.floor(W/16);drops=Array.from({length:cols},()=>Math.random()*H/16)}
+  rs();addEventListener('resize',rs);
+  let last=0;function fr(t){requestAnimationFrame(fr);if(t-last<70)return;last=t;x.fillStyle='rgba(0,0,0,0.08)';x.globalCompositeOperation='destination-out';x.fillRect(0,0,W,H);x.globalCompositeOperation='source-over';x.fillStyle='#fff';x.font='14px monospace';
+    for(let i=0;i<cols;i++){x.fillText(Math.random()<.5?'0':'1',i*16,drops[i]*16);if(drops[i]*16>H&&Math.random()>.97)drops[i]=0;drops[i]+=.5}}
+  if(!matchMedia('(prefers-reduced-motion: reduce)').matches)requestAnimationFrame(fr)}
+
+/* ===== Stepper: animație pas cu pas ===== */
+class Stepper{
+  /* opts: {title, steps:[html|fn], cumulative:true|false, render:(i)=>html, n, delay, onShow:(i,body)=>{}} */
+  constructor(host,opts){this.o=Object.assign({delay:1400,cumulative:true},opts);this.i=-1;this.timer=null;
+    const el=typeof host==='string'?$(host):host;el.classList.add('stepper');el.innerHTML='';
+    this.n=this.o.n??this.o.steps.length;
+    const hd=h('div',{class:'st-head'});this.tt=h('span',{class:'st-title'},this.o.title||'Animație pas cu pas');
+    this.bR=h('button',{class:'btn small ghost',title:'De la început'},'⏮');this.bP=h('button',{class:'btn small ghost',title:'Pasul anterior'},'◀');
+    this.bN=h('button',{class:'btn small',title:'Pasul următor'},'Pas ▶');this.bA=h('button',{class:'btn small ghost',title:'Redare automată'},'⏵ Auto');
+    this.ct=h('span',{class:'st-count'});
+    hd.append(this.tt,this.ct,this.bR,this.bP,this.bN,this.bA);
+    this.bar=h('div',{class:'st-bar'},h('div'));this.body=h('div',{class:'st-body'});el.append(hd,this.bar,this.body);
+    this.bR.onclick=()=>{this.stop();this.go(-1)};this.bP.onclick=()=>{this.stop();this.go(this.i-1)};this.bN.onclick=()=>{this.stop();this.go(this.i+1)};
+    this.bA.onclick=()=>this.timer?this.stop():this.play();this.el=el;this.go(-1)}
+  setSteps(steps,title){this.stop();this.o.steps=steps;this.n=steps.length;if(title)this.tt.textContent=title;this.go(-1)}
+  go(i){i=Math.max(-1,Math.min(this.n-1,i));this.i=i;const o=this.o;
+    if(o.render){this.body.innerHTML=o.render(i)}
+    else if(o.cumulative){if(i<0)this.body.innerHTML=o.intro||'<small>Apasă „Pas ▶” sau „⏵ Auto” pentru a porni animația.</small>';else{this.body.innerHTML=(o.intro||'');for(let k=0;k<=i;k++){const s=o.steps[k];const d=h('div',{class:k===i?'step-line':''});d.innerHTML=typeof s==='function'?s():s;this.body.append(d)}}}
+    else{this.body.innerHTML=i<0?(o.intro||'<small>Apasă „Pas ▶”.</small>'):(typeof o.steps[i]==='function'?o.steps[i]():o.steps[i])}
+    if(o.onShow)o.onShow(i,this.body);
+    this.ct.textContent=`${i+1}/${this.n}`;this.bar.firstChild.style.width=((i+1)/this.n*100)+'%';this.bP.disabled=i<0;this.bN.disabled=i>=this.n-1}
+  play(){if(this.i>=this.n-1)this.go(-1);this.bA.textContent='⏸ Pauză';this.timer=setInterval(()=>{if(this.i>=this.n-1){this.stop();return}this.go(this.i+1)},this.o.delay)}
+  stop(){clearInterval(this.timer);this.timer=null;this.bA.textContent='⏵ Auto'}
+}
+
+/* ===== Test grilă ===== */
+function Quiz(host,qs,key){const el=typeof host==='string'?$(host):host;let score=0,ans=0;const sc=h('div',{class:'score'});
+  const upd=()=>sc.textContent=`Scor: ${score} / ${qs.filter(q=>!q.open).length}  ·  răspunse: ${ans}/${qs.length}`;
+  qs.forEach((q,qi)=>{const box=h('div',{class:'q'});box.append(h('div',{class:'qn'},`Întrebarea ${qi+1}`),h('div',{class:'qt',html:q.t}));
+    if(q.open){const ta=h('textarea',{rows:2,style:'width:100%',placeholder:'Scrie răspunsul tău aici (opțional), apoi verifică soluția…'});const b=h('button',{class:'btn small'},'Arată soluția');b.onclick=()=>{if(!box.classList.contains('done')){box.classList.add('done');ans++;upd()}};box.append(ta,h('div',{class:'row'},b))}
+    else{const opts=h('div',{class:'opts'});q.opts.forEach((o,oi)=>{const d=h('div',{class:'opt',html:String.fromCharCode(97+oi)+') '+o});d.onclick=()=>{if(box.classList.contains('done'))return;box.classList.add('done');ans++;if(oi===q.a){d.classList.add('right');score++}else{d.classList.add('wrong');opts.children[q.a].classList.add('right')}upd()};opts.append(d)});box.append(opts)}
+    box.append(h('div',{class:'expl',html:q.expl||''}));el.append(box)});
+  const rb=h('button',{class:'btn ghost',style:'margin-top:.5rem'},'↺ Reia testul');rb.onclick=()=>{el.innerHTML='';Quiz(el,qs,key)};el.append(rb,sc);upd()}
+
+/* ===== Exerciții generate ===== */
+function Exercise(host,o){const el=typeof host==='string'?$(host):host;el.classList.add('ex');let cur,streak=0;
+  const qd=h('div',{class:'ex-q'}),inp=h('input',{type:'text',placeholder:o.ph||'răspuns',style:'flex:1;min-width:160px'}),fb=h('div',{class:'fb'}),sol=h('div'),st=h('span',{class:'streak'});
+  const chk=h('button',{class:'btn small'},'Verifică'),nw=h('button',{class:'btn small ghost'},'↻ Exercițiu nou');
+  const det=h('details',{},h('summary',{},'Vezi rezolvarea pas cu pas'),sol);
+  el.append(h('div',{class:'row',style:'justify-content:space-between'},h('b',{},o.title||'Exercițiu'),st),qd,h('div',{class:'row'},inp,chk,nw),fb,det);
+  function gen(){cur=o.gen();qd.innerHTML=cur.q;inp.value='';fb.innerHTML='';sol.innerHTML=cur.sol;det.open=false}
+  function check(){const v=inp.value.trim();if(!v)return;const r=cur.check?cur.check(v):norm(v)===norm(cur.ans);
+    if(r){streak++;fb.innerHTML=`<span class="ok">✔ Corect!</span> ${streak>1?'Serie: '+streak+' 🔥':''}`}else{streak=0;fb.innerHTML=`<span class="bad">✘ Nu este corect.</span> Încearcă din nou sau vezi rezolvarea.`}st.textContent=streak?('serie '+streak):''}
+  const norm=s=>String(s).toUpperCase().replace(/\s|_/g,'').replace(',','.').replace(/^0+(?=.)/,'');
+  chk.onclick=check;inp.onkeydown=e=>{if(e.key==='Enter')check()};nw.onclick=gen;gen()}
+
+/* ===== Evidențiere sintaxă C ===== */
+function hlC(src){const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const re=/(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|(#\w+)|\b(int|unsigned|char|float|double|long|short|void|return|for|while|if|else|struct|union|const|sizeof|signed|do|break|uint8_t|uint16_t|uint32_t|int8_t|size_t)\b|\b(0x[0-9a-fA-F]+|\d+\.?\d*[fFuU]?)\b|\b(printf|scanf|main|putchar|memcpy|strlen)\b/g;
+  let out='',last=0,m;while((m=re.exec(src))){out+=esc(src.slice(last,m.index));const t=esc(m[0]);
+    out+=m[1]?`<span class="c">${t}</span>`:m[2]?`<span class="s">${t}</span>`:m[3]?`<span class="p">${t}</span>`:m[4]?`<span class="k">${t}</span>`:m[5]?`<span class="n">${t}</span>`:`<span class="f">${t}</span>`;last=re.lastIndex}
+  return out+esc(src.slice(last))}
+function renderCode(){$$('pre.code[data-c]').forEach(p=>{const raw=p.textContent.replace(/^\n/,'');p.dataset.raw=raw;p.innerHTML=hlC(raw)})}
+
+/* ===== SVG ===== */
+const SVGNS='http://www.w3.org/2000/svg';
+function S(tag,attrs={},txt){const e=document.createElementNS(SVGNS,tag);for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);if(txt!=null)e.textContent=txt;return e}
+
+</script>
+<script>
+/* ================= UI 2 ================= */
+const DIG='0123456789ABCDEF';
+const toBase=(n,b)=>n.toString(b).toUpperCase();
+const sup=s=>`<sup>${s}</sup>`;
+const sub=s=>`<sub>(${s})</sub>`;
+
+/* ---------- 1. Explorator pozițional ---------- */
+function posExplore(animate){
+  const s=$('#pzN').value.trim().toUpperCase(),b=+$('#pzB').value,out=$('#pzOut');
+  const [ip,fp='']=s.split('.');const ds=(ip+fp).split('');
+  if(!ds.every(c=>DIG.indexOf(c)>=0&&DIG.indexOf(c)<b)){out.innerHTML=`<p class="bad">Cifre invalide pentru baza ${b}.</p>`;return}
+  let html='<div style="display:flex;gap:6px;flex-wrap:wrap;margin:.6rem 0">';let terms=[],sum=0;
+  ds.forEach((c,k)=>{const p=ip.length-1-k;const v=DIG.indexOf(c)*Math.pow(b,p);sum+=v;terms.push(v);
+    if(k===ip.length&&fp)html+='<div style="align-self:center;font-size:2rem;font-weight:700">.</div>';
+    html+=`<div class="card pz" style="margin:0;padding:.4rem .6rem;text-align:center;min-width:62px;opacity:${animate?0:1}" data-k="${k}"><div style="font:700 1.4rem var(--mono)">${c}</div><div style="font-size:.8rem;color:var(--muted)">×${b}${sup(p)}</div><div class="mono" style="font-size:.85rem">${+v.toFixed(6)}</div></div>`});
+  html+='</div><div class="out" id="pzSum"></div>';out.innerHTML=html;
+  const fin=()=>$('#pzSum').innerHTML=terms.map(v=>+v.toFixed(6)).filter(v=>v).join(' + ')+` = <b>${+sum.toFixed(8)}</b>${sub(10)}`;
+  if(!animate){fin();return}
+  $$('.pz',out).forEach((d,k)=>setTimeout(()=>{d.style.transition='all .4s';d.style.opacity=1;d.classList.add('fadein');
+    $('#pzSum').innerHTML=terms.slice(0,k+1).map(v=>+v.toFixed(6)).filter(v=>v).join(' + ')||'0'},k*450));
+  setTimeout(fin,ds.length*450+200)}
+$('#pzGo').onclick=()=>posExplore(true);$('#pzB').onchange=()=>posExplore(false);$('#pzN').oninput=()=>posExplore(false);posExplore(false);
+
+/* ---------- 2. Împărțiri succesive ---------- */
+const divStep=new Stepper('#divSt',{title:'Împărțiri succesive',steps:[]});
+function loadDiv(){let n=Math.abs(parseInt($('#divN').value)||0),b=+$('#divB').value;const steps=[];let x=n,rs=[];
+  do{const q=Math.floor(x/b),r=x%b;rs.push(r);steps.push(`<span class="mono">${x} : ${b} = ${q}</span> &nbsp;&nbsp; rest <b class="hl">${DIG[r]}</b> ${rs.length===1?'<small>(cifra cea mai puțin semnificativă)</small>':''}${q===0?' <small>(cifra cea mai semnificativă)</small>':''}`);x=q}while(x>0);
+  steps.push(`Citim resturile <b>de jos în sus</b>: ${n}${sub(10)} = <b class="mono" style="font-size:1.2rem">${rs.slice().reverse().map(r=>DIG[r]).join('')}</b>${sub(b)}`);
+  divStep.setSteps(steps,`Conversia ${n}(10) → baza ${b}`)}
+$('#divGo').onclick=loadDiv;loadDiv();
+
+/* ---------- 3. Înmulțiri succesive ---------- */
+const mulStep=new Stepper('#mulSt',{title:'Înmulțiri succesive',steps:[]});
+function loadMul(){let f=parseFloat($('#mulN').value);if(!(f>=0&&f<1)){f=f-Math.floor(f)}const p=Math.min(24,+$('#mulP').value||8);const steps=[];let bits='';
+  // folosim aritmetică zecimală exactă pe 10 cifre pentru a evita erorile de rotunjire
+  const D=1e10;let x=Math.round(f*D);
+  for(let i=0;i<p;i++){const y=x*2;const bit=y>=D?1:0;const yv=y/D;bits+=bit;steps.push(`<span class="mono">${+(x/D).toFixed(10)} × 2 = ${+yv.toFixed(10)}</span> &nbsp; se reține <b class="hl">${bit}</b>`);x=y-bit*D;if(x===0){steps.push('<small>Partea fracționară a devenit 0: conversia este exactă.</small>');break}}
+  steps.push(`Citim cifrele <b>de sus în jos</b>: ${+f.toFixed(10)}${sub(10)} ≈ <b class="mono" style="font-size:1.2rem">0.${bits}</b>${sub(2)}`);
+  mulStep.setSteps(steps,`Conversia ${+f.toFixed(10)}(10) → binar, ${p} biți`)}
+$('#mulGo').onclick=loadMul;loadMul();
+
+/* ---------- 4. Placa de biți ---------- */
+let bb='00000000.000'.split('');
+function drawBB(){const w=['2⁷','2⁶','2⁵','2⁴','2³','2²','2¹','2⁰','','2⁻¹','2⁻²','2⁻³'];
+  $('#bitBoard').innerHTML='<div style="padding-top:18px">'+bitsHTML(bb.join(''),{click:true,weights:w})+'</div>';
+  $$('#bitBoard .bit').forEach(e=>e.onclick=()=>{const i=+e.dataset.i;bb[i]=bb[i]==='1'?'0':'1';drawBB();const n=$$('#bitBoard .bit')[i];n&&n.classList.add('flip')});
+  const pw=[7,6,5,4,3,2,1,0,null,-1,-2,-3];let t=[],v=0;bb.forEach((c,i)=>{if(c==='1'){t.push('2'+sup(pw[i]));v+=Math.pow(2,pw[i])}});
+  $('#bitBoardOut').innerHTML=`${bb.join('')}${sub(2)} = ${t.join(' + ')||'0'} = <b>${v}</b>${sub(10)}`}
+$('#bbEx').onclick=()=>{bb='10100101.101'.split('');drawBB()};$('#bbClr').onclick=()=>{bb='00000000.000'.split('');drawBB()};
+bb='10100101.101'.split('');drawBB();
+$('#fracTbl').innerHTML=Array.from({length:9},(_,k)=>{const i=k+1;return `<tr><td>1/${2**i}</td><td>2${sup('−'+i)}</td><td>${1/2**i}</td><td class="mono">0.${'0'.repeat(i-1)}1</td></tr>`}).join('');
+
+/* ---------- 5. Grupare biți ---------- */
+const COL=['#2f5bd3','#e8a33d','#1f8a5b','#c23a3a','#7a3fc4','#0f8a7e','#b5568c','#5d6678'];
+const grpStep=new Stepper('#grpSt',{title:'Gruparea biților',cumulative:false,steps:[]});
+function loadGrp(){const s=$('#grpN').value.replace(/[^01]/g,'')||'0',g=+$('#grpB').value;const padn=(g-s.length%g)%g;const p='0'.repeat(padn)+s;const groups=p.match(new RegExp('.{'+g+'}','g'));
+  const box=(t,c,dim)=>`<span style="display:inline-block;margin:3px;padding:.2rem .45rem;border-radius:6px;border:2px solid ${c};font:700 1.1rem var(--mono);${dim?'opacity:.45':''}">${t}</span>`;
+  const dig=groups.map(x=>DIG[parseInt(x,2)]);
+  grpStep.setSteps([
+    `<p>Numărul inițial:</p>${box(s,'var(--line)')}`,
+    `<p>Completăm la stânga cu <b>${padn}</b> zero${padn===1?'':'uri'} pentru a avea un multiplu de ${g} biți:</p>${box(p,'var(--line)')}`,
+    `<p>Împărțim în grupuri de câte ${g}, de la dreapta la stânga:</p>${groups.map((x,i)=>box(x,COL[i%8])).join('')}`,
+    `<p>Înlocuim fiecare grup cu cifra ${g===3?'octală':'hexazecimală'}:</p><div>${groups.map((x,i)=>`<span style="display:inline-block;text-align:center;margin:3px">${box(x,COL[i%8])}<br><b style="font-size:1.4rem;color:${COL[i%8]}">↓<br>${dig[i]}</b></span>`).join('')}</div>`,
+    `<p>Rezultat:</p><div class="out" style="font-size:1.2rem">${s}${sub(2)} = <b>${dig.join('').replace(/^0+(?=.)/,'')}</b>${sub(g===3?8:16)}</div>`
+  ],`${s}(2) → ${g===3?'octal':'hexazecimal'}`)}
+$('#grpGo').onclick=loadGrp;loadGrp();
+function ung(){const s=$('#ungN').value.trim().toUpperCase(),b=+$('#ungB').value,g=b===16?4:3;
+  if(![...s].every(c=>DIG.indexOf(c)>=0&&DIG.indexOf(c)<b)){$('#ungOut').innerHTML='<span class="bad">cifre invalide</span>';return}
+  $('#ungOut').innerHTML=[...s].map(c=>`${c} → <b>${pad(DIG.indexOf(c).toString(2),g)}</b>`).join('   ')+`\n\n${s}${sub(b)} = ${[...s].map(c=>pad(DIG.indexOf(c).toString(2),g)).join(' ')}${sub(2)}`}
+$('#ungN').oninput=ung;$('#ungB').onchange=ung;ung();
+$('#octTbl').innerHTML='<table class="t">'+Array.from({length:8},(_,i)=>`<tr><td><b>${i}</b></td><td class="mono">${pad(i.toString(2),3)}</td></tr>`).join('')+'</table>';
+$('#hexTbl').innerHTML='<table class="t"><tr>'+Array.from({length:16},(_,i)=>`<td><b>${DIG[i]}</b><br><span class="mono" style="font-size:.78rem">${pad(i.toString(2),4)}</span></td>`).join('').replace(/(<\/td>)(?=<td><b>8)/,'$1</tr><tr>')+'</tr></table>';
+
+/* ---------- 6. Aritmetică binară ---------- */
+const addStep=new Stepper('#addSt',{title:'Operație binară',steps:[],cumulative:false});
+function colGrid(rows,hlCol){/* rows: [{lbl, s, cls}] aliniate la dreapta */const W=Math.max(...rows.map(r=>r.s.length));
+  return '<table style="border-collapse:collapse;font:700 1.15rem var(--mono)">'+rows.map(r=>{const s=r.s.padStart(W,' ');return `<tr style="${r.line?'border-top:2px solid var(--ink)':''}"><td style="padding:0 .6rem;font:600 .8rem var(--sans);color:var(--muted);text-align:right">${r.lbl||''}</td>`+[...s].map((c,i)=>`<td style="width:1.4em;text-align:center;${r.small?'font-size:.8rem;color:var(--bad)':''};${hlCol!=null&&i===W-1-hlCol?'background:var(--acc-soft)':''}">${c===' '?'':c}</td>`).join('')+'</tr>'}).join('')+'</table>'}
+function loadAdd(){let A=$('#addA').value.replace(/[^01]/g,'')||'0',B=$('#addB').value.replace(/[^01]/g,'')||'0',op=$('#addOp').value;const a=parseInt(A,2),b=parseInt(B,2);const steps=[];
+  if(op==='+'||op==='-'){if(op==='-'&&b>a){[A,B]=[B,A];steps.push('<p class="note obs">B &gt; A: am inversat operanzii, rezultatul va fi negativ.</p>')}
+    const W=Math.max(A.length,B.length)+1;const x=A.padStart(W,'0'),y=B.padStart(W,'0');let c=0;let res=Array(W).fill(' '),cr=Array(W).fill(' ');
+    for(let k=0;k<W;k++){const i=W-1-k;const p=+x[i],q=+y[i];let r;let msg;
+      if(op==='+'){const s=p+q+c;r=s%2;const nc=s>1?1:0;msg=`Coloana ${k}: ${p} + ${q}${c?' + 1 (transport)':''} = ${s} → scriem <b>${r}</b>${nc?', transport 1':''}`;c=nc;if(i>0&&c)cr[i-1]='1'}
+      else{let s=p-q-c;const nc=s<0?1:0;if(s<0)s+=2;r=s;msg=`Coloana ${k}: ${p} − ${q}${c?' − 1 (împrumut)':''} → scriem <b>${r}</b>${nc?', împrumutăm 1 din stânga':''}`;c=nc;if(i>0&&c)cr[i-1]='1'}
+      res[i]=String(r);if(k===W-1&&res[0]==='0')res[0]=' ';
+      steps.push(colGrid([{lbl:op==='+'?'transport':'împrumut',s:cr.join(''),small:1},{lbl:'',s:x.replace(/^0/,' ')},{lbl:op,s:y.replace(/^0+(?=.)/,m=>' '.repeat(m.length))},{lbl:'=',s:res.join(''),line:1}],k)+`<p>${msg}</p>`)}
+    const rv=op==='+'?a+b:Math.abs(a-b);steps.push(steps[steps.length-1].replace(/<p>.*<\/p>$/,'')+`<p class="ok">Rezultat: ${rv.toString(2)}${sub(2)} · verificare: ${parseInt(A,2)} ${op==='+'?'+':'−'} ${parseInt(B,2)} = ${op==='+'?a+b:parseInt(A,2)-parseInt(B,2)}</p>`)}
+  else if(op==='*'){const rows=[{lbl:'',s:A},{lbl:'×',s:B}];const parts=[];
+    [...B].reverse().forEach((bit,k)=>{const pp=(bit==='1'?A:'0'.repeat(A.length))+' '.repeat(k);parts.push({lbl:'',s:pp,line:k===0});
+      steps.push(colGrid(rows.concat(parts))+`<p>Bitul ${k} al lui B este <b>${bit}</b> → produs parțial ${bit==='1'?'= A':'= 0'}, deplasat cu ${k} poziții.</p>`)});
+    const p=(a*b).toString(2);steps.push(colGrid(rows.concat(parts,[{lbl:'=',s:p,line:1}]))+`<p class="ok">Adunăm produsele parțiale: ${p}${sub(2)} · verificare: ${a} × ${b} = ${a*b}</p>`)}
+  else{if(b===0){addStep.setSteps(['<p class="bad">Împărțirea la 0 este imposibilă.</p>']);return}
+    let rem=0,q='';const lines=[];
+    for(let i=0;i<A.length;i++){rem=rem*2+(+A[i]);if(rem>=b){q+='1';lines.push(`Coborâm bitul ${A[i]}: rest parțial ${rem.toString(2)} ≥ ${B} → câtul primește <b>1</b>, scădem: ${rem.toString(2)} − ${B} = ${(rem-b).toString(2)}`);rem-=b}else{q+='0';lines.push(`Coborâm bitul ${A[i]}: rest parțial ${rem.toString(2)} &lt; ${B} → câtul primește <b>0</b>`)}
+      steps.push(`<div class="out">${A} : ${B}\ncât parțial: ${q.replace(/^0+(?=.)/,'')}</div><ol>${lines.map(l=>'<li>'+l+'</li>').join('')}</ol>`)}
+    steps.push(`<p class="ok">Cât = ${q.replace(/^0+(?=.)/,'')}${sub(2)}, rest = ${rem.toString(2)}${sub(2)} · verificare: ${a} : ${b} = ${Math.floor(a/b)} rest ${a%b}</p>`)}
+  addStep.setSteps(steps,`${A} ${op==='*'?'×':op==='/'?':':op} ${B}`)}
+$('#addGo').onclick=loadAdd;$('#addOp').onchange=()=>{const o=$('#addOp').value;const ex={'+':['1101101','101'],'-':['1101101','101'],'*':['1101101','101'],'/':['11010111','101']}[o];$('#addA').value=ex[0];$('#addB').value=ex[1];loadAdd()};loadAdd();
+
+/* ---------- 7. Depășire 8 biți ---------- */
+function ov(){const a=+$('#ovA').value,b=+$('#ovB').value,s=a+b;$('#ovAv').textContent=a;$('#ovBv').textContent=b;
+  const full=pad(s.toString(2),9),r=s&255;
+  $('#ovOut').innerHTML=`<div class="out" style="font-size:1.05rem">  ${pad(a.toString(2),8)}  (${a})\n+ ${pad(b.toString(2),8)}  (${b})\n──────────────\n${s>255?'<span class="bad">1</span>':' '} ${full.slice(1)}  (${s})</div>`+
+  (s>255?`<p class="bad">⚠ Depășire! ${s} &gt; 255. Bitul al 9-lea se pierde; se păstrează cei 8 biți mai puțin semnificativi: ${pad(r.toString(2),8)} = <b>${r}</b> (cu ${s-r} mai puțin decât rezultatul corect).</p>`:`<p class="ok">✔ Rezultatul ${s} încape pe 8 biți.</p>`)}
+$('#ovA').oninput=ov;$('#ovB').oninput=ov;ov();
+
+/* ---------- 8. Complement față de 2 ---------- */
+const c2Step=new Stepper('#c2St',{title:'Complement față de 2 (8 biți)',steps:[],cumulative:false,onShow:(i,b)=>{$$('.bit.flipme',b).forEach((e,k)=>setTimeout(()=>e.classList.add('flip'),k*60))}});
+function loadC2(){let x=Math.max(-128,Math.min(127,parseInt($('#c2N').value)||0));$('#c2N').value=x;const ab=Math.abs(x);const steps=[];
+  const B=v=>pad((v&255).toString(2),8);
+  if(x>=0){steps.push(`<p>Număr pozitiv: reprezentarea în cod complementar coincide cu binarul obișnuit, bitul de semn este 0.</p>${bitsHTML(B(x),{cls:i=>i===0?'sign':''})}<p class="mono">${x}${sub(10)} = ${B(x)}${sub(2)}</p>`)}
+  else if(x===-128){steps.push(`<p>−128 este cazul special: 128 = 10000000, inversat 01111111, +1 → <b>10000000</b>. Este cel mai mic număr reprezentabil pe 8 biți; +128 nu are reprezentare.</p>${bitsHTML('10000000',{cls:i=>i===0?'sign':''})}`)}
+  else{const sm='1'+pad(ab.toString(2),7),inv='1'+[...pad(ab.toString(2),7)].map(c=>c==='1'?'0':'1').join(''),res=B(x);
+    steps.push(`<p><b>Pasul 1.</b> Scriem |${x}| = ${ab} în binar pe 7 biți și punem bitul de semn 1 (reprezentarea semn + mărime):</p>${bitsHTML(sm,{cls:i=>i===0?'sign':''})}`);
+    steps.push(`<p><b>Pasul 2.</b> Inversăm biții (bitul de semn rămâne 1):</p>${bitsHTML(sm,{cls:i=>i===0?'sign':''})}<div style="margin:.3rem 0 .3rem 100px">↓ inversare</div>${bitsHTML(inv,{cls:(i,c)=>i===0?'sign':(sm[i]!==c?'flipme':'')})}`);
+    steps.push(`<p><b>Pasul 3.</b> Adunăm 1:</p><div class="out">  ${inv}\n+ 00000001\n──────────\n  ${res}</div>${bitsHTML(res,{cls:i=>i===0?'sign':''})}`);
+    steps.push(`<p><b>Verificare.</b> Interpretat fără semn: C2(x) = 2${sup(8)} − ${ab} = <b>${256-ab}</b> = ${res}${sub(2)}.</p><p>Și ${ab} + (${x}): ${B(ab)} + ${res} = (1)00000000 → transportul se pierde, rezultatul este 0 ✔</p>`)}
+  c2Step.setSteps(steps,`${x} în cod complementar pe 8 biți`)}
+$('#c2Go').onclick=loadC2;loadC2();
+(function wheel(){const svg=$('#wheel'),cx=150,cy=150,R=118;const info=S('text',{x:cx,y:cy+6,'text-anchor':'middle','font-size':14,fill:'currentColor'},'4 biți');
+  for(let k=0;k<16;k++){const ang=(k/16)*2*Math.PI-Math.PI/2;const x=cx+R*Math.cos(ang),y=cy+R*Math.sin(ang);const sv=k<8?k:k-16;
+    const g=S('g',{style:'cursor:pointer'});const c=S('circle',{cx:x,cy:y,r:19,fill:sv<0?'#fbe9e9':'#e3f4ec',stroke:sv<0?'#c23a3a':'#1f8a5b','stroke-width':1.5});
+    g.append(c,S('text',{x,y:y-2,'text-anchor':'middle','font-size':10,'font-family':'monospace',fill:'#111'},pad(k.toString(2),4)),S('text',{x,y:y+11,'text-anchor':'middle','font-size':11,'font-weight':700,fill:'#111'},sv));
+    g.onmouseenter=()=>{c.setAttribute('r',23);info.textContent=`${pad(k.toString(2),4)} = ${sv} (fără semn: ${k})`};g.onmouseleave=()=>{c.setAttribute('r',19)};svg.append(g)}
+  svg.append(S('line',{x1:cx-8,y1:cy-R+30,x2:cx+8,y2:cy-R+30,stroke:'#c23a3a','stroke-width':2}));
+  const arc=S('path',{d:`M ${cx+30} ${cy-R+20} A ${R-30} ${R-30} 0 0 1 ${cx+R-25} ${cy-35}`,fill:'none',stroke:'#2f5bd3','stroke-width':2,'stroke-dasharray':'4 4'});svg.append(arc,info);
+  svg.append(S('text',{x:cx,y:cy-R+48,'text-anchor':'middle','font-size':10,fill:'#c23a3a'},'7 → −8: depășire'));
+  let k=0;setInterval(()=>{if(document.hidden)return;$$('#wheel g circle').forEach((c,i)=>c.setAttribute('stroke-width',i===k?4:1.5));k=(k+1)%16},700)})();
+$('#ov2Go').onclick=()=>{$('#ov2Out').innerHTML=`<div class="out">−100 → 11100100 → inversare 10011011 → +1 = 10011100
+−30  → 10011110 → inversare 11100001 → +1 = 11100010
+──────────────────────────────────────────
+  10011100
++ 11100010
+= <span class="bad">1</span>01111110  → pe 8 biți: 01111110 = +126</div><p class="bad">Rezultat pozitiv, incorect: −130 nu se poate reprezenta în [−128, 127].</p>`};
+
+/* ---------- 9. IEEE 754 ---------- */
+let fpBits='0'.repeat(32);
+function f2b(v){const dv=new DataView(new ArrayBuffer(4));dv.setFloat32(0,v);return pad(dv.getUint32(0).toString(2),32)}
+function b2f(s){const dv=new DataView(new ArrayBuffer(4));dv.setUint32(0,parseInt(s,2)>>>0);return dv.getFloat32(0)}
+function drawFP(){const s=fpBits;$('#fpBits').innerHTML=`<div style="display:flex;gap:10px;align-items:flex-start;min-width:max-content"><div><small>semn</small><br>${bitsHTML(s[0],{click:1,cls:()=>'sign'})}</div><div><small>caracteristică (8 biți)</small><br>${bitsHTML(s.slice(1,9),{click:1,cls:()=>'exp'})}</div><div><small>mantisă (23 biți)</small><br>${bitsHTML(s.slice(9),{click:1})}</div></div>`;
+  $$('#fpBits .bit').forEach((e,k)=>e.onclick=()=>{const a=[...fpBits];a[k]=a[k]==='1'?'0':'1';fpBits=a.join('');drawFP()});
+  const sg=+s[0],ch=parseInt(s.slice(1,9),2),m=s.slice(9),v=b2f(s);let expl;
+  if(ch===255)expl=m.includes('1')?'caracteristica 255 și mantisă ≠ 0 → NaN (nu este un număr)':'caracteristica 255 și mantisă 0 → ±infinit';
+  else if(ch===0)expl=`caracteristica 0 → număr denormalizat: (−1)${sup(sg)} × 0.${m.replace(/0+$/,'')||'0'} × 2${sup(-126)}`;
+  else expl=`(−1)${sup(sg)} × 1.${m.replace(/0+$/,'')||'0'}${sub(2)} × 2${sup(ch+' − 127')} = (−1)${sup(sg)} × 1.${m.replace(/0+$/,'')||'0'} × 2${sup(ch-127)}`;
+  $('#fpOut').innerHTML=`semn = ${sg} · caracteristica = ${s.slice(1,9)}${sub(2)} = ${ch} · exponent = ${ch}−127 = ${ch-127}\n${expl}\nValoare stocată: <b>${v}</b>   ·   hex: ${pad((parseInt(s,2)>>>0).toString(16).toUpperCase(),8)}`}
+$('#fpGo').onclick=()=>{const v=parseFloat($('#fpN').value.replace(',','.'));if(isNaN(v))return;fpBits=f2b(v);drawFP()};
+$('#fpEx2').onclick=()=>{fpBits='0'+'10000110'+'11010110000000000000000';drawFP()};
+fpBits=f2b(135.74356);drawFP();
+new Stepper('#fpSt',{title:'Exemplul din curs: 135.74356 în simplă precizie',steps:[
+  'Convertim numărul în binar: 135 = <b>10000111</b>(2); .74356 ≈ <b>.1011</b>(2) (trunchiat, ca în curs) ⇒ 135.74356 ≈ 10000111.1011(2)',
+  'Scriem forma normalizată (mutăm virgula 7 poziții la stânga): <b>1.00001111011 × 2<sup>7</sup></b>',
+  'Calculăm caracteristica: 7 + 127 = 134 = <b>10000110</b>(2)',
+  'Mantisa = biții de după virgulă, completați cu zerouri până la 23: <b>00001111011</b>000000000000',
+  `Reprezentarea finală:<br>${bitsHTML('0',{cls:()=>'sign'})} ${bitsHTML('10000110',{cls:()=>'exp'})} ${bitsHTML('00001111011000000000000')}`,
+  '<hr><b>Invers:</b> 0 10000110 11010110000000000000000 → caracteristica 10000110 = 134 → 1.1101011 × 2<sup>134−127</sup> = 1.1101011 × 2<sup>7</sup> = 11101011(2) = 128+64+32+8+2+1 = <b>235</b>'
+]});
+
+/* ---------- 10. Coduri numerice ---------- */
+const C2421=['0000','0001','0010','0011','0100','1011','1100','1101','1110','1111'];
+const XS3=d=>pad((d+3).toString(2),4),BCD=d=>pad(d.toString(2),4),GRAY=d=>pad((d^(d>>1)).toString(2),4);
+const CODES={'BCD 8-4-2-1':BCD,'2-4-2-1':d=>C2421[d],'Excess-3 (XS-3)':XS3,'Gray':GRAY};
+function codeConv(){const s=$('#cdN').value.replace(/\D/g,'');if(!s){$('#cdOut').innerHTML='';return}const ds=[...s].map(Number);
+  let h='<table class="t"><tr><th class="l">Cod</th>'+ds.map(d=>`<th>${d}</th>`).join('')+'<th>nr. biți</th></tr>';
+  for(const[n,f]of Object.entries(CODES))h+=`<tr><td class="l">${n}</td>`+ds.map(d=>`<td class="mono">${f(d)}</td>`).join('')+`<td>${4*ds.length}</td></tr>`;
+  h+=`<tr><td class="l">BCD despachetat</td>`+ds.map(d=>`<td class="mono">0000${BCD(d)}</td>`).join('')+`<td>${8*ds.length}</td></tr>`;
+  const bin=BigInt(s).toString(2);h+=`<tr><td class="l">binar pur</td><td colspan="${ds.length}" class="mono">${bin}</td><td>${bin.length}</td></tr></table>`;
+  h+=`<p><b>BCD împachetat</b> (2 cifre pe octet): <span class="mono">${ds.map(BCD).join(' ')}</span> · <b>despachetat</b> (o cifră pe octet): <span class="mono">${ds.map(d=>'0000'+BCD(d)).join(' ')}</span></p>`;
+  $('#cdOut').innerHTML=h}
+$('#cdN').oninput=codeConv;codeConv();
+(function codeTable(){let h='<tr><th class="l">Cifră</th>'+[...Array(10)].map((_,d)=>`<th data-d="${d}">${d}</th>`).join('')+'</tr>';
+  for(const[n,f]of Object.entries(CODES))h+=`<tr><td class="l">${n}</td>`+[...Array(10)].map((_,d)=>`<td class="mono" data-d="${d}" data-c="${n}">${f(d)}</td>`).join('')+'</tr>';
+  const t=$('#codeTbl');t.innerHTML=h;
+  t.onmouseover=e=>{const d=e.target.dataset.d;if(d==null)return;$$('td[data-c]',t).forEach(td=>{const dd=+td.dataset.d,f=CODES[td.dataset.c];td.style.background=dd==d?'var(--acc-soft)':'';
+      if(dd==d&&d>0){const p=f(dd-1),c=f(dd);td.innerHTML=[...c].map((ch,i)=>ch!==p[i]?`<span class="hl">${ch}</span>`:ch).join('')}else td.textContent=f(dd)})}})();
+
+/* Numărător Gray */
+let gT=null,gK=0;
+function grayDraw(){const n=+$('#grayN').value,M=1<<n,k=gK%M,pk=(k-1+M)%M;const b=pad(k.toString(2),n),pb=pad(pk.toString(2),n),g=pad((k^(k>>1)).toString(2),n),pg=pad((pk^(pk>>1)).toString(2),n);
+  $('#grayBin').innerHTML=bitsHTML(b,{cls:(i,c)=>c!==pb[i]?'flip':''});$('#grayG').innerHTML=bitsHTML(g,{cls:(i,c)=>c!==pg[i]?'flip':''});
+  const cb=[...b].filter((c,i)=>c!==pb[i]).length,cg=[...g].filter((c,i)=>c!==pg[i]).length;
+  $('#grayInfo').innerHTML=`${pk} → ${k}: în binar se schimbă <b>${cb}</b> bit${cb>1?'i':''}, în Gray se schimbă <b>${cg}</b> bit.`}
+$('#grayPlay').onclick=()=>{if(gT){clearInterval(gT);gT=null;$('#grayPlay').textContent='⏵ Pornește'}else{gT=setInterval(()=>{gK++;grayDraw()},900);$('#grayPlay').textContent='⏸ Oprește'}};
+$('#grayN').onchange=()=>{gK=0;grayDraw()};grayDraw();
+
+/* Paritate */
+let parD=[];const newPar=()=>{parD=[...Array(7)].map(()=>rnd(0,1));parErr=-1;drawPar()};let parErr=-1;
+function drawPar(){const t=+$('#parT').value;const ones=parD.reduce((a,b)=>a+b,0);const pb=(ones+t)%2;// bit de paritate calculat la emisie
+  if(drawPar.sent==null||drawPar.reset){drawPar.sent=pb;drawPar.reset=false}
+  const recv=parD.slice();const s=recv.join('')+drawPar.sent;
+  $('#parBits').innerHTML=bitsHTML(s,{click:1,cls:(i)=>(i===7?'par':'')+(i===parErr?' err':'')});
+  $$('#parBits .bit').forEach((e,i)=>e.onclick=()=>{if(i===7)return;parD[i]^=1;parErr=parErr===i?-1:i;drawPar()});
+  const tot=[...s].filter(c=>c==='1').length;const okp=(tot%2)===t;
+  $('#parOut').innerHTML=`Număr de biți 1 în mesaj: ${tot} (${tot%2?'impar':'par'}) → ${okp?'<span class="ok">paritate corectă</span>':'<span class="bad">eroare detectată!</span>'}${parErr>=0&&okp?' — două erori nu pot fi detectate':''}`}
+$('#parT').onchange=()=>{drawPar.reset=true;parErr=-1;drawPar()};$('#parR').onclick=()=>{drawPar.reset=true;newPar()};newPar();
+
+/* Distanța Hamming */
+function hd(){const a=$('#hdA').value.replace(/[^01]/g,''),b=$('#hdB').value.replace(/[^01]/g,'');if(a.length!==b.length){$('#hdOut').innerHTML='<p class="bad">Cuvintele trebuie să aibă aceeași lungime.</p>';return}
+  let d=0;const m=[...a].map((c,i)=>{if(c!==b[i])d++;return c!==b[i]});
+  $('#hdOut').innerHTML=`<div style="margin:.5rem 0">${bitsHTML(a,{cls:i=>m[i]?'err':''})}<br>${bitsHTML(b,{cls:i=>m[i]?'err':''})}</div><p>Distanța Hamming = <b>${d}</b></p>`}
+$('#hdA').oninput=hd;$('#hdB').oninput=hd;hd();
+function dmin(){const w=$('#dminIn').value.split(/\s+/).filter(Boolean);let best=1e9,pair='';const L=[];
+  for(let i=0;i<w.length;i++)for(let j=i+1;j<w.length;j++){if(w[i].length!==w[j].length)continue;const d=[...w[i]].filter((c,k)=>c!==w[j][k]).length;L.push(`d(${w[i]}, ${w[j]}) = ${d}`);if(d<best){best=d;pair=`${w[i]}, ${w[j]}`}}
+  $('#dminOut').innerHTML=L.join('\n')+(best<1e9?`\n<b>Dmin = ${best}</b> ⇒ detectează ${best-1} erori, corectează ${Math.floor((best-1)/2)}`:'')}
+$('#dminIn').oninput=dmin;dmin();
+
+/* ---------- 11. Hamming (7,4) ---------- */
+const HL=['D7','D6','D5','P4','D3','P2','P1'];
+function hamEnc(d){const c={7:+d[0],6:+d[1],5:+d[2],3:+d[3]};c[1]=c[3]^c[5]^c[7];c[2]=c[3]^c[6]^c[7];c[4]=c[5]^c[6]^c[7];return [7,6,5,4,3,2,1].map(p=>c[p]).join('')}
+function hamTbl(vals,hl){return '<table class="t" style="max-width:420px"><tr>'+HL.map((l,i)=>`<th style="${hl&&hl.includes(7-i)?'background:var(--acc2);color:#111':''}">${l}</th>`).join('')+'</tr><tr>'+vals.map((v,i)=>`<td class="mono" style="font-size:1.1rem;${hl&&hl.includes(7-i)?'background:var(--warn-soft)':''}">${v}</td>`).join('')+'</tr></table>'}
+const hmStep=new Stepper('#hmSt',{title:'Construirea codului Hamming',steps:[],cumulative:false});
+function loadHam(){const d=($('#hmD').value.replace(/[^01]/g,'')+'0000').slice(0,4);$('#hmD').value=d;const c=hamEnc(d);const v=[d[0],d[1],d[2],' ',d[3],' ',' '];
+  hmStep.setSteps([
+    `<p><b>Pasul 1.</b> Plasăm biții de date pe pozițiile D7, D6, D5, D3:</p>${hamTbl(v)}`,
+    `<p><b>Pasul 2.</b> P1 = paritate pară pentru biții 1, 3, 5, 7: ${d[3]} + ${d[2]} + ${d[0]} = ${+d[3]+ +d[2]+ +d[0]} ⇒ P1 = <b>${c[6]}</b></p>${hamTbl([d[0],d[1],d[2],' ',d[3],' ',c[6]],[1,3,5,7])}`,
+    `<p><b>Pasul 3.</b> P2 = paritate pară pentru biții 2, 3, 6, 7: ${d[3]} + ${d[1]} + ${d[0]} = ${+d[3]+ +d[1]+ +d[0]} ⇒ P2 = <b>${c[5]}</b></p>${hamTbl([d[0],d[1],d[2],' ',d[3],c[5],c[6]],[2,3,6,7])}`,
+    `<p><b>Pasul 4.</b> P4 = paritate pară pentru biții 4, 5, 6, 7: ${d[2]} + ${d[1]} + ${d[0]} = ${+d[2]+ +d[1]+ +d[0]} ⇒ P4 = <b>${c[3]}</b></p>${hamTbl([...c],[4,5,6,7])}<p class="ok">Cuvântul de cod transmis: <b class="mono">${c}</b></p>`],`Hamming(7,4) pentru ${d}`)}
+$('#hmGo').onclick=loadHam;loadHam();
+function hamRecv(){let r=($('#hmR').value.replace(/[^01]/g,'')+'0000000').slice(0,7);const b=p=>+r[7-p];
+  const s1=b(1)^b(3)^b(5)^b(7),s2=b(2)^b(3)^b(6)^b(7),s4=b(4)^b(5)^b(6)^b(7),syn=s4*4+s2*2+s1;
+  $('#hmRbits').innerHTML=`<div class="bitlbl">${HL.map(l=>`<span>${l}</span>`).join('')}</div>`+bitsHTML(r,{click:1,cls:i=>(i===3||i===5||i===6?'par':'')+(syn&&7-i===syn?' err':'')});
+  $$('#hmRbits .bit').forEach((e,i)=>e.onclick=()=>{const a=[...r];a[i]=a[i]==='1'?'0':'1';$('#hmR').value=a.join('');hamRecv()});
+  const corr=syn?[...r].map((c,i)=>7-i===syn?(c==='1'?'0':'1'):c).join(''):r;
+  $('#hmRout').innerHTML=`<div class="out">Biții 1,3,5,7: ${b(1)}+${b(3)}+${b(5)}+${b(7)} → ${s1?'<span class="bad">impar ⇒ P1 cu erori</span>':'par ⇒ P1 fără erori'}
+Biții 2,3,6,7: ${b(2)}+${b(3)}+${b(6)}+${b(7)} → ${s2?'<span class="bad">impar ⇒ P2 cu erori</span>':'par ⇒ P2 fără erori'}
+Biții 4,5,6,7: ${b(4)}+${b(5)}+${b(6)}+${b(7)} → ${s4?'<span class="bad">impar ⇒ P4 cu erori</span>':'par ⇒ P4 fără erori'}
+Sindrom (P4 P2 P1) = ${s4}${s2}${s1}${sub(2)} = ${syn}</div>`+(syn?`<p>Bitul de pe poziția <b>${syn}</b> (${HL[7-syn]}) este eronat. Cod corectat: <b class="mono ok">${corr}</b> · date: <b class="mono">${corr[0]+corr[1]+corr[2]+corr[4]}</b></p>`:`<p class="ok">Nicio eroare detectată. Date: <b class="mono">${r[0]+r[1]+r[2]+r[4]}</b></p>`)}
+$('#hmR').oninput=hamRecv;$('#hmRex').onclick=()=>{$('#hmR').value='1111101';hamRecv()};hamRecv();
+
+/* ---------- 12. CRC ---------- */
+const crcStep=new Stepper('#crcSt',{title:'Împărțire polinomială modulo 2',steps:[],cumulative:false});
+const poly=s=>{const n=s.length;const t=[];[...s].forEach((c,i)=>{if(c==='1'){const p=n-1-i;t.push(p===0?'1':p===1?'x':'x'+sup(p))}});return t.join(' ⊕ ')||'0'};
+function loadCRC(){const M=$('#crcM').value.replace(/[^01]/g,''),G=$('#crcG').value.replace(/[^01]/g,'').replace(/^0+/,'');if(!M||G.length<2)return;const k=G.length-1;
+  let a=[...M+'0'.repeat(k)].map(Number);const steps=[`<p>Mesaj: <b class="mono">${M}</b> → M(x) = ${poly(M)}<br>Generator: <b class="mono">${G}</b> → G(x) = ${poly(G)} (grad ${k})</p><p>Adăugăm ${k} zerouri la mesaj: <b class="mono">${M}<span class="hl">${'0'.repeat(k)}</span></b></p>`];
+  for(let i=0;i<=a.length-G.length;i++){if(!a[i])continue;const before=a.join('');for(let j=0;j<G.length;j++)a[i+j]^=+G[j];
+    const after=a.join(''),blank=s=>' '.repeat(i)+s.slice(i);const fz=after.indexOf('1');
+    steps.push(`<div class="out">${blank(before)}\n${' '.repeat(i)}<span class="bad">${G}</span>   ← XOR (bitul curent este 1)\n${' '.repeat(i)}${'─'.repeat(G.length)}\n${fz<0?' '.repeat(after.length-k)+after.slice(-k):' '.repeat(fz)+after.slice(fz)}</div><small>Pasul ${steps.length}: sub fiecare bit 1 de la stânga se scrie generatorul și se face XOR (scădere fără împrumut).</small>`)}
+  const R=a.slice(-k).join('');steps.push(`<p>Restul împărțirii: <b class="mono hl">${R}</b>. Se transmite mesajul urmat de rest: <b class="mono">${M}${R}</b></p><p>La recepție, împărțind <span class="mono">${M}${R}</span> la ${G} se obține restul 0 ⇒ transmisie fără erori.</p>`);
+  crcStep.setSteps(steps,`CRC: ${M} / ${G}`)}
+$('#crcGo').onclick=loadCRC;loadCRC();
+
+/* ---------- 13. ASCII ---------- */
+const CTRL=['NUL','SOH','STX','ETX','EOT','ENQ','ACK','BEL','BS','HT','LF','VT','FF','CR','SO','SI','DLE','DC1','DC2','DC3','DC4','NAK','SYN','ETB','CAN','EM','SUB','ESC','FS','GS','RS','US'];
+const chName=c=>c<32?CTRL[c]:c===32?'SP':c===127?'DEL':String.fromCharCode(c);
+(function(){let h='<tr><th></th>'+[...Array(8)].map((_,c)=>`<th>${pad(c.toString(2),3)}</th>`).join('')+'</tr>';
+  for(let r=0;r<16;r++){h+=`<tr><th>${pad(r.toString(2),4)}</th>`;for(let c=0;c<8;c++){const v=c*16+r;h+=`<td data-v="${v}">${chName(v)}</td>`}h+='</tr>'}
+  const t=$('#asciiTbl');t.innerHTML=h;t.onclick=e=>{const v=e.target.dataset.v;if(v==null)return;$$('td',t).forEach(x=>x.style.background='');e.target.style.background='var(--acc2)';
+    $('#asciiOut').innerHTML=`<b>${chName(+v)}</b>: coloana ${pad((v>>4).toString(2),3)} + linia ${pad((v&15).toString(2),4)} → <b>${pad((+v).toString(2),7)}</b>${sub(2)} = <b>${v}</b>${sub(10)} = ${pad((+v).toString(16).toUpperCase(),2)}${sub(16)}`}})();
+function txt(){const s=$('#txtIn').value;$('#txtOut').innerHTML=[...s].map(c=>{const v=c.charCodeAt(0);return `<span class="card fadein" style="display:inline-block;margin:3px;padding:.3rem .5rem;text-align:center"><b>${c===' '?'␣':c}</b><br><span class="mono" style="font-size:.8rem">${v<128?pad(v.toString(2),7):'non-ASCII'}</span><br><small>${v}</small></span>`}).join('')}
+$('#txtIn').oninput=txt;txt();
+function uni(){$('#uniOut').innerHTML=[...$('#uniIn').value].map(c=>{const v=c.codePointAt(0);return `${c===' '?'␣':c}  U+${pad(v.toString(16).toUpperCase(),4)}  (${v})${v<128?'  ← și în ASCII':''}`}).join('\n')}
+$('#uniIn').oninput=uni;uni();
+
+/* ================= SEMINAR ================= */
+const PROBS=[
+ {t:'Convertiți 147.37(10) în binar, precizie 8',s:['Partea întreagă, împărțiri succesive la 2: 147→73 r1, 73→36 r1, 36→18 r0, 18→9 r0, 9→4 r1, 4→2 r0, 2→1 r0, 1→0 r1','Citim resturile de jos în sus: 147 = <b>10010011</b>(2)','Partea fracționară, înmulțiri succesive: 0.37→0.74(0)→1.48(1)→0.96(0)→1.92(1)→1.84(1)→1.68(1)→1.36(1)→0.72(0)','0.37 ≈ <b>0.01011110</b>(2)','Concatenăm: 147.37(10) ≈ <b>10010011.01011110</b>(2)']},
+ {t:'Convertiți 10100101.101(2) în zecimal',s:['Ponderile biților 1: 2<sup>7</sup>, 2<sup>5</sup>, 2<sup>2</sup>, 2<sup>0</sup>, 2<sup>−1</sup>, 2<sup>−3</sup>','128 + 32 + 4 + 1 + 0.5 + 0.125','= <b>165.625</b>(10)','<div class="note fix">în suport rezultatul apare ca 165.75; corect este 165.625, pentru că 2<sup>−3</sup> = 0.125.</div>']},
+ {t:'Convertiți 1100010101(2) în octal și în hexazecimal',s:['Octal: grupuri de 3 de la dreapta, completăm cu 0: 001 100 010 101 → 1 4 2 5','<div class="note fix">suportul grupează greșit 011 100 010 101 → 3425; numărul are 10 biți, deci primul grup este 001, iar rezultatul corect este <b>1425</b>(8) = 789(10).</div>','Hexazecimal: grupuri de 4: 0011 0001 0101 → <b>315</b>(16)','Verificare: 3·256 + 1·16 + 5 = 789 = 1·512 + 4·64 + 2·8 + 5 ✔']},
+ {t:'Calculați 1101101(2) × 101(2)',s:['Produse parțiale: bitul 0 al lui 101 este 1 → 1101101','bitul 1 este 0 → 0000000 (deplasat cu 1)','bitul 2 este 1 → 1101101 (deplasat cu 2)','Sumă: 1101101 + 110110100 = <b>1000100001</b>(2)','Verificare: 109 × 5 = 545 ✔']},
+ {t:'Calculați 11010111(2) : 101(2)',s:['1101 ≥ 101 → 1, rest 1101−101 = 1000? Atenție: lucrăm pe primii biți: 110 ≥ 101 → 1, rest 1','Coborâm 1: 11 &lt; 101 → 0; coborâm 0: 110 ≥ 101 → 1, rest 1','Coborâm 1: 11 → 0; coborâm 1: 111 → 1, rest 10; coborâm 1: 101 → 1, rest 0','Cât = <b>101011</b>(2) = 43, rest 0','Verificare: 215 : 5 = 43 ✔']},
+ {t:'Reprezentați −72 pe 8 biți în cod complementar',s:['72 = 1001000; semn + mărime: 11001000','Inversăm biții (fără bitul de semn): 10110111','Adunăm 1: <b>10111000</b>','Verificare: 2<sup>8</sup> − 72 = 184 = 10111000(2) ✔']},
+ {t:'Calculați −100 − 30 pe 8 biți',s:['−100 = 10011100 (complement față de 2)','−30 = 11100010','Sumă: 10011100 + 11100010 = 1 01111110','Pe 8 biți rămâne 01111110 = +126: <b>depășire</b> (−130 nu este în [−128, 127])']},
+ {t:'Codul Hamming (7,4) pentru 1011',s:['D7 D6 D5 _ D3 _ _ = 1 0 1 _ 1 _ _','P1 (1,3,5,7): 1+1+1 = 3 → P1 = 1','P2 (2,3,6,7): 1+0+1 = 2 → P2 = 0','P4 (4,5,6,7): 1+0+1 = 2 → P4 = 0','Cod: <b>1010101</b>']},
+ {t:'S-a recepționat 1111101 (Hamming 7 biți). Care este codul corect?',s:['D7 D6 D5 P4 D3 P2 P1 = 1 1 1 1 1 0 1','Biții 1,3,5,7: 1+1+1+1 = 4, par ⇒ P1 fără erori','Biții 2,3,6,7: 0+1+1+1 = 3, impar ⇒ P2 cu erori','Biții 4,5,6,7: 1+1+1+1 = 4, par ⇒ P4 fără erori','Sindrom 010(2) = 2 ⇒ bitul 2 eronat ⇒ cod corect <b>1111111</b>']},
+ {t:'BCD împachetat și despachetat pentru 5463',s:['5 → 0101, 4 → 0100, 6 → 0110, 3 → 0011','Împachetat (2 cifre/octet, 16 biți): <b>0101 0100 0110 0011</b>','Despachetat (1 cifră/octet, 32 biți): <b>00000101 00000100 00000110 00000011</b>','Comparație: în binar pur 5463 = 1010101010111 (13 biți) ⇒ BCD e mai puțin eficient, dar ușor de convertit în zecimal']},
+];
+const prSel=$('#prSel');PROBS.forEach((p,i)=>prSel.append(h('option',{value:i},`Problema ${i+1}. ${p.t}`)));
+const prStep=new Stepper('#prSt',{title:'',steps:[]});
+const loadPr=()=>{const p=PROBS[+prSel.value];prStep.setSteps(p.s,p.t)};prSel.onchange=loadPr;loadPr();
+// corectura pentru Problema 5: pași clari
+PROBS[4].s=['Lucrăm ca la împărțirea zecimală: luăm din deîmpărțit atâția biți cât să obținem un număr ≥ 101.','110 ≥ 101 → cât 1, rest 110 − 101 = 1','Coborâm 1 → 11 &lt; 101 → cât 0; coborâm 0 → 110 ≥ 101 → cât 1, rest 1','Coborâm 1 → 11 → cât 0; coborâm 1 → 111 → cât 1, rest 10','Coborâm 1 → 101 → cât 1, rest 0','Cât = <b>101011</b>(2) = 43, rest 0. Verificare: 215 : 5 = 43 ✔'];
+
+const EX=[
+ {title:'Zecimal → binar',ph:'ex. 101101',gen(){const n=rnd(20,255);return{q:`Convertiți în binar: <b>${n}</b>(10)`,ans:n.toString(2),sol:divSol(n,2)}}},
+ {title:'Binar → zecimal',gen(){const n=rnd(16,255),b=n.toString(2);return{q:`Convertiți în zecimal: <b class="mono">${b}</b>(2)`,ans:String(n),sol:[...b].map((c,i)=>c==='1'?'2'+sup(b.length-1-i):null).filter(Boolean).join(' + ')+' = '+n}}},
+ {title:'Binar → hexazecimal',gen(){const n=rnd(256,65535),b=n.toString(2);return{q:`Convertiți în hexazecimal: <b class="mono">${b}</b>(2)`,ans:toBase(n,16),sol:grpSol(b,4)}}},
+ {title:'Binar → octal',gen(){const n=rnd(64,4095),b=n.toString(2);return{q:`Convertiți în octal: <b class="mono">${b}</b>(2)`,ans:toBase(n,8),sol:grpSol(b,3)}}},
+ {title:'Hexazecimal → binar',gen(){const n=rnd(16,4095),x=toBase(n,16);return{q:`Convertiți în binar: <b class="mono">${x}</b>(16)`,ans:n.toString(2),check:v=>v.replace(/\s/g,'').replace(/^0+/,'')===n.toString(2),sol:[...x].map(c=>`${c} → ${pad(parseInt(c,16).toString(2),4)}`).join('<br>')+`<br>Rezultat: ${n.toString(2)}`}}},
+ {title:'Complement față de 2 (8 biți)',gen(){const n=-rnd(1,127);const r=pad((n&255).toString(2),8);return{q:`Reprezentați <b>${n}</b> pe 8 biți în cod complementar`,ans:r,check:v=>v.replace(/\s/g,'')===r,sol:`|${n}| = ${pad((-n).toString(2),8)} → inversare: ${pad(((~(-n))&255).toString(2),8)} → +1: <b>${r}</b><br>Verificare: 256 − ${-n} = ${256+n} = ${r}(2)`}}},
+ {title:'Sumă binară pe 8 biți',gen(){const a=rnd(20,200),b=rnd(20,200);const s=a+b;return{q:`Calculați pe 8 biți (fără semn): <b class="mono">${pad(a.toString(2),8)} + ${pad(b.toString(2),8)}</b>. Scrieți cei 8 biți ai rezultatului.`,ans:pad((s&255).toString(2),8),check:v=>v.replace(/\s/g,'')===pad((s&255).toString(2),8),sol:`${a} + ${b} = ${s}${s>255?` > 255 ⇒ <b>depășire</b>, se păstrează ${s}−256 = ${s&255}`:''} = ${pad((s&255).toString(2),8)}(2)`}}},
+ {title:'BCD împachetat',gen(){const n=rnd(100,9999);const r=[...String(n)].map(d=>BCD(+d)).join(' ');return{q:`Scrieți în BCD împachetat numărul <b>${n}</b>`,ans:r,check:v=>v.replace(/\s/g,'')===r.replace(/\s/g,''),sol:[...String(n)].map(d=>`${d} → ${BCD(+d)}`).join('<br>')+`<br><b>${r}</b>`}}},
+ {title:'Codul Gray',gen(){const n=rnd(8,63),b=n.toString(2),g=(n^(n>>1)).toString(2).padStart(b.length,'0');return{q:`Convertiți în cod Gray numărul binar <b class="mono">${b}</b>`,ans:g,check:v=>v.replace(/\s/g,'')===g,sol:`g<sub>1</sub> = b<sub>1</sub>; g<sub>i</sub> = b<sub>i−1</sub> XOR b<sub>i</sub>:<br>${[...b].map((c,i)=>i?`${b[i-1]} ⊕ ${c} = ${g[i]}`:`${c}`).join('<br>')}<br>Gray: <b>${g}</b>`}}},
+ {title:'Hamming: corectați eroarea',gen(){const d=pad(rnd(0,15).toString(2),4),c=hamEnc(d),p=rnd(1,7);const r=[...c].map((x,i)=>7-i===p?(x==='1'?'0':'1'):x).join('');return{q:`S-a recepționat codul Hamming <b class="mono">${r}</b> (D7 D6 D5 P4 D3 P2 P1). Care este codul corect?`,ans:c,check:v=>v.replace(/\s/g,'')===c,sol:`Sindromul P4P2P1 = ${pad(p.toString(2),3)} = ${p} ⇒ bitul ${p} este eronat ⇒ cod corect <b>${c}</b>`}}},
+];
+function divSol(n,b){let x=n,l=[];do{l.push(`${x} : ${b} = ${Math.floor(x/b)} rest ${x%b}`);x=Math.floor(x/b)}while(x);return l.join('<br>')+`<br>Citind resturile de jos în sus: <b>${n.toString(b).toUpperCase()}</b>`}
+function grpSol(b,g){const p='0'.repeat((g-b.length%g)%g)+b;const gr=p.match(new RegExp('.{'+g+'}','g'));return gr.map(x=>`${x} → ${DIG[parseInt(x,2)]}`).join('<br>')+`<br>Rezultat: <b>${gr.map(x=>DIG[parseInt(x,2)]).join('').replace(/^0+(?=.)/,'')}</b>`}
+EX.forEach(e=>{const d=h('div');$('#exGrid').append(d);Exercise(d,e)});
+
+/* ================= LABORATOR ================= */
+$('#l1run').onclick=()=>{const n=Math.max(0,parseInt($('#l1n').value)||0),b=Math.min(16,Math.max(2,parseInt($('#l1b').value)||2));
+  $('#l1out').textContent=`n = ${n}\nbaza (2..16) = ${b}\n${n}(10) = ${n.toString(b).toUpperCase()}(${b})\nVerificare: octal ${n.toString(8)}, hex ${n.toString(16).toUpperCase()}`};
+$('#l2run').onclick=()=>{let t=parseInt($('#l2x').value)||0;const x=((t&255)<<24)>>24;const bb=v=>pad((v&255).toString(2),8);const sx=v=>((v&255)<<24)>>24;const p4=v=>String(v).padStart(4,' ');
+  $('#l2out').textContent=`x (-128..127) = ${t}\nx      = ${p4(x)}  -> ${bb(x)}\n~x     = ${p4(sx(~x))}  -> ${bb(~x)}\n~x + 1 = ${p4(sx(~x+1))}  -> ${bb(~x+1)}\nfara semn: ${x&255}\n64 + 250 pe 8 biti = ${(64+250)&255}`+(t!==x?`\n\n(observație: ${t} nu încape în signed char; s-a trunchiat la ${x})`:'')};
+$('#l3run').onclick=()=>{const v=parseFloat($('#l3f').value.replace(',','.'));if(isNaN(v))return;const s=f2b(v),u=parseInt(s,2)>>>0;const e=(u>>>23)&255;
+  $('#l3out').textContent=`f = ${$('#l3f').value}\nhex: ${pad(u.toString(16).toUpperCase(),8)}\nsemn = ${u>>>31}, caracteristica = ${e}, exponent = ${e-127}\nmantisa = 0x${pad((u&0x7FFFFF).toString(16).toUpperCase(),6)}`};
+$('#l4run').onclick=()=>{const d=($('#l4d').value.replace(/[^01]/g,'')+'0000').slice(0,4);$('#l4out').textContent=`4 biti de date (D7 D6 D5 D3): ${d}\nCod Hamming: ${hamEnc(d)}`};
+$('#l5run').onclick=()=>{const s=$('#l5s').value.split(/\s/)[0]||'';$('#l5out').textContent=`text: ${s}\n`+[...s].map(c=>{const v=c.charCodeAt(0);return `'${c}' = ${String(v).padStart(3,' ')} = 0x${pad(v.toString(16).toUpperCase(),2)}`}).join('\n')+`\n'a' - 'A' = 32`};
+['#l1run','#l2run','#l3run','#l4run','#l5run'].forEach(s=>$(s).click());
+
+/* ================= TEST ================= */
+Quiz('#quiz',[
+ {t:'Câte numere cu o singură cifră sau simboluri, excluzând zero, sunt necesare reprezentării într-un sistem de numerație în bază 60?',opts:['60','59','61'],a:1,expl:'O bază b folosește b cifre: 0, 1, …, b−1. Excluzând zero rămân <b>59</b> simboluri.'},
+ {t:'Care este reprezentarea în cod BCD (împachetat) a numărului zecimal 746?',opts:['010010111','011101000110','011110000101','111100001010'],a:1,expl:'7 → 0111, 4 → 0100, 6 → 0110 ⇒ <b>0111 0100 0110</b>.'},
+ {t:'Care este valoarea binară (8 biți) a numărului zecimal 175?',opts:['10101010','10010010','10101111','11100111'],a:2,expl:'175 = 128 + 32 + 8 + 4 + 2 + 1 = <b>10101111</b>.<div class="note fix">în suport varianta corectă apare ca „c) 10011111” (= 159). Valoarea corectă pentru 175 este 10101111; am corectat varianta c).</div>'},
+ {t:'Care este valoarea octală a numărului binar 100101001001100100011(2)?',opts:['4511443','4312441','3442112','2314322'],a:0,expl:'Grupuri de 3: 100 101 001 001 100 100 011 → <b>4511443</b>.'},
+ {t:'Care este valoarea hexazecimală a numărului binar 11110110010011011001(2)?',opts:['A46F9','8FA64','C86DA','F64D9'],a:3,expl:'Grupuri de 4: 1111 0110 0100 1101 1001 → <b>F64D9</b>.'},
+ {t:'Care este valoarea zecimală a numărului octal 215?',opts:['267','141','98','216'],a:1,expl:'2·64 + 1·8 + 5 = <b>141</b>.'},
+ {t:'Care este valoarea zecimală a numărului hexazecimal FF?',opts:['156','127','255','256'],a:2,expl:'15·16 + 15 = <b>255</b>.'},
+ {t:'Care este valoarea hexazecimală a numărului zecimal 1476?',opts:['1C7','4D5','2B6','5C4'],a:3,expl:'1476 : 16 = 92 rest 4; 92 : 16 = 5 rest 12 (C); 5 : 16 = 0 rest 5 ⇒ <b>5C4</b>.<div class="note fix">în suport enunțul cere „valoarea hexazecimală a numărului zecimal FF”, ceea ce nu are sens; răspunsul indicat (5C4) corespunde numărului zecimal 1476.</div>'},
+ {open:true,t:'Ce domeniu de numere întregi și pozitive zecimale se poate reprezenta cu un număr octal de 4 cifre?',expl:'Un număr octal de 4 cifre este între 0000(8) și 7777(8). 7777(8) = 7·512 + 7·64 + 7·8 + 7 = 4095. Domeniul este <b>[0, 4095]</b> (= 2<sup>12</sup> − 1, pentru că 4 cifre octale = 12 biți).'},
+ {open:true,t:'S-a recepționat codul Hamming pe 7 biți: 1011011. Care este codul corect?',expl:'D7 D6 D5 P4 D3 P2 P1 = 1 0 1 1 0 1 1.<br>Biții 1,3,5,7: 1+0+1+1 = 3, impar ⇒ P1 cu erori.<br>Biții 2,3,6,7: 1+0+0+1 = 2, par ⇒ P2 fără erori.<br>Biții 4,5,6,7: 1+1+0+1 = 3, impar ⇒ P4 cu erori.<br>Sindrom 101(2) = 5 ⇒ bitul 5 este eronat ⇒ cod corect <b>1001011</b>.'},
+]);
+
+renderCode();initShell();
+
+</script>
+</body>
+</html>

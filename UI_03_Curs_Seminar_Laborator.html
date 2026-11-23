@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UI 3 · Codificarea informației; compresia datelor — PCLP I</title>
+<style>
+:root{
+  --paper:#f6f4ee; --card:#ffffff; --ink:#1c2230; --muted:#5d6678; --line:#e2ddd2;
+  --acc:#2f5bd3; --acc2:#e8a33d; --acc-soft:#e7edfb; --ok:#1f8a5b; --ok-soft:#e3f4ec;
+  --bad:#c23a3a; --bad-soft:#fbe9e9; --warn:#a86a00; --warn-soft:#fff4dc;
+  --mono:"JetBrains Mono","Cascadia Code","Fira Code",Consolas,"DejaVu Sans Mono",monospace;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"DejaVu Serif",serif;
+  --sans:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+  --r:12px; --shadow:0 1px 2px rgba(20,25,40,.06),0 4px 14px rgba(20,25,40,.06);
+}
+body.dark{
+  --paper:#12151c; --card:#1b2029; --ink:#e6e9f0; --muted:#9aa3b5; --line:#2c3340;
+  --acc-soft:#1f2a44; --ok-soft:#14302a; --bad-soft:#3a1d1f; --warn-soft:#3a2e14;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);transition:background .3s,color .3s}
+h1,h2,h3,h4{font-family:var(--serif);line-height:1.25;margin:1.2em 0 .5em}
+h1{font-size:1.9rem;margin:0}
+h2{font-size:1.55rem;border-bottom:2px solid var(--line);padding-bottom:.3em}
+h3{font-size:1.2rem;color:var(--acc)}
+h4{font-size:1.05rem}
+a{color:var(--acc)}
+code,.mono{font-family:var(--mono);font-size:.92em}
+p{margin:.5em 0 .8em}
+small{color:var(--muted)}
+
+/* ===== Header ===== */
+header.top{position:sticky;top:0;z-index:50;background:var(--card);border-bottom:1px solid var(--line);box-shadow:var(--shadow)}
+.top-inner{max-width:1240px;margin:0 auto;padding:.8rem 1.2rem .3rem;display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
+.badge-ui{background:var(--acc);color:#fff;font-weight:700;border-radius:10px;padding:.35rem .7rem;font-family:var(--mono);letter-spacing:.03em}
+.top-title{flex:1;min-width:260px}
+.top-title .sub{color:var(--muted);font-size:.9rem}
+.top-title h1{font-size:1.25rem}
+.icon-btn{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:8px;padding:.35rem .6rem;cursor:pointer;font-size:.95rem}
+.icon-btn:hover{background:var(--acc-soft)}
+nav.tabs{max-width:1240px;margin:0 auto;padding:0 1.2rem;display:flex;gap:.25rem;overflow-x:auto}
+nav.tabs button{border:none;background:none;color:var(--muted);font:600 .98rem var(--sans);padding:.6rem 1rem;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+nav.tabs button:hover{color:var(--ink)}
+nav.tabs button.active{color:var(--acc);border-bottom-color:var(--acc)}
+.progress{height:3px;background:var(--line)}
+.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .15s}
+
+/* ===== Layout ===== */
+main{max-width:1240px;margin:0 auto;padding:1.2rem}
+.panel{display:none;animation:fadeUp .35s ease}
+.panel.active{display:block}
+.with-toc{display:grid;grid-template-columns:240px 1fr;gap:1.6rem;align-items:start}
+.toc{position:sticky;top:120px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:.8rem;font-size:.9rem;max-height:calc(100vh - 140px);overflow:auto}
+.toc b{display:block;font-family:var(--serif);margin-bottom:.4rem}
+.toc a{display:block;color:var(--muted);text-decoration:none;padding:.25rem .5rem;border-radius:6px;border-left:3px solid transparent}
+.toc a:hover{background:var(--acc-soft);color:var(--ink)}
+.toc a.on{border-left-color:var(--acc);color:var(--acc);background:var(--acc-soft);font-weight:600}
+@media(max-width:900px){.with-toc{grid-template-columns:1fr}.toc{position:static;max-height:none}}
+
+section.unit-sec{scroll-margin-top:120px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1.1rem 1.3rem;margin:1rem 0;box-shadow:var(--shadow)}
+.card>h3:first-child,.card>h4:first-child{margin-top:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+@media(max-width:800px){.grid2,.grid3{grid-template-columns:1fr}}
+.hero{background:linear-gradient(135deg,var(--acc) 0%,#20366f 100%);color:#fff;border-radius:16px;padding:1.6rem 1.8rem;margin-bottom:1.2rem;position:relative;overflow:hidden}
+.hero h2{border:none;color:#fff;margin:0 0 .4rem;font-size:1.7rem}
+.hero ul{margin:.3rem 0 0;padding-left:1.2rem}
+.hero .meta{opacity:.85;font-size:.9rem;margin-top:.8rem}
+.hero canvas{position:absolute;inset:0;opacity:.18;pointer-events:none}
+.hero>*{position:relative}
+
+.note{border-left:4px solid var(--acc);background:var(--acc-soft);padding:.6rem .9rem;border-radius:0 8px 8px 0;margin:.8rem 0}
+.note.obs{border-color:var(--acc2);background:var(--warn-soft)}
+.note.fix{border-color:var(--bad);background:var(--bad-soft)}
+.note.fix::before{content:"Notă de corectură · ";font-weight:700;color:var(--bad)}
+.note.obs::before{content:"Obs. · ";font-weight:700;color:var(--warn)}
+.def{border:1px dashed var(--acc);border-radius:10px;padding:.6rem .9rem;margin:.8rem 0}
+.def b:first-child{color:var(--acc)}
+.formula{font-family:var(--serif);font-size:1.15rem;text-align:center;padding:.7rem;margin:.6rem 0;background:var(--paper);border-radius:8px;overflow-x:auto}
+
+table.t{border-collapse:collapse;width:100%;margin:.6rem 0;font-size:.93rem}
+table.t th,table.t td{border:1px solid var(--line);padding:.35rem .55rem;text-align:center}
+table.t th{background:var(--acc-soft);font-weight:600}
+table.t tr:hover td{background:rgba(127,127,127,.06)}
+table.t td.l,table.t th.l{text-align:left}
+.scroll-x{overflow-x:auto}
+
+/* ===== Controls ===== */
+button.btn,.btn{border:1px solid var(--acc);background:var(--acc);color:#fff;border-radius:8px;padding:.42rem .9rem;font:600 .92rem var(--sans);cursor:pointer;transition:transform .1s,filter .15s}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;color:var(--acc)}
+.btn.small{padding:.25rem .6rem;font-size:.85rem}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+input[type=text],input[type=number],select,textarea{font:1rem var(--mono);padding:.4rem .55rem;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);min-width:0}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--acc);outline-offset:1px}
+input[type=range]{accent-color:var(--acc);width:100%}
+.row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin:.5rem 0}
+.row label{font-size:.9rem;color:var(--muted)}
+.out{font-family:var(--mono);background:var(--paper);border-radius:8px;padding:.6rem .8rem;margin:.5rem 0;white-space:pre-wrap;word-break:break-all;min-height:2.2em}
+.pill{display:inline-block;padding:.05rem .5rem;border-radius:999px;background:var(--acc-soft);color:var(--acc);font-size:.8rem;font-weight:600}
+.ok{color:var(--ok);font-weight:600}.bad{color:var(--bad);font-weight:600}
+.hl{background:var(--acc2);color:#111;border-radius:4px;padding:0 .2em;transition:background .3s}
+
+/* ===== Bits ===== */
+.bits{display:inline-flex;gap:3px;flex-wrap:wrap;font-family:var(--mono)}
+.bit{width:30px;height:36px;display:inline-flex;align-items:center;justify-content:center;border:1.5px solid var(--line);border-radius:6px;background:var(--card);font-weight:700;font-size:1.05rem;transition:all .35s;position:relative;user-select:none}
+.bit.one{background:var(--acc);border-color:var(--acc);color:#fff}
+.bit.click{cursor:pointer}.bit.click:hover{transform:translateY(-2px)}
+.bit.flip{animation:flip .45s}
+.bit.sign{box-shadow:0 0 0 2px var(--bad) inset}
+.bit.exp{border-color:var(--acc2)}
+.bit.exp.one{background:var(--acc2);border-color:var(--acc2);color:#111}
+.bit.err{background:var(--bad)!important;border-color:var(--bad)!important;color:#fff!important;animation:shake .4s}
+.bit.par{border-style:dashed}
+.bit.gap{margin-left:10px}
+.bit .w{position:absolute;top:-17px;font-size:.62rem;color:var(--muted);font-weight:500}
+.bitlbl{display:flex;gap:3px;font:600 .7rem var(--mono);color:var(--muted)}
+.bitlbl span{width:30px;text-align:center}
+
+/* ===== Stepper ===== */
+.stepper{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin:.8rem 0;background:var(--card)}
+.stepper .st-head{display:flex;align-items:center;gap:.4rem;padding:.5rem .7rem;background:var(--acc-soft);flex-wrap:wrap}
+.stepper .st-title{font-weight:700;flex:1;min-width:140px}
+.stepper .st-count{font:600 .85rem var(--mono);color:var(--muted)}
+.stepper .st-body{padding:.9rem 1rem;min-height:90px}
+.stepper .st-bar{height:3px;background:var(--line)}
+.stepper .st-bar>div{height:100%;background:var(--acc);transition:width .3s}
+.step-line{opacity:0;transform:translateX(-8px);animation:slideIn .4s forwards}
+
+/* ===== Quiz ===== */
+.q{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1rem 1.2rem;margin:.9rem 0}
+.q .qn{font:700 .8rem var(--mono);color:var(--acc)}
+.q .qt{font-weight:600;margin:.2rem 0 .6rem}
+.q .opts{display:grid;gap:.4rem}
+.q .opt{border:1.5px solid var(--line);border-radius:8px;padding:.45rem .7rem;cursor:pointer;transition:all .2s;font-family:var(--mono);background:var(--paper)}
+.q .opt:hover{border-color:var(--acc)}
+.q .opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.q .opt.wrong{border-color:var(--bad);background:var(--bad-soft);animation:shake .35s}
+.q .expl{display:none;margin-top:.6rem;padding:.6rem .8rem;border-radius:8px;background:var(--paper);border-left:3px solid var(--ok)}
+.q.done .expl{display:block;animation:fadeUp .3s}
+.score{position:sticky;bottom:12px;margin-left:auto;width:max-content;background:var(--ink);color:var(--paper);padding:.5rem 1rem;border-radius:999px;font-weight:700;box-shadow:var(--shadow)}
+
+/* ===== Exercise ===== */
+.ex{border:1px solid var(--line);border-radius:var(--r);padding:.9rem 1.1rem;background:var(--card);margin:.8rem 0}
+.ex .ex-q{font-weight:600}
+.ex .fb{margin-top:.4rem;min-height:1.4em}
+.ex details{margin-top:.5rem}
+.ex summary{cursor:pointer;color:var(--acc);font-weight:600}
+.streak{font:700 .85rem var(--mono);color:var(--acc2)}
+
+/* ===== Code ===== */
+pre.code{background:#0f1420;color:#d8dee9;border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:13.5px/1.55 var(--mono);margin:.6rem 0;position:relative}
+pre.code .k{color:#81a1c1}pre.code .s{color:#a3be8c}pre.code .c{color:#6b7891;font-style:italic}pre.code .n{color:#b48ead}pre.code .f{color:#88c0d0}pre.code .p{color:#ebcb8b}
+.copy{position:absolute;top:6px;right:6px;background:#2b3245;color:#cdd6e4;border:none;border-radius:6px;padding:.15rem .5rem;font-size:.75rem;cursor:pointer}
+.term{background:#0b0d12;color:#9ef0a8;font:13px/1.5 var(--mono);border-radius:10px;padding:.8rem 1rem;white-space:pre-wrap;min-height:3em}
+
+/* ===== SVG helpers ===== */
+svg text{font-family:var(--sans)}
+.svgbox{width:100%;overflow-x:auto;background:var(--paper);border-radius:10px;padding:.4rem}
+svg .node circle,svg .node rect{transition:all .4s}
+.fadein{animation:fadeUp .5s both}
+
+/* ===== Animations ===== */
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes slideIn{to{opacity:1;transform:none}}
+@keyframes flip{0%{transform:rotateX(0)}50%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(47,91,211,.45)}50%{box-shadow:0 0 0 8px rgba(47,91,211,0)}}
+.pulse{animation:pulse 1.2s infinite}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+footer{max-width:1240px;margin:2rem auto 1rem;padding:1rem 1.2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--line)}
+.biblio li{margin:.2rem 0}
+@media print{header.top,.toc,.btn,.stepper .st-head{display:none!important}.panel{display:block!important}.with-toc{display:block}}
+
+:root{--acc:#0f8a7e;--acc2:#e36d4a;--acc-soft:#e2f3f1}
+body.dark{--acc-soft:color-mix(in srgb,#0f8a7e 22%,#1b2029)}
+.hero{background:linear-gradient(135deg,#0f8a7e 0%,#1b2340 100%)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <span class="badge-ui">UI 03</span>
+    <div class="top-title"><div class="sub">Programarea calculatoarelor și limbaje de programare I · Unitatea de învățare nr. 3</div><h1>Codificarea informației; compresia datelor</h1></div>
+    <button class="icon-btn" id="themeBtn" title="Temă luminoasă / întunecată">◐ Temă</button>
+    <button class="icon-btn" onclick="window.print()" title="Tipărire">⎙</button>
+  </div>
+  <nav class="tabs">
+    <button data-tab="curs">📘 Curs</button>
+    <button data-tab="seminar">✏️ Seminar</button>
+    <button data-tab="laborator">💻 Laborator</button>
+    <button data-tab="test">✅ Autoevaluare</button>
+  </nav>
+  <div class="progress"><div></div></div>
+</header>
+<main>
+<!-- ===================== CURS ===================== -->
+<div class="panel" id="curs">
+<div class="hero">
+  <h2>Codificarea informației. Compresia datelor</h2>
+  <div>Obiectivele unității de învățare nr. 3:</div>
+  <ul>
+    <li>Însușirea noțiunilor fundamentale din domeniul compresiei datelor</li>
+    <li>Familiarizarea cu principalele tehnici de compresie fără pierderi și cu pierderi</li>
+  </ul>
+  <div class="meta">⏱ Timp mediu de studiu: 3–4 ore · Reprodu individual elementele grafice, nu te limita la vizionare.</div>
+</div>
+<div class="with-toc">
+<aside class="toc" data-for="curs"></aside>
+<div>
+
+<section class="unit-sec" id="c1" data-title="1. Compresia – generalități">
+<h2>1. Compresia datelor – generalități</h2>
+<p><b>Compresia datelor</b> convertește un flux de date de intrare (mesajul generat de o sursă) într-un flux de ieșire de dimensiune mai mică, mai ușor de memorat sau de transmis. Fiind vorba de date binare, se urmărește <b>reducerea numărului de simboluri binare</b> necesare reprezentării.</p>
+<div class="grid2">
+<div class="card"><h4>Tipuri de date de intrare</h4><ul style="margin:0;padding-left:1.1rem">
+<li><b>text</b> – ASCII (7 sau 8 biți) sau EBCDIC (8 biți, max. 256 caractere)</li>
+<li><b>imagine</b> – matrice de pixeli (bitmap) sau reprezentare vectorială (linii și curbe)</li>
+<li><b>sunet</b> – undă elastică, reprezentată printr-o funcție periodică</li>
+<li><b>multimedia</b> – combinație de text, imagine și sunet</li></ul></div>
+<div class="card"><h4>Principiul comun: reducerea redundanței</h4><ul style="margin:0;padding-left:1.1rem">
+<li><b>redundanță alfabetică</b> – unele litere apar foarte des</li>
+<li><b>redundanță contextuală</b> – grupuri de litere care apar împreună</li>
+<li><b>redundanță spațială</b> – pixeli adiacenți corelați</li></ul>
+<p style="margin-top:.5rem"><b>Secvențele frecvente primesc coduri scurte, cele rare primesc coduri lungi.</b></p></div>
+</div>
+<p>O procedură de compresie are două etape: un algoritm de <b>compresie</b> (generează o reprezentare cu mai puține simboluri binare) și un algoritm de <b>decompresie</b> (readuce mesajul la forma inițială).</p>
+<div class="grid2">
+<div class="card"><h4>Fără pierderi</h4>Decompresia reface exact datele inițiale. Obligatorie pentru texte, date numerice, imagini medicale sau militare, cod sursă.</div>
+<div class="card"><h4>Cu pierderi</h4>Se pierd detalii nesemnificative; grad de compresie mai mare. Potrivită pentru sunete și imagini, unde o pierdere minimă de rezoluție e insesizabilă.</div>
+<div class="card"><h4>Compresie simetrică</h4>Același algoritm aplicat în sens opus; compresia și decompresia au aceeași complexitate.</div>
+<div class="card"><h4>Compresie asimetrică</h4>Resurse diferite; de obicei compresia e mai solicitantă (ex. compresia video).</div>
+</div>
+<div class="card">
+<h3>🖼 Demonstrație: compresie cu pierderi prin reducerea nivelurilor de gri</h3>
+<p>Imaginea are 256 de niveluri de gri (8 biți/pixel). Reduce numărul de biți per pixel și observă cum scade dimensiunea, dar și calitatea.</p>
+<div class="row"><label>biți / pixel: <b id="lqV">8</b></label><input type="range" id="lqB" min="1" max="8" value="8" style="max-width:300px"></div>
+<div class="grid2"><canvas id="lqC" width="320" height="200" style="width:100%;max-width:420px;border-radius:8px"></canvas><div id="lqOut" class="out"></div></div>
+</div>
+<h3>Măsuri de performanță</h3>
+<div class="formula">raport de compresie = dimensiunea datelor comprimate / dimensiunea datelor necomprimate &nbsp;&nbsp;·&nbsp;&nbsp; factor de compresie = 1 / raport</div>
+<div class="card">
+<div class="grid2"><div><label>Dimensiune inițială (KB): <b id="crAv">1000</b></label><input type="range" id="crA" min="10" max="5000" value="1000"></div><div><label>Dimensiune comprimată (KB): <b id="crBv">700</b></label><input type="range" id="crB" min="1" max="5000" value="700"></div></div>
+<div id="crOut" style="margin-top:.6rem"></div>
+</div>
+<p>Avantaje: reducerea spațiului de stocare, utilizarea eficientă a lățimii de bandă (rată de transfer mai mare), reducerea timpului de transfer.</p>
+</section>
+
+<section class="unit-sec" id="c2" data-title="2. Aspecte privind codificarea">
+<h2>2. Aspecte generale privind codificarea</h2>
+<p>O sursă discretă generează simboluri dintr-un alfabet S = {s<sub>1</sub>, …, s<sub>n</sub>}. Codarea reprezintă fiecare simbol printr-un <b>cuvânt de cod</b> (șir de biți), folosind cât mai puțini biți. Cu lungime fixă sunt necesari ⌈log<sub>2</sub>n⌉ biți: 4 simboluri → 2 biți, 16 simboluri → 4 biți.</p>
+<p>Dacă simbolurile au probabilități diferite, e mai bună o <b>codificare cu lungime variabilă</b>. Lungimea medie (numărul mediu de biți pe simbol):</p>
+<div class="formula">l̄ = Σ<sub>k=1..n</sub> p(s<sub>k</sub>) · l(s<sub>k</sub>) &nbsp;&nbsp;&nbsp;(1)</div>
+<div class="card">
+<h3>🧮 Calculator: lungime medie, entropie, inegalitatea Kraft</h3>
+<p>Editează probabilitățile (sau frecvențele) și cuvintele de cod. Exemplul din curs: s1 → 5/18, …, s5–s8 → 1/18.</p>
+<div class="scroll-x"><table class="t" id="lenTbl"></table></div>
+<div class="row"><button class="btn small ghost" id="lenEx1">Exemplul din curs (s1…s8)</button><button class="btn small ghost" id="lenEx2">Exemplul de entropie (1.875)</button><button class="btn small ghost" id="lenAdd">+ simbol</button></div>
+<div id="lenOut"></div>
+</div>
+<h3>Proprietăți ale codurilor</h3>
+<div class="grid3">
+<div class="def"><b>Nesingular</b> – toate cuvintele de cod sunt distincte.</div>
+<div class="def"><b>Unic decodabil</b> – două șiruri distincte de simboluri nu produc același șir de biți.</div>
+<div class="def"><b>Instantaneu decodabil</b> – niciun cuvânt de cod nu este prefix al altui cuvânt (proprietatea de prefix).</div>
+</div>
+<div class="card">
+<h3>🔎 De ce contează proprietatea de prefix: decodorul blocat</h3>
+<p>Cod: s1 → 1, s2 → 01, s3 → 010, s4 → 000. Se recepționează <b class="mono">1010000</b>.</p>
+<div id="ambSt"></div>
+</div>
+<h3>Entropia informațională (Shannon)</h3>
+<p>Informația asociată unui simbol: <b>i(s<sub>k</sub>) = −log<sub>2</sub> p(s<sub>k</sub>) = log<sub>2</sub>(1/p(s<sub>k</sub>))</b> biți: cu cât simbolul e mai probabil, cu atât poartă mai puțină informație. Informația medie a sursei este <b>entropia</b>:</p>
+<div class="formula">H(S) = − Σ p(s<sub>k</sub>) · log<sub>2</sub> p(s<sub>k</sub>) = Σ p(s<sub>k</sub>) · log<sub>2</sub>(1/p(s<sub>k</sub>)) &nbsp;&nbsp;&nbsp;(2)</div>
+<div class="card">
+<h3>📊 Entropia unei surse cu 2 simboluri</h3>
+<p>Mută cursorul: entropia e maximă (1 bit) când simbolurile sunt egal probabile și 0 când sursa e complet previzibilă.</p>
+<div class="row"><label>p(s<sub>1</sub>) = <b id="h2v">0.5</b></label><input type="range" id="h2p" min="0" max="1" step="0.01" value="0.5" style="max-width:360px"></div>
+<canvas id="h2c" width="520" height="220" style="width:100%;max-width:560px"></canvas>
+</div>
+<p>Lungimea medie e mărginită de entropie: <b>H(S) ≤ l̄ &lt; H(S) + 1</b>. Prima inegalitate rezultă din concavitatea funcției logaritmice (Σ p<sub>k</sub> f(x<sub>k</sub>) ≤ f(Σ p<sub>k</sub> x<sub>k</sub>)); a doua se obține alegând l(s<sub>k</sub>) = ⌈log<sub>2</sub>(1/p(s<sub>k</sub>))⌉.</p>
+<details class="card"><summary><b>Demonstrația inegalității H(S) ≤ l̄</b></summary>
+<div class="formula" style="font-size:1rem;text-align:left">H(S) − l̄ = Σ p(s<sub>k</sub>)[log<sub>2</sub>(1/p(s<sub>k</sub>)) − l(s<sub>k</sub>)] = Σ p(s<sub>k</sub>) log<sub>2</sub>(2<sup>−l(s<sub>k</sub>)</sup>/p(s<sub>k</sub>)) ≤ log<sub>2</sub> Σ 2<sup>−l(s<sub>k</sub>)</sup> ≤ 0</div>
+<p>Penultima inegalitate: proprietatea funcțiilor concave (Jensen). Ultima: inegalitatea Kraft (Σ 2<sup>−l</sup> ≤ 1).</p></details>
+</section>
+
+<section class="unit-sec" id="c3" data-title="3. Codificarea RLE">
+<h2>3. Codificarea R-L-E (Run Length Encoding)</h2>
+<p>Unul dintre cei mai simpli algoritmi: secvențele repetitive („runs”) se înlocuiesc cu o singură apariție a simbolului și lungimea secvenței.</p>
+<div class="card">
+<h3>✍️ RLE pe text</h3>
+<div class="row"><input id="rleIn" type="text" value="aaaaacccbbaaabbbcccccc" style="flex:1"><button class="btn small" id="rleGo">▶ Animează</button></div>
+<div id="rleVis" style="margin:.6rem 0;min-height:44px"></div>
+<div id="rleOut" class="out"></div>
+<div class="note fix">în suport, primul grup apare ca (a,4), deși secvența începe cu 5 de „a”; corect este <b>(a,5)</b>.</div>
+</div>
+<div class="card">
+<h3>🖼 RLE pe o imagine binară</h3>
+<p>Matricea se transformă în vector prin concatenarea liniilor. Codul conține <b>primul element</b>, urmat de lungimile secvențelor. Desenează pe grilă (click / trage):</p>
+<div class="grid2"><div><canvas id="rleGrid" width="320" height="320" style="cursor:crosshair;border-radius:8px;max-width:100%"></canvas>
+<div class="row"><button class="btn small ghost" id="rgClr">Șterge</button><button class="btn small ghost" id="rgRnd">Formă</button><button class="btn small ghost" id="rgNoise">Zgomot</button></div></div>
+<div><div id="rleGOut" class="out" style="max-height:330px;overflow:auto"></div></div></div>
+<p>Exemplul din curs: <span class="mono">111100000011110000111111111001111</span> → <b class="mono">1 4 6 4 4 9 2 4</b> (primul element 1, apoi lungimile).</p>
+</div>
+</section>
+
+<section class="unit-sec" id="c4" data-title="4. Codificarea Huffman">
+<h2>4. Codificarea Huffman</h2>
+<p>Fiecare simbol are o probabilitate determinată de frecvența sa. Se construiește un <b>arbore binar de jos în sus</b>:</p>
+<ol>
+<li>Lista simbolurilor se ordonează crescător după probabilitate; fiecare simbol este o frunză.</li>
+<li>Se iau primele două noduri (probabilitățile cele mai mici) și se leagă la un nod nou, cu probabilitatea egală cu suma lor.</li>
+<li>Cele două noduri se șterg din listă, iar nodul nou se inserează astfel încât lista să rămână ordonată.</li>
+<li>Se repetă până rămâne un singur nod: rădăcina. Ramura stângă primește 0, ramura dreaptă 1; codul se citește de la rădăcină la frunză.</li>
+</ol>
+<div class="card">
+<h3>🌳 Constructor animat de arbore Huffman</h3>
+<div class="row"><input id="hufIn" type="text" value="programarea calculatoarelor" style="flex:1;min-width:220px"><button class="btn small" id="hufGo">Construiește</button></div>
+<div class="row"><label>La egalitate, nodul nou se inserează</label><select id="hufTie"><option value="after">după nodurile cu aceeași probabilitate</option><option value="before">înaintea nodurilor cu aceeași probabilitate</option></select></div>
+<div id="hufSt"></div>
+<div class="svgbox"><svg id="hufSvg" width="900" height="360"></svg></div>
+<div class="grid2"><div id="hufCodes"></div><div id="hufStats"></div></div>
+</div>
+<div class="note obs">Când mai multe noduri au aceeași probabilitate, arborele nu este unic: poți obține coduri diferite de cele din curs (ex. ‘r’ → 10, ‘a’ → 11), dar <b>lungimea medie rămâne aceeași</b> (89/27 ≈ 3.29 biți/simbol pentru exemplul din curs), adică optimă.</div>
+<h3>Caracteristicile codării Huffman</h3>
+<ul>
+<li>Cele două simboluri cel mai puțin frecvente au cuvinte de cod de aceeași lungime, care diferă doar prin ultimul bit (ex. ‘t’ → 00000 și ‘u’ → 00001).</li>
+<li>Simbolurile frecvente au coduri scurte, cele rare au coduri lungi (‘a’, ‘r’: 2 biți; ‘t’, ‘u’, ‘m’, ‘g’, ‘ ’, ‘p’: 5 biți).</li>
+<li>Este un cod <b>instantaneu decodabil</b>: niciun cuvânt de cod nu este prefixul altuia.</li>
+</ul>
+<div class="card">
+<h3>▶ Decodificare: parcurgerea arborelui</h3>
+<p>Se pornește din rădăcină și se urmează ramurile după biți până la o frunză; se emite simbolul și se reia din rădăcină.</p>
+<div class="row"><button class="btn small" id="decPlay">⏵ Decodifică șirul codificat</button><label>viteză</label><input type="range" id="decSpd" min="40" max="600" value="220" style="width:140px"></div>
+<div id="decBits" class="out" style="font-size:.95rem"></div><div id="decTxt" class="out" style="font-size:1.2rem"></div>
+</div>
+<h3>Teorema Kraft–McMillan</h3>
+<p>Un cod cu lungimile l(s<sub>1</sub>), …, l(s<sub>n</sub>) poate fi unic decodabil doar dacă:</p>
+<div class="formula">Σ<sub>k=1..n</sub> 2<sup>−l(s<sub>k</sub>)</sup> ≤ 1 &nbsp;&nbsp;&nbsp;(5)</div>
+<p>Pentru exemplul din curs: 6·2<sup>−5</sup> + 2·2<sup>−2</sup> + 2<sup>−3</sup> + 3·2<sup>−4</sup> = 1. Calculatorul de mai sus verifică inegalitatea pentru orice cod.</p>
+</section>
+
+<section class="unit-sec" id="c5" data-title="5. Codarea aritmetică">
+<h2>5. Codarea aritmetică</h2>
+<p>Nu atribuie fiecărui simbol un cuvânt de cod, ci transformă <b>întreaga secvență</b> într-un număr din intervalul [0, 1), pe baza probabilităților cumulative.</p>
+<ol><li>Se pornește cu intervalul curent [0, 1).</li><li>Pentru simbolul curent, intervalul se împarte proporțional cu probabilitățile simbolurilor.</li><li>Subintervalul simbolului curent devine noul interval.</li><li>La final, orice număr din ultimul interval (de obicei mijlocul) reprezintă codul.</li></ol>
+<div class="card">
+<h3>🔭 Zoom animat pe interval</h3>
+<div class="row"><label>Simboluri și probabilități</label><input id="arP" type="text" value="s1:0.3, s2:0.5, s3:0.2" style="width:260px"></div>
+<div class="row"><label>Secvența</label><input id="arS" type="text" value="s2 s3 s2 s2" style="width:200px"><button class="btn small" id="arGo">Încarcă</button></div>
+<div id="arSt"></div>
+<canvas id="arC" width="900" height="330" style="width:100%"></canvas>
+</div>
+<div class="card"><h4>Decodificarea</h4><p>Decodorul caută intervalul care conține numărul, emite simbolul și repetă în acel interval. Pentru 0.75: [0.3, 0.8) → s2; [0.7, 0.8) → s3; [0.73, 0.78) → s2; [0.745, 0.770) → s2. Decodorul știe când să se oprească fie din lungimea înregistrării, fie dintr-un simbol de sfârșit de secvență.</p>
+<div class="row"><label>Număr de decodificat</label><input id="adN" type="text" value="0.75" style="width:100px"><label>nr. simboluri</label><input id="adK" type="number" value="4" style="width:70px"><button class="btn small" id="adGo">Decodifică</button></div><div id="adOut" class="out"></div></div>
+</section>
+
+<section class="unit-sec" id="c6" data-title="6. Codarea Shannon-Fano">
+<h2>6. Codarea Shannon-Fano</h2>
+<p>Simbolurile se sortează <b>descrescător</b> după probabilitate. Mulțimea se împarte în două submulțimi cu sume ale probabilităților cât mai apropiate; una primește bitul 1, cealaltă 0. Se continuă recursiv până rămâne câte un simbol în fiecare submulțime.</p>
+<div class="row"><input id="sfIn" type="text" value="0.25, 0.15, 0.15, 0.07, 0.07, 0.07, 0.06, 0.06, 0.06, 0.06" style="flex:1"><button class="btn small" id="sfGo">Încarcă</button></div>
+<div id="sfSt"></div>
+</section>
+
+<section class="unit-sec" id="c7" data-title="7. Informația multimedia">
+<h2>7. Codificarea informației multimedia</h2>
+<p>Informația multimedia are dimensiuni mari: necesită spațiu de stocare mare și o lățime de bandă mare. Codificarea ei are constrângeri de <b>calitate</b>, <b>timp de execuție/complexitate</b> și <b>format</b> (continuu sau discret).</p>
+<div class="grid2">
+<div class="card"><h4>Tipuri de redundanță</h4><ul style="margin:0;padding-left:1.1rem"><li><b>spațială</b> – pixeli vecini cu culori apropiate</li><li><b>temporală</b> – cadre video succesive asemănătoare</li><li><b>spectrală</b> – corelație între planurile de culoare R, G, B</li><li><b>vizuală</b> – limitele percepției umane</li></ul></div>
+<div class="card"><h4>Reprezentarea imaginilor</h4>Tonuri de gri: cu n biți/pixel → 2<sup>n</sup> tonuri (8 biți → 256). Color RGB: 8 biți pe canal → 2<sup>8</sup>·2<sup>8</sup>·2<sup>8</sup> ≈ 16.77 milioane de culori.</div>
+</div>
+<div class="card">
+<h3>🎨 Mixer RGB pe 24 de biți</h3>
+<div class="grid2"><div>
+<div class="row"><label style="width:20px;color:#d33">R</label><input type="range" id="rgbR" min="0" max="255" value="47"><span id="rgbRv" class="mono"></span></div>
+<div class="row"><label style="width:20px;color:#2a2">G</label><input type="range" id="rgbG" min="0" max="255" value="138"><span id="rgbGv" class="mono"></span></div>
+<div class="row"><label style="width:20px;color:#33d">B</label><input type="range" id="rgbB" min="0" max="255" value="126"><span id="rgbBv" class="mono"></span></div>
+<div class="row"><label>biți / canal</label><select id="rgbBits"><option>8</option><option>5</option><option>3</option><option>2</option><option>1</option></select></div>
+</div><div><div id="rgbSw" style="height:110px;border-radius:12px;border:1px solid var(--line)"></div><div id="rgbOut" class="out"></div></div></div>
+</div>
+<h3>Tehnici de codare entropică (fără pierderi)</h3>
+<p>Nu țin cont de natura informației: datele sunt secvențe de biți a căror semnificație e ignorată.</p>
+<ul>
+<li><b>RLE</b>: pixelii x<sub>1</sub>…x<sub>n</sub> → perechi (c<sub>i</sub>, l<sub>i</sub>) culoare–lungime. Ex.: 2222222222 111…1 333…3 111…1 → (2,10), (1,15), (3,20), (1,28).</li>
+<li><b>Eliminarea repetiției</b> („Repetition Suppression”): n apariții ale unui caracter → un caracter-semnal (flag) + numărul de apariții.</li>
+<li><b>Înlocuirea modelelor</b> („Pattern Substitution”): modelele des repetate se înlocuiesc cu coduri, cele mai frecvente cu coduri mai scurte.</li>
+<li><b>Huffman</b>: folosită în JPEG și MPEG-1…MPEG-4.</li>
+</ul>
+<div class="grid2">
+<div class="card"><h4>Eliminarea repetiției</h4><div class="row"><input id="rsIn" type="text" value="5689000000000000000000000000000000" style="flex:1"></div><div class="row"><label>caracter repetat</label><input id="rsCh" type="text" value="0" style="width:50px"><label>flag</label><input id="rsF" type="text" value="f" style="width:50px"></div><div id="rsOut" class="out"></div></div>
+<div class="card"><h4>Înlocuirea modelelor</h4><textarea id="psIn" rows="3" style="width:100%">programarea calculatoarelor si programarea in limbaj de asamblare: programarea este arta</textarea><div id="psOut" class="out"></div></div>
+</div>
+<h3>Tehnici de codare cu informații despre sursă (cu pierderi)</h3>
+<p>Țin cont de tipul semnalului (audio, video) și de proprietățile lui; gradul de compresie depinde de semantica datelor.</p>
+<div class="card">
+<h3>〰 Compresie cu transformate (transformata cosinus)</h3>
+<p>Semnalul trece din domeniul timp/spațiu în domeniul frecvențelor. Păstrând doar primii coeficienți (frecvențele joase), se obține o aproximare foarte bună cu mai puține date. Acesta este principiul JPEG (transformata cosinus + cuantizare + RLE + Huffman).</p>
+<div class="row"><label>coeficienți păstrați: <b id="dctV">8</b> / 64</label><input type="range" id="dctK" min="1" max="64" value="8" style="max-width:340px"><button class="btn small ghost" id="dctNew">Alt semnal</button></div>
+<canvas id="dctC" width="900" height="260" style="width:100%"></canvas>
+<div id="dctOut" class="out"></div>
+</div>
+<div class="grid2">
+<div class="card"><h4>JPEG</h4>Imagini în tonuri de gri sau color, cu multe tonuri. Rate de compresie alese de utilizator (≈ 1/10 – 1/20). Exemple: fax color, imagistică medicală, DTP, arte grafice.</div>
+<div class="card"><h4>MPEG</h4>Compresie video: imagini digitale și sunet, plus sincronizarea lor. Există mai multe standarde MPEG.</div>
+</div>
+<div class="card">
+<h3>📍 Cuantizare vectorială bidimensională</h3>
+<p>Vectorul de intrare x se înlocuiește cu cel mai apropiat vector cod y<sub>i</sub> din dicționarul Y (distanța euclidiană minimă). Planul e împărțit în zone S<sub>i</sub>, fiecare cu un singur cuvânt de cod. <b>Click</b> pentru a adăuga vectori de intrare; <b>Shift+click</b> pentru a adăuga un vector cod.</p>
+<canvas id="vqC" width="900" height="360" style="width:100%;cursor:crosshair;border-radius:8px"></canvas>
+<div class="row"><button class="btn small ghost" id="vqClr">Șterge intrările</button><button class="btn small ghost" id="vqRnd">Dicționar nou</button></div>
+<div id="vqOut" class="out"></div>
+</div>
+<div class="card">
+<h3>🔗 Codarea diferențială (predictivă)</h3>
+<p>Pixelii învecinați sunt corelați. Pixelul p se compară cu un pixel de referință deja codificat: <b>prefixul</b> = numărul de biți cei mai semnificativi identici, <b>sufixul</b> = biții rămași după primul bit diferit (acela e dedus de decodor).</p>
+<div class="row"><label>p</label><input id="dfP" type="text" value="11010101" style="width:120px"><label>referință</label><input id="dfR" type="text" value="11010011" style="width:120px"></div>
+<div id="dfOut"></div>
+<p style="font-size:.92rem">Alegerea pixelului de referință: primul pixel rămâne necodat; pe prima linie – vecinul din stânga; primul pixel din celelalte linii – pixelul de deasupra; ceilalți – pixelul de deasupra sau cel din stânga.</p>
+</div>
+<p><b>Eșantionarea</b>: se transmit doar anumite secvențe de pixeli care conțin suficientă informație. Același principiu apare la sunet: digitizarea presupune eșantionarea undei continue; eșantioanele adiacente sunt corelate.</p>
+</section>
+
+<section class="unit-sec" id="c8" data-title="Rezumat">
+<h2>Rezumat</h2>
+<div class="card"><ul>
+<li>Compresia transformă un flux de date într-unul mai mic, reducând numărul de simboluri binare.</li>
+<li>Principiul comun: reducerea redundanței – coduri scurte pentru secvențe frecvente, coduri lungi pentru secvențe rare.</li>
+<li>Un cod este nesingular (cuvinte distincte), unic decodabil, instantaneu decodabil (proprietatea de prefix).</li>
+<li>Entropia H(S) măsoară informația medie a sursei și este limita inferioară a lungimii medii: H(S) ≤ l̄ &lt; H(S)+1.</li>
+<li>Tehnici fără pierderi: RLE, Huffman, codarea aritmetică, Shannon-Fano. Tehnici cu pierderi: transformate (JPEG, MPEG), cuantizare vectorială, codare diferențială, eșantionare.</li>
+</ul></div>
+<h3>Bibliografie</h3>
+<ol class="biblio"><li>Dinu, S., Pomazan, C. „Programarea calculatoarelor”, Ed. Nautica, 2013.</li><li>Kernighan, B. W., Ritchie, D. M. „Limbajul C”, Ed. Teora, 2003.</li><li>Năstac, I. „Programarea calculatoarelor în limbajul C – Elemente fundamentale”, Ed. Printech, 2006.</li><li>Negrescu, L. „Limbajele C și C++ pentru începători”, Vol. 1 și 2, Ed. Albastră, 2000.</li><li>Dinu, S., Vulcu, V. „Programarea Calculatoarelor – culegere de probleme”, Ed. Nautica, 2019.</li></ol>
+</section>
+</div></div></div>
+
+<!-- ===================== SEMINAR ===================== -->
+<div class="panel" id="seminar">
+<div class="with-toc"><aside class="toc" data-for="seminar"></aside><div>
+<section class="unit-sec" id="s1" data-title="Probleme rezolvate">
+<h2>Probleme rezolvate (pas cu pas)</h2>
+<div class="row"><select id="prSel" style="max-width:100%"></select></div>
+<div id="prSt"></div>
+</section>
+<section class="unit-sec" id="s2" data-title="Exerciții generate">
+<h2>Exerciții de antrenament (generate aleator)</h2>
+<p>Răspunsurile numerice se acceptă cu o toleranță de ±0.01 (poți folosi punct sau virgulă).</p>
+<div class="grid2" id="exGrid"></div>
+</section>
+<section class="unit-sec" id="s3" data-title="Teme de seminar">
+<h2>Teme propuse pentru seminar</h2>
+<div class="card"><ol>
+<li>Pentru textul „ana are mere” calculați frecvențele, entropia, codul Huffman și lungimea medie. Comparați cu codarea pe lungime fixă.</li>
+<li>Verificați dacă codul {0, 10, 110, 111} este instantaneu decodabil și calculați suma Kraft. Dar {0, 01, 11}?</li>
+<li>Codificați aritmetic secvența „s1 s1 s2” pentru p(s1)=0.6, p(s2)=0.4. Decodificați mijlocul intervalului obținut.</li>
+<li>Aplicați Shannon-Fano și Huffman pentru probabilitățile 0.4, 0.2, 0.2, 0.1, 0.1. Comparați lungimile medii.</li>
+<li>Câți octeți ocupă o imagine RGB 1920×1080 cu 8 biți/canal? Ce raport de compresie are un JPEG de 400 KB al acestei imagini?</li>
+<li>Codificați RLE linia de pixeli 0000011100000000111 și calculați raportul de compresie dacă fiecare lungime se scrie pe 4 biți.</li>
+</ol></div>
+</section>
+</div></div></div>
+
+<!-- ===================== LABORATOR ===================== -->
+<div class="panel" id="laborator">
+<div class="with-toc"><aside class="toc" data-for="laborator"></aside><div>
+<section class="unit-sec" id="l0" data-title="Introducere">
+<h2>Laborator: algoritmi de compresie în C</h2>
+<p>Programele de mai jos implementează în C algoritmii din curs. Le poți compila cu <code>gcc prog.c -o prog -lm</code>. Simulatorul reproduce în pagină ieșirea programului pentru datele tale.</p>
+</section>
+<section class="unit-sec" id="l1" data-title="L1. RLE">
+<h2>L1. Codificarea RLE</h2>
+<pre class="code" data-c>
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+int main(void) {
+    char s[256];
+    printf("sir: "); scanf("%255s", s);
+    int n = strlen(s), i = 0, perechi = 0;
+    printf("RLE: ");
+    while (i < n) {
+        int j = i;
+        while (j < n && s[j] == s[i]) j++;      /* lungimea secventei */
+        printf("(%c,%d) ", s[i], j - i);
+        perechi++;
+        i = j;
+    }
+    printf("\n%d caractere -> %d perechi (%d octeti)\n", n, perechi, 2 * perechi);
+    return 0;
+}</pre>
+<div class="row"><label>șir</label><input id="l1s" type="text" value="aaaaacccbbaaabbbcccccc" style="width:260px"><button class="btn small" id="l1run">▶ Rulează simularea</button></div>
+<div class="term" id="l1out"></div>
+</section>
+<section class="unit-sec" id="l2" data-title="L2. Frecvențe și entropie">
+<h2>L2. Frecvențe de apariție și entropia unui text</h2>
+<pre class="code" data-c>
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;math.h&gt;
+
+int main(void) {
+    char s[512];
+    int f[256] = {0};
+    printf("text: "); fgets(s, sizeof s, stdin);
+    s[strcspn(s, "\n")] = '\0';
+    int n = strlen(s);
+    for (int i = 0; i < n; i++) f[(unsigned char)s[i]]++;
+    double H = 0;
+    for (int c = 0; c < 256; c++)
+        if (f[c]) {
+            double p = (double)f[c] / n;
+            printf("'%c': %2d/%d  p=%.4f  i=%.3f biti\n", c, f[c], n, p, -log2(p));
+            H += -p * log2(p);
+        }
+    printf("Entropia H = %.4f biti/simbol\n", H);
+    printf("Minim teoretic: %.1f biti (fata de %d biti in ASCII-8)\n", H * n, 8 * n);
+    return 0;
+}</pre>
+<div class="row"><label>text</label><input id="l2s" type="text" value="programarea calculatoarelor" style="width:280px"><button class="btn small" id="l2run">▶ Rulează simularea</button></div>
+<div class="term" id="l2out"></div>
+</section>
+<section class="unit-sec" id="l3" data-title="L3. Huffman">
+<h2>L3. Codul Huffman (variantă simplă, cu vectori)</h2>
+<pre class="code" data-c>
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#define MAX 512
+
+int fr[MAX], st[MAX], dr[MAX], par[MAX], viu[MAX];
+char simb[MAX];
+
+int main(void) {
+    char s[256]; int f[256] = {0}, n = 0;
+    printf("text: "); fgets(s, sizeof s, stdin); s[strcspn(s, "\n")] = 0;
+    for (int i = 0; s[i]; i++) f[(unsigned char)s[i]]++;
+    for (int c = 0; c < 256; c++)
+        if (f[c]) { simb[n] = c; fr[n] = f[c]; viu[n] = 1; st[n] = dr[n] = -1; n++; }
+    int total = n;
+    for (int pas = 0; pas < n - 1; pas++) {     /* n-1 noduri interioare */
+        int a = -1, b = -1;
+        for (int i = 0; i < total; i++)          /* cele doua minime */
+            if (viu[i]) {
+                if (a < 0 || fr[i] < fr[a]) { b = a; a = i; }
+                else if (b < 0 || fr[i] < fr[b]) b = i;
+            }
+        fr[total] = fr[a] + fr[b]; st[total] = a; dr[total] = b;
+        viu[a] = viu[b] = 0; viu[total] = 1; par[a] = par[b] = total;
+        total++;
+    }
+    int rad = total - 1, biti = 0;
+    for (int i = 0; i < n; i++) {               /* codul: urcare spre radacina */
+        char cod[64]; int k = 0, x = i;
+        while (x != rad) { cod[k++] = (st[par[x]] == x) ? '0' : '1'; x = par[x]; }
+        printf("'%c' (%d): ", simb[i], fr[i]);
+        for (int j = k - 1; j >= 0; j--) putchar(cod[j]);
+        putchar('\n'); biti += k * fr[i];
+    }
+    printf("Total: %d biti, medie %.3f biti/simbol\n", biti, (double)biti / strlen(s));
+    return 0;
+}</pre>
+<div class="row"><label>text</label><input id="l3s" type="text" value="programarea calculatoarelor" style="width:280px"><button class="btn small" id="l3run">▶ Rulează simularea</button></div>
+<div class="term" id="l3out"></div>
+</section>
+<section class="unit-sec" id="l4" data-title="L4. Codare aritmetică">
+<h2>L4. Codarea aritmetică (calculul intervalului)</h2>
+<pre class="code" data-c>
+#include &lt;stdio.h&gt;
+
+int main(void) {
+    double p[] = {0.3, 0.5, 0.2};        /* p(s1), p(s2), p(s3) */
+    double cum[4] = {0};
+    for (int i = 0; i < 3; i++) cum[i + 1] = cum[i] + p[i];
+    int sec[] = {1, 2, 1, 1};            /* s2 s3 s2 s2 (indici de la 0) */
+    double lo = 0, hi = 1;
+    for (int k = 0; k < 4; k++) {
+        double w = hi - lo;
+        hi = lo + w * cum[sec[k] + 1];
+        lo = lo + w * cum[sec[k]];
+        printf("dupa s%d: [%.4f, %.4f)\n", sec[k] + 1, lo, hi);
+    }
+    printf("cod = mijlocul intervalului = %.5f\n", (lo + hi) / 2);
+    return 0;
+}</pre>
+<div class="row"><label>secvența (indici 1..3)</label><input id="l4s" type="text" value="2 3 2 2" style="width:120px"><button class="btn small" id="l4run">▶ Rulează simularea</button></div>
+<div class="term" id="l4out"></div>
+</section>
+<section class="unit-sec" id="l5" data-title="L5. Codare diferențială">
+<h2>L5. Prefixul și sufixul în codarea diferențială</h2>
+<pre class="code" data-c>
+#include &lt;stdio.h&gt;
+
+int main(void) {
+    unsigned p, r;
+    printf("pixel si referinta (0..255): "); scanf("%u %u", &p, &r);
+    int prefix = 0;
+    for (int b = 7; b >= 0 && ((p >> b) & 1) == ((r >> b) & 1); b--)
+        prefix++;                              /* biti identici de la MSB */
+    printf("prefix = %d\n", prefix);
+    printf("sufix  = ");
+    for (int b = 6 - prefix; b >= 0; b--)      /* sarim bitul diferit */
+        putchar((p >> b) & 1 ? '1' : '0');
+    putchar('\n');
+    return 0;
+}</pre>
+<div class="row"><label>p</label><input id="l5p" type="number" value="213" style="width:90px"><label>r</label><input id="l5r" type="number" value="211" style="width:90px"><button class="btn small" id="l5run">▶ Rulează simularea</button></div>
+<div class="term" id="l5out"></div>
+</section>
+<section class="unit-sec" id="l6" data-title="Sarcini de laborator">
+<h2>Sarcini de laborator</h2>
+<div class="card"><ol>
+<li>Completați L1 cu decodificarea RLE și verificați că decodificarea reface exact șirul inițial.</li>
+<li>Modificați L1 astfel încât secvențele de lungime 1 să fie scrise fără contor. Când devine RLE dezavantajos?</li>
+<li>Extindeți L3: codificați textul, afișați șirul de biți și decodificați-l parcurgând arborele.</li>
+<li>Implementați decodificarea aritmetică pentru L4 (citiți numărul și lungimea secvenței).</li>
+<li>Implementați Shannon-Fano recursiv și comparați lungimea medie cu Huffman pe aceleași date.</li>
+</ol></div>
+</section>
+</div></div></div>
+
+<!-- ===================== TEST ===================== -->
+<div class="panel" id="test">
+<h2>Test de autoevaluare – Unitatea de învățare nr. 3</h2>
+<p>Primele trei întrebări sunt cele din suportul de curs (răspuns deschis). Urmează întrebări grilă suplimentare pentru verificarea noțiunilor.</p>
+<div id="quiz"></div>
+<div class="card"><h3>🌳 Arborii Huffman pentru întrebarea 1</h3><p>Alfabetul: p(s1)=p(s2)=p(s3)=1/30, p(s4)=2/30, p(s5)=3/30, p(s6)=p(s7)=4/30, p(s8)=14/30. Schimbă regula de departajare pentru a vedea cele două variante.</p>
+<div class="row"><select id="tqTie"><option value="after">Varianta A: nodul nou după nodurile egale</option><option value="before">Varianta B: nodul nou înaintea nodurilor egale</option></select></div>
+<div class="svgbox"><svg id="tqSvg" width="900" height="330"></svg></div><div id="tqCodes" class="out"></div></div>
+</div>
+
+</main>
+<footer>
+  Material interactiv realizat pe baza suportului de curs „Programarea calculatoarelor și limbaje de programare I – Curs și aplicații”, Unitatea de învățare nr. 3.
+  Funcționează offline, fără dependențe externe.
+</footer>
+<script>
+/* ===== Utilitare comune ===== */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+function h(tag,attrs={},...kids){const e=document.createElement(tag);for(const[k,v]of Object.entries(attrs||{})){if(k==='class')e.className=v;else if(k==='html')e.innerHTML=v;else if(k.startsWith('on'))e.addEventListener(k.slice(2),v);else e.setAttribute(k,v)}for(const c of kids.flat()){if(c==null)continue;e.append(c.nodeType?c:document.createTextNode(c))}return e}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pad=(s,n,c='0')=>String(s).padStart(n,c);
+const fmt=(x,d=4)=>{const r=Number(x.toFixed(d));return String(r).replace('.',',')};
+const fmtDot=(x,d=4)=>String(Number(x.toFixed(d)));
+const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+function bitsHTML(str,o={}){
+  // o: {click, cls:(i,ch)=>string, weights:true, gapEvery:n, id}
+  let s='<span class="bits"'+(o.id?` id="${o.id}"`:'')+'>';
+  const n=str.length;
+  for(let i=0;i<n;i++){const ch=str[i];
+    if(ch===' '||ch==='.'||ch===','){s+=`<span style="align-self:center;font-weight:700;padding:0 2px">${ch===' '?'':ch}</span>`;continue}
+    let c='bit'+(ch==='1'?' one':'')+(o.click?' click':'');
+    if(o.cls)c+=' '+o.cls(i,ch);
+    if(o.gapEvery&&i>0&&(n-i)%o.gapEvery===0)c+=' gap';
+    const w=o.weights?`<span class="w">${o.weights===true?(n-1-i):o.weights[i]}</span>`:'';
+    s+=`<span class="${c}" data-i="${i}">${w}${ch}</span>`}
+  return s+'</span>'}
+
+/* ===== Tab-uri, cuprins, progres, temă ===== */
+function initShell(){
+  const btns=$$('nav.tabs button');
+  function show(id,push=true){btns.forEach(b=>b.classList.toggle('active',b.dataset.tab===id));$$('.panel').forEach(p=>p.classList.toggle('active',p.id===id));if(push)try{history.replaceState(null,'','#'+id)}catch(e){}window.scrollTo({top:0});setTimeout(spy,50)}
+  btns.forEach(b=>b.onclick=()=>show(b.dataset.tab));
+  const hsh=(location.hash||'').slice(1); show(btns.some(b=>b.dataset.tab===hsh)?hsh:btns[0].dataset.tab,false);
+  // cuprinsuri
+  $$('.toc[data-for]').forEach(toc=>{const p=document.getElementById(toc.dataset.for);toc.innerHTML='<b>Cuprins</b>';$$('section.unit-sec',p).forEach(s=>{const t=s.dataset.title||$('h2',s).textContent;toc.append(h('a',{href:'#'+s.id,onclick:e=>{e.preventDefault();s.scrollIntoView({behavior:'smooth'})}},t))})});
+  const bar=$('.progress>div');
+  function spy(){const st=document.documentElement;const pr=st.scrollTop/(st.scrollHeight-st.clientHeight||1);if(bar)bar.style.width=(pr*100)+'%';
+    const p=$('.panel.active');if(!p)return;const secs=$$('section.unit-sec',p);let cur=null;for(const s of secs){if(s.getBoundingClientRect().top<160)cur=s.id}
+    $$('.toc a',p).forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+cur))}
+  addEventListener('scroll',spy,{passive:true});
+  // temă
+  const tb=$('#themeBtn');if(store.get('dark',false))document.body.classList.add('dark');
+  if(tb)tb.onclick=()=>{document.body.classList.toggle('dark');store.set('dark',document.body.classList.contains('dark'))};
+  // copiere cod
+  $$('pre.code').forEach(p=>{const b=h('button',{class:'copy'},'copiază');b.onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(p.dataset.raw||p.innerText.replace(/copiază$/,''));b.textContent='copiat ✓';setTimeout(()=>b.textContent='copiază',1200)};p.append(b)});
+  heroRain();
+}
+
+/* fundal animat în banner: cifre binare care cad */
+function heroRain(){const hero=$('.hero');if(!hero)return;const c=h('canvas');hero.prepend(c);const x=c.getContext('2d');let W,H,cols,drops;
+  function rs(){W=c.width=hero.clientWidth;H=c.height=hero.clientHeight;cols=Math.floor(W/16);drops=Array.from({length:cols},()=>Math.random()*H/16)}
+  rs();addEventListener('resize',rs);
+  let last=0;function fr(t){requestAnimationFrame(fr);if(t-last<70)return;last=t;x.fillStyle='rgba(0,0,0,0.08)';x.globalCompositeOperation='destination-out';x.fillRect(0,0,W,H);x.globalCompositeOperation='source-over';x.fillStyle='#fff';x.font='14px monospace';
+    for(let i=0;i<cols;i++){x.fillText(Math.random()<.5?'0':'1',i*16,drops[i]*16);if(drops[i]*16>H&&Math.random()>.97)drops[i]=0;drops[i]+=.5}}
+  if(!matchMedia('(prefers-reduced-motion: reduce)').matches)requestAnimationFrame(fr)}
+
+/* ===== Stepper: animație pas cu pas ===== */
+class Stepper{
+  /* opts: {title, steps:[html|fn], cumulative:true|false, render:(i)=>html, n, delay, onShow:(i,body)=>{}} */
+  constructor(host,opts){this.o=Object.assign({delay:1400,cumulative:true},opts);this.i=-1;this.timer=null;
+    const el=typeof host==='string'?$(host):host;el.classList.add('stepper');el.innerHTML='';
+    this.n=this.o.n??this.o.steps.length;
+    const hd=h('div',{class:'st-head'});this.tt=h('span',{class:'st-title'},this.o.title||'Animație pas cu pas');
+    this.bR=h('button',{class:'btn small ghost',title:'De la început'},'⏮');this.bP=h('button',{class:'btn small ghost',title:'Pasul anterior'},'◀');
+    this.bN=h('button',{class:'btn small',title:'Pasul următor'},'Pas ▶');this.bA=h('button',{class:'btn small ghost',title:'Redare automată'},'⏵ Auto');
+    this.ct=h('span',{class:'st-count'});
+    hd.append(this.tt,this.ct,this.bR,this.bP,this.bN,this.bA);
+    this.bar=h('div',{class:'st-bar'},h('div'));this.body=h('div',{class:'st-body'});el.append(hd,this.bar,this.body);
+    this.bR.onclick=()=>{this.stop();this.go(-1)};this.bP.onclick=()=>{this.stop();this.go(this.i-1)};this.bN.onclick=()=>{this.stop();this.go(this.i+1)};
+    this.bA.onclick=()=>this.timer?this.stop():this.play();this.el=el;this.go(-1)}
+  setSteps(steps,title){this.stop();this.o.steps=steps;this.n=steps.length;if(title)this.tt.textContent=title;this.go(-1)}
+  go(i){i=Math.max(-1,Math.min(this.n-1,i));this.i=i;const o=this.o;
+    if(o.render){this.body.innerHTML=o.render(i)}
+    else if(o.cumulative){if(i<0)this.body.innerHTML=o.intro||'<small>Apasă „Pas ▶” sau „⏵ Auto” pentru a porni animația.</small>';else{this.body.innerHTML=(o.intro||'');for(let k=0;k<=i;k++){const s=o.steps[k];const d=h('div',{class:k===i?'step-line':''});d.innerHTML=typeof s==='function'?s():s;this.body.append(d)}}}
+    else{this.body.innerHTML=i<0?(o.intro||'<small>Apasă „Pas ▶”.</small>'):(typeof o.steps[i]==='function'?o.steps[i]():o.steps[i])}
+    if(o.onShow)o.onShow(i,this.body);
+    this.ct.textContent=`${i+1}/${this.n}`;this.bar.firstChild.style.width=((i+1)/this.n*100)+'%';this.bP.disabled=i<0;this.bN.disabled=i>=this.n-1}
+  play(){if(this.i>=this.n-1)this.go(-1);this.bA.textContent='⏸ Pauză';this.timer=setInterval(()=>{if(this.i>=this.n-1){this.stop();return}this.go(this.i+1)},this.o.delay)}
+  stop(){clearInterval(this.timer);this.timer=null;this.bA.textContent='⏵ Auto'}
+}
+
+/* ===== Test grilă ===== */
+function Quiz(host,qs,key){const el=typeof host==='string'?$(host):host;let score=0,ans=0;const sc=h('div',{class:'score'});
+  const upd=()=>sc.textContent=`Scor: ${score} / ${qs.filter(q=>!q.open).length}  ·  răspunse: ${ans}/${qs.length}`;
+  qs.forEach((q,qi)=>{const box=h('div',{class:'q'});box.append(h('div',{class:'qn'},`Întrebarea ${qi+1}`),h('div',{class:'qt',html:q.t}));
+    if(q.open){const ta=h('textarea',{rows:2,style:'width:100%',placeholder:'Scrie răspunsul tău aici (opțional), apoi verifică soluția…'});const b=h('button',{class:'btn small'},'Arată soluția');b.onclick=()=>{if(!box.classList.contains('done')){box.classList.add('done');ans++;upd()}};box.append(ta,h('div',{class:'row'},b))}
+    else{const opts=h('div',{class:'opts'});q.opts.forEach((o,oi)=>{const d=h('div',{class:'opt',html:String.fromCharCode(97+oi)+') '+o});d.onclick=()=>{if(box.classList.contains('done'))return;box.classList.add('done');ans++;if(oi===q.a){d.classList.add('right');score++}else{d.classList.add('wrong');opts.children[q.a].classList.add('right')}upd()};opts.append(d)});box.append(opts)}
+    box.append(h('div',{class:'expl',html:q.expl||''}));el.append(box)});
+  const rb=h('button',{class:'btn ghost',style:'margin-top:.5rem'},'↺ Reia testul');rb.onclick=()=>{el.innerHTML='';Quiz(el,qs,key)};el.append(rb,sc);upd()}
+
+/* ===== Exerciții generate ===== */
+function Exercise(host,o){const el=typeof host==='string'?$(host):host;el.classList.add('ex');let cur,streak=0;
+  const qd=h('div',{class:'ex-q'}),inp=h('input',{type:'text',placeholder:o.ph||'răspuns',style:'flex:1;min-width:160px'}),fb=h('div',{class:'fb'}),sol=h('div'),st=h('span',{class:'streak'});
+  const chk=h('button',{class:'btn small'},'Verifică'),nw=h('button',{class:'btn small ghost'},'↻ Exercițiu nou');
+  const det=h('details',{},h('summary',{},'Vezi rezolvarea pas cu pas'),sol);
+  el.append(h('div',{class:'row',style:'justify-content:space-between'},h('b',{},o.title||'Exercițiu'),st),qd,h('div',{class:'row'},inp,chk,nw),fb,det);
+  function gen(){cur=o.gen();qd.innerHTML=cur.q;inp.value='';fb.innerHTML='';sol.innerHTML=cur.sol;det.open=false}
+  function check(){const v=inp.value.trim();if(!v)return;const r=cur.check?cur.check(v):norm(v)===norm(cur.ans);
+    if(r){streak++;fb.innerHTML=`<span class="ok">✔ Corect!</span> ${streak>1?'Serie: '+streak+' 🔥':''}`}else{streak=0;fb.innerHTML=`<span class="bad">✘ Nu este corect.</span> Încearcă din nou sau vezi rezolvarea.`}st.textContent=streak?('serie '+streak):''}
+  const norm=s=>String(s).toUpperCase().replace(/\s|_/g,'').replace(',','.').replace(/^0+(?=.)/,'');
+  chk.onclick=check;inp.onkeydown=e=>{if(e.key==='Enter')check()};nw.onclick=gen;gen()}
+
+/* ===== Evidențiere sintaxă C ===== */
+function hlC(src){const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const re=/(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|(#\w+)|\b(int|unsigned|char|float|double|long|short|void|return|for|while|if|else|struct|union|const|sizeof|signed|do|break|uint8_t|uint16_t|uint32_t|int8_t|size_t)\b|\b(0x[0-9a-fA-F]+|\d+\.?\d*[fFuU]?)\b|\b(printf|scanf|main|putchar|memcpy|strlen)\b/g;
+  let out='',last=0,m;while((m=re.exec(src))){out+=esc(src.slice(last,m.index));const t=esc(m[0]);
+    out+=m[1]?`<span class="c">${t}</span>`:m[2]?`<span class="s">${t}</span>`:m[3]?`<span class="p">${t}</span>`:m[4]?`<span class="k">${t}</span>`:m[5]?`<span class="n">${t}</span>`:`<span class="f">${t}</span>`;last=re.lastIndex}
+  return out+esc(src.slice(last))}
+function renderCode(){$$('pre.code[data-c]').forEach(p=>{const raw=p.textContent.replace(/^\n/,'');p.dataset.raw=raw;p.innerHTML=hlC(raw)})}
+
+/* ===== SVG ===== */
+const SVGNS='http://www.w3.org/2000/svg';
+function S(tag,attrs={},txt){const e=document.createElementNS(SVGNS,tag);for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);if(txt!=null)e.textContent=txt;return e}
+
+</script>
+<script>
+/* ================= UI 3 ================= */
+const css=v=>getComputedStyle(document.body).getPropertyValue(v).trim()||'#888';
+const log2=Math.log2;
+const r4=x=>+x.toFixed(4);
+function parseP(s){s=String(s).trim().replace(',','.');if(s.includes('/')){const[a,b]=s.split('/').map(Number);return a/b}return parseFloat(s)}
+const symLbl=c=>c===' '?'␣':c;
+
+/* ---------- 1. Niveluri de gri ---------- */
+const lqBase=(()=>{const W=320,H=200,a=new Uint8ClampedArray(W*H);for(let y=0;y<H;y++)for(let x=0;x<W;x++){let v=x/W*200+20*Math.sin(y/14);const d1=Math.hypot(x-90,y-95),d2=Math.hypot(x-230,y-110);if(d1<55)v=255-d1*2.6;if(d2<40)v=60+d2*3+15*Math.sin(x/5);a[y*W+x]=Math.max(0,Math.min(255,v))}return a})();
+function lq(){const b=+$('#lqB').value,c=$('#lqC'),x=c.getContext('2d'),W=320,H=200,img=x.createImageData(W,H),L=(1<<b);
+  for(let i=0;i<W*H;i++){const q=Math.floor(lqBase[i]/256*L),v=L===1?0:Math.round(q*255/(L-1));img.data[i*4]=img.data[i*4+1]=img.data[i*4+2]=v;img.data[i*4+3]=255}
+  x.putImageData(img,0,0);$('#lqV').textContent=b;const kb=W*H*b/8/1024;
+  $('#lqOut').innerHTML=`Niveluri de gri: 2${'<sup>'+b+'</sup>'} = <b>${L}</b>\nDimensiune: 320 × 200 × ${b} biți = <b>${kb.toFixed(1)} KB</b>\nRaport de compresie față de 8 biți: <b>${(b/8).toFixed(3)}</b>\nFactor de compresie: <b>${(8/b).toFixed(2)}</b>\n${b<8?'<span class="bad">Compresie cu pierderi: nivelurile pierdute nu mai pot fi recuperate.</span>':'Imaginea originală.'}`}
+$('#lqB').oninput=lq;lq();
+function cr(){const a=+$('#crA').value,b=+$('#crB').value;$('#crAv').textContent=a;$('#crBv').textContent=b;const r=b/a;
+  $('#crOut').innerHTML=`<div style="background:var(--line);border-radius:8px;height:26px;position:relative;overflow:hidden"><div style="height:100%;width:100%;background:var(--muted);opacity:.35"></div></div>
+  <div style="background:transparent;height:26px;margin-top:4px"><div style="height:100%;width:${Math.min(100,r*100)}%;background:var(--acc);border-radius:8px;transition:width .2s"></div></div>
+  <p>Raport de compresie = ${b}/${a} = <b>${r.toFixed(3)}</b> (datele ocupă ${(r*100).toFixed(1)}% din dimensiunea inițială) · factor de compresie = <b>${(1/r).toFixed(2)}</b> ${r>1?'<span class="bad">— fișierul a crescut: compresie ineficientă!</span>':''}</p>`}
+$('#crA').oninput=cr;$('#crB').oninput=cr;cr();
+
+/* ---------- 2. Lungime medie / entropie / Kraft ---------- */
+let LEN=[];
+const LEX1=[['s1','5/18','0'],['s2','4/18','01'],['s3','3/18','10'],['s4','2/18','11'],['s5','1/18','010'],['s6','1/18','001'],['s7','1/18','100'],['s8','1/18','110']];
+const LEX2=[['s1','0.0625','1110'],['s2','0.0625','1111'],['s3','0.125','110'],['s4','0.25','10'],['s5','0.5','0']];
+function lenDraw(){const t=$('#lenTbl');t.innerHTML='<tr><th>Simbol</th><th>p(s<sub>k</sub>)</th><th>Cuvânt de cod</th><th>l(s<sub>k</sub>)</th><th>p·l</th><th>i(s<sub>k</sub>) = log<sub>2</sub>(1/p)</th><th></th></tr>'+
+  LEN.map((r,i)=>`<tr><td><input data-i="${i}" data-j="0" value="${r[0]}" style="width:60px"></td><td><input data-i="${i}" data-j="1" value="${r[1]}" style="width:80px"></td><td><input data-i="${i}" data-j="2" value="${r[2]}" style="width:110px"></td><td id="lnL${i}"></td><td id="lnPL${i}"></td><td id="lnI${i}"></td><td><button class="btn small ghost" data-del="${i}">✕</button></td></tr>`).join('');
+  $$('input',t).forEach(e=>e.oninput=()=>{LEN[+e.dataset.i][+e.dataset.j]=e.value;lenCalc()});$$('[data-del]',t).forEach(b=>b.onclick=()=>{LEN.splice(+b.dataset.del,1);lenDraw()});lenCalc()}
+function lenCalc(){let L=0,H=0,K=0,S=0;const ps=LEN.map(r=>parseP(r[1]));S=ps.reduce((a,b)=>a+(b||0),0);
+  LEN.forEach((r,i)=>{const p=ps[i]/S,l=r[2].length;L+=p*l;H+=p>0?-p*log2(p):0;K+=Math.pow(2,-l);$('#lnL'+i).textContent=l;$('#lnPL'+i).textContent=r4(p*l);$('#lnI'+i).textContent=p>0?r4(-log2(p)):'–'});
+  const codes=LEN.map(r=>r[2]);const dup=codes.length!==new Set(codes).size;const pre=[];codes.forEach((a,i)=>codes.forEach((b,j)=>{if(i!==j&&a&&b.startsWith(a)&&a!==b)pre.push(`${a} este prefix pentru ${b}`)}));
+  const fix=Math.ceil(log2(Math.max(2,LEN.length)));
+  $('#lenOut').innerHTML=`<div class="out">Σp = ${r4(S)}${Math.abs(S-1)>1e-6?' (probabilitățile au fost normalizate)':''}
+Lungime medie l̄ = Σ p·l = <b>${r4(L)}</b> biți/simbol   (lungime fixă: ${fix} biți)
+Entropia H(S) = <b>${r4(H)}</b> biți/simbol   ·   eficiență H/l̄ = ${r4(H/L*100)}%
+Suma Kraft Σ2^(−l) = <b>${r4(K)}</b> ${K<=1+1e-9?'≤ 1 ✔':'> 1 ✘ ⇒ codul NU poate fi unic decodabil'}
+Nesingular: ${dup?'<span class="bad">NU (cuvinte repetate)</span>':'<span class="ok">DA</span>'}   ·   Instantaneu decodabil (prefix): ${pre.length?'<span class="bad">NU</span> – '+pre.slice(0,4).join('; '):'<span class="ok">DA</span>'}
+${L<H-1e-9?'<span class="bad">l̄ < H(S): imposibil pentru un cod unic decodabil – confirmă că acest cod nu e unic decodabil.</span>':''}</div>`}
+$('#lenEx1').onclick=()=>{LEN=LEX1.map(r=>r.slice());lenDraw()};$('#lenEx2').onclick=()=>{LEN=LEX2.map(r=>r.slice());lenDraw()};$('#lenAdd').onclick=()=>{LEN.push(['s'+(LEN.length+1),'0.1','1'.repeat(LEN.length+1)]);lenDraw()};
+LEN=LEX1.map(r=>r.slice());lenDraw();
+
+new Stepper('#ambSt',{title:'Decodarea șirului 1010000',steps:[
+ 'Pas 1: decodorul primește <b>1</b> și îl identifică sigur ca <b>s1</b> (niciun alt cuvânt nu începe cu 1).',
+ 'Pas 2: primește <b>0</b> – poate fi începutul lui s2 (01), s3 (010) sau s4 (000).',
+ 'Pas 3: primește <b>1</b> – opțiunile se restrâng la s2 (01) sau s3 (010).',
+ 'Pas 4: primește <b>0</b> – blocaj: „010” poate fi <b>s3</b> sau <b>s2</b> urmat de începutul unui nou simbol. Decodorul trebuie să aștepte biți suplimentari (s2 = 01 este prefix al lui s3 = 010).',
+ 'Concluzie: codul nu are proprietatea de prefix, deci <b>nu este instantaneu decodabil</b>. (Aici, citind mai departe: 1 | 01 | 000 | 0… sau 1 | 010 | 000 — de abia la final se poate decide.)']});
+
+/* entropie binară */
+function h2(){const p=+$('#h2p').value;$('#h2v').textContent=p.toFixed(2);const c=$('#h2c'),x=c.getContext('2d'),W=c.width,H=c.height,m=34;x.clearRect(0,0,W,H);
+  const X=t=>m+t*(W-2*m),Y=v=>H-m-v*(H-2*m);x.strokeStyle=css('--line');x.lineWidth=1;x.beginPath();x.moveTo(m,Y(0));x.lineTo(W-m,Y(0));x.moveTo(m,Y(0));x.lineTo(m,Y(1));x.stroke();
+  x.fillStyle=css('--muted');x.font='12px sans-serif';x.fillText('p',W-m+6,Y(0)+4);x.fillText('H (biți)',m-28,Y(1)-8);['0','0.5','1'].forEach((s,i)=>x.fillText(s,X(i/2)-6,Y(0)+16));x.fillText('1',m-14,Y(1)+4);
+  x.strokeStyle=css('--acc');x.lineWidth=2.5;x.beginPath();for(let i=0;i<=200;i++){const t=i/200,v=t<=0||t>=1?0:-t*log2(t)-(1-t)*log2(1-t);i?x.lineTo(X(t),Y(v)):x.moveTo(X(t),Y(v))}x.stroke();
+  const v=p<=0||p>=1?0:-p*log2(p)-(1-p)*log2(1-p);x.fillStyle=css('--acc2');x.beginPath();x.arc(X(p),Y(v),7,0,7);x.fill();x.fillStyle=css('--ink');x.font='bold 13px sans-serif';x.fillText(`H = ${v.toFixed(3)} biți`,Math.min(X(p)+10,W-120),Y(v)-10)}
+$('#h2p').oninput=h2;h2();
+
+/* ---------- 3. RLE ---------- */
+const runs=s=>{const r=[];let i=0;while(i<s.length){let j=i;while(j<s.length&&s[j]===s[i])j++;r.push([s[i],j-i]);i=j}return r};
+const RC=['#2f5bd3','#e36d4a','#0f8a7e','#a86a00','#7a3fc4','#c23a3a','#5d6678'];
+let rleTimer=null;
+function rleShow(anim){const s=$('#rleIn').value,R=runs(s);clearTimeout(rleTimer);const vis=$('#rleVis'),out=$('#rleOut');let k=0;
+  vis.innerHTML=R.map(([c,n],ri)=>`<span class="rr" data-r="${ri}" style="display:inline-flex;gap:2px;margin:2px 4px 2px 0;padding:2px;border-radius:6px;transition:all .3s">${[...Array(n)].map(()=>`<span class="bit" style="width:24px;height:30px">${c}</span>`).join('')}</span>`).join('');
+  const fin=n=>{out.innerHTML=R.slice(0,n).map(([c,l])=>`(${c},${l})`).join(', ')+(n===R.length?`\n${s.length} caractere → ${R.length} perechi (${2*R.length} simboluri) · raport ≈ ${(2*R.length/s.length).toFixed(2)}`:'')};
+  if(!anim){$$('.rr',vis).forEach((e,i)=>e.style.background=RC[i%7]+'33');fin(R.length);return}
+  out.textContent='';const step=()=>{if(k>=R.length)return;const e=$$('.rr',vis)[k];e.style.background=RC[k%7]+'55';e.style.outline=`2px solid ${RC[k%7]}`;setTimeout(()=>e.style.outline='',500);k++;fin(k);rleTimer=setTimeout(step,600)};step()}
+$('#rleGo').onclick=()=>rleShow(true);$('#rleIn').oninput=()=>rleShow(false);rleShow(false);
+// grilă
+const GN=16;let grid=Array(GN*GN).fill(0);
+function gridDraw(){const c=$('#rleGrid'),x=c.getContext('2d'),s=c.width/GN;x.clearRect(0,0,c.width,c.height);
+  for(let i=0;i<GN*GN;i++){x.fillStyle=grid[i]?css('--ink'):css('--card');x.fillRect((i%GN)*s,Math.floor(i/GN)*s,s,s)}
+  x.strokeStyle=css('--line');for(let i=0;i<=GN;i++){x.beginPath();x.moveTo(i*s,0);x.lineTo(i*s,c.height);x.moveTo(0,i*s);x.lineTo(c.width,i*s);x.stroke()}
+  const v=grid.join(''),R=runs(v);const mx=Math.max(...R.map(r=>r[1]));const bl=Math.ceil(log2(mx+1));const rb=1+R.length*bl;
+  $('#rleGOut').innerHTML=`<b>Vector (${GN*GN} biți):</b>\n${v.match(/.{16}/g).join('\n')}\n\n<b>Cod RLE:</b> ${v[0]} | ${R.map(r=>r[1]).join(' ')}\n\n${R.length} secvențe; lungimea maximă ${mx} ⇒ ${bl} biți/lungime\nDimensiune RLE ≈ 1 + ${R.length}×${bl} = <b>${rb} biți</b> față de ${GN*GN}\nRaport de compresie = <b>${(rb/(GN*GN)).toFixed(3)}</b> ${rb>GN*GN?'<span class="bad">(RLE mărește datele!)</span>':''}`}
+(function(){const c=$('#rleGrid');let down=false,val=1;const at=e=>{const r=c.getBoundingClientRect();const s=r.width/GN;return Math.floor((e.clientY-r.top)/s)*GN+Math.floor((e.clientX-r.left)/s)};
+  c.onmousedown=e=>{down=true;const i=at(e);val=grid[i]?0:1;grid[i]=val;gridDraw()};c.onmousemove=e=>{if(!down)return;const i=at(e);if(i>=0&&i<GN*GN&&grid[i]!==val){grid[i]=val;gridDraw()}};addEventListener('mouseup',()=>down=false)})();
+$('#rgClr').onclick=()=>{grid.fill(0);gridDraw()};$('#rgNoise').onclick=()=>{grid=grid.map(()=>Math.random()<.5?1:0);gridDraw()};
+$('#rgRnd').onclick=()=>{grid.fill(0);const cx=rnd(5,10),cy=rnd(5,10),r=rnd(3,6);for(let i=0;i<GN*GN;i++){const x=i%GN,y=Math.floor(i/GN);if(Math.hypot(x-cx,y-cy)<r||(y>12&&x>2&&x<14))grid[i]=1}gridDraw()};
+$('#rgRnd').click();
+
+/* ---------- 4. Huffman ---------- */
+function huffman(items,tie){let id=0;const nodes=items.map(it=>({id:id++,sym:it.sym,w:it.w,ord:it.ord}));
+  let list=nodes.slice().sort((a,b)=>a.w-b.w||a.ord-b.ord);const steps=[{list:list.slice()}];
+  while(list.length>1){const a=list.shift(),b=list.shift();const n={id:id++,w:a.w+b.w,left:a,right:b,step:steps.length};nodes.push(n);
+    let pos=tie==='before'?list.findIndex(x=>x.w>=n.w-1e-12):list.findIndex(x=>x.w>n.w+1e-12);if(pos<0)pos=list.length;list.splice(pos,0,n);steps.push({list:list.slice(),merged:[a,b],node:n})}
+  const root=list[0];const codes={};(function walk(n,c,d){n.depth=d;n.code=c;if(n.sym!=null){codes[n.sym]=c||'0';return}walk(n.left,c+'0',d+1);walk(n.right,c+'1',d+1)})(root,'',0);
+  return{nodes,steps,root,codes}}
+function layout(root,W){let leaves=[];(function f(n){if(n.sym!=null)leaves.push(n);else{f(n.left);f(n.right)}})(root);const sp=Math.max(48,(W-40)/leaves.length);
+  leaves.forEach((l,i)=>l.x=20+sp/2+i*sp);(function g(n){if(n.sym==null){g(n.left);g(n.right);n.x=(n.left.x+n.right.x)/2}})(root);return 20+sp*leaves.length}
+function drawHuff(svg,H,upto,opt={}){svg.innerHTML='';const fmtW=opt.fmt||(w=>w);const W=layout(H.root,opt.W||Math.max(700,svg.parentElement.clientWidth-20));
+  const maxD=Math.max(...H.nodes.map(n=>n.depth||0));const LH=Math.min(70,(opt.H||360-60)/Math.max(1,maxD));const Y=d=>30+d*LH;
+  svg.setAttribute('width',W);svg.setAttribute('height',Y(maxD)+60);svg.setAttribute('viewBox',`0 0 ${W} ${Y(maxD)+60}`);
+  const vis=n=>n.sym!=null||n.step<=upto;const ink=css('--ink'),acc=css('--acc'),acc2=css('--acc2'),card=css('--card');
+  H.nodes.forEach(n=>{if(n.sym==null&&vis(n)){[[n.left,'0'],[n.right,'1']].forEach(([c,b])=>{const l=S('line',{x1:n.x,y1:Y(n.depth),x2:c.x,y2:Y(c.depth),stroke:n.step===upto?acc2:css('--muted'),'stroke-width':n.step===upto?3:1.6,'data-e':c.id});svg.append(l);
+    svg.append(S('text',{x:(n.x+c.x)/2+(b==='0'?-10:6),y:(Y(n.depth)+Y(c.depth))/2,'font-size':12,'font-weight':700,fill:acc},b))})}});
+  H.nodes.forEach(n=>{if(!vis(n))return;const g=S('g',{class:'node','data-id':n.id});const isNew=n.step===upto;
+    if(n.sym!=null){g.append(S('rect',{x:n.x-20,y:Y(n.depth)-14,width:40,height:28,rx:7,fill:card,stroke:acc,'stroke-width':2}));g.append(S('text',{x:n.x,y:Y(n.depth)+5,'text-anchor':'middle','font-size':14,'font-weight':700,fill:ink},'‘'+symLbl(n.sym)+'’'));
+      g.append(S('text',{x:n.x,y:Y(n.depth)+30,'text-anchor':'middle','font-size':11,fill:css('--muted')},fmtW(n.w)));if(opt.codes)g.append(S('text',{x:n.x,y:Y(n.depth)+44,'text-anchor':'middle','font-size':11,'font-family':'monospace',fill:acc},n.code))}
+    else{g.append(S('circle',{cx:n.x,cy:Y(n.depth),r:isNew?19:16,fill:isNew?acc2:card,stroke:isNew?acc2:ink,'stroke-width':1.5}));g.append(S('text',{x:n.x,y:Y(n.depth)+4,'text-anchor':'middle','font-size':10.5,'font-weight':600,fill:isNew?'#111':ink},fmtW(n.w)))}
+    svg.append(g)})}
+let HUF=null,hufText='';const hufStep=new Stepper('#hufSt',{title:'Construirea arborelui',steps:[],cumulative:false,onShow:i=>{if(HUF)drawHuff($('#hufSvg'),HUF,i<0?0:i,{fmt:w=>w+'/'+hufText.length,codes:i>=HUF.steps.length-1})}});
+function hufBuild(){hufText=$('#hufIn').value||'ab';const f={},ord={};[...hufText].forEach((c,i)=>{f[c]=(f[c]||0)+1;if(!(c in ord))ord[c]=i});
+  HUF=huffman(Object.keys(f).map(c=>({sym:c,w:f[c],ord:ord[c]})),$('#hufTie').value);const N=hufText.length;
+  const chip=n=>`<span class="pill" style="margin:2px;${n.sym==null?'background:var(--acc2);color:#111':''}">${n.sym!=null?'‘'+symLbl(n.sym)+'’ ':'●'} ${n.w}/${N}</span>`;
+  const steps=HUF.steps.map((s,i)=>i===0?`<p>Lista inițială, ordonată crescător după probabilitate (${s.list.length} simboluri):</p>${s.list.map(chip).join('')}`:
+    `<p>Pasul ${i}: unim cele mai mici două noduri ${chip(s.merged[0])} (ramura 0) și ${chip(s.merged[1])} (ramura 1) → nod nou <b>${s.node.w}/${N}</b>. Lista devine:</p>${s.list.map(chip).join('')}${i===HUF.steps.length-1?'<p class="ok">A rămas un singur nod: rădăcina. Codurile se citesc de la rădăcină la frunze.</p>':''}`);
+  hufStep.setSteps(steps,`Arbore Huffman pentru „${hufText}”`);hufStep.go(HUF.steps.length-1);
+  const syms=Object.keys(f).sort((a,b)=>f[b]-f[a]||ord[a]-ord[b]);let L=0,H=0,K=0;
+  $('#hufCodes').innerHTML='<table class="t"><tr><th>Simbol</th><th>Frecvență</th><th>Cod</th><th>Lungime</th></tr>'+syms.map(c=>{const p=f[c]/N,l=HUF.codes[c].length;L+=p*l;H+=-p*log2(p);K+=2**-l;return `<tr><td>‘${symLbl(c)}’</td><td>${f[c]}/${N}</td><td class="mono">${HUF.codes[c]}</td><td>${l}</td></tr>`}).join('')+'</table>';
+  const fix=Math.ceil(log2(Math.max(2,syms.length)));
+  $('#hufStats').innerHTML=`<div class="out">Lungime medie l̄ = <b>${r4(L)}</b> biți/simbol (${Math.round(L*N)}/${N})
+Entropia H(S) = <b>${r4(H)}</b>
+Verificare: ${r4(H)} ≤ ${r4(L)} < ${r4(H+1)} ✔
+Kraft: Σ2^(−l) = <b>${r4(K)}</b>
+Lungime fixă: ${fix} biți/simbol → ${fix*N} biți
+Huffman: <b>${Math.round(L*N)} biți</b> · ASCII-8: ${8*N} biți
+Raport față de ASCII: ${(L/8).toFixed(3)}</div>`;
+  $('#decBits').textContent=[...hufText].map(c=>HUF.codes[c]).join('');$('#decTxt').textContent=''}
+$('#hufGo').onclick=hufBuild;$('#hufTie').onchange=hufBuild;hufBuild();
+let decRun=0;
+$('#decPlay').onclick=async()=>{const my=++decRun;hufStep.go(HUF.steps.length-1);const bits=[...hufText].map(c=>HUF.codes[c]).join('');const svg=$('#hufSvg');let out='',n=HUF.root;const acc2=css('--acc2');
+  const mark=(id,on)=>{const g=$(`g[data-id="${id}"]`,svg);if(g){const s=g.firstChild;s.setAttribute('stroke-width',on?5:1.5);if(on)s.setAttribute('stroke',acc2);else s.setAttribute('stroke',g.firstChild.tagName==='rect'?css('--acc'):css('--ink'))}};
+  const path=[];for(let i=0;i<bits.length;i++){if(my!==decRun)return;n=bits[i]==='0'?n.left:n.right;path.push(n.id);mark(n.id,1);
+    $('#decBits').innerHTML=`<span style="color:var(--muted)">${bits.slice(0,i)}</span><span class="hl">${bits[i]}</span>${bits.slice(i+1)}`;
+    await sleep(+$('#decSpd').value);if(n.sym!=null){out+=n.sym;$('#decTxt').textContent=out;await sleep(+$('#decSpd').value);path.forEach(id=>mark(id,0));path.length=0;n=HUF.root}}
+  $('#decBits').textContent=bits};
+
+/* ---------- 5. Codare aritmetică ---------- */
+function arParse(){const P=$('#arP').value.split(',').map(t=>t.split(':').map(x=>x.trim())).filter(x=>x.length===2).map(([s,p])=>({s,p:parseP(p)}));let c=0;P.forEach(x=>{x.lo=c;c+=x.p;x.hi=c});return P}
+function arIntervals(P,seq){let lo=0,hi=1;const L=[{lo,hi}];for(const s of seq){const x=P.find(q=>q.s===s);if(!x)break;const w=hi-lo;hi=lo+w*x.hi;lo=lo+w*x.lo;L.push({lo,hi,s})}return L}
+const AC=['#2f5bd3','#e36d4a','#0f8a7e','#a86a00','#7a3fc4','#c23a3a'];
+function arDraw(P,L,upto){const c=$('#arC'),x=c.getContext('2d');const rows=upto+2;c.height=Math.max(150,rows*78);c.style.height=(c.height*c.clientWidth/c.width)+'px';x.clearRect(0,0,c.width,c.height);const m=60,W=c.width-2*m;
+  for(let k=0;k<=upto+1&&k<L.length;k++){const {lo,hi}=L[k];const y=20+k*78;const w=hi-lo;
+    if(k<=upto&&k<L.length-1)P.forEach((p,i)=>{const a=m+p.lo*W,b=m+p.hi*W;const sel=L[k+1]&&L[k+1].s===p.s;x.fillStyle=AC[i%6]+(sel?'ee':'44');x.fillRect(a,y,b-a,28);x.strokeStyle=css('--card');x.strokeRect(a,y,b-a,28);
+      x.fillStyle=sel?'#fff':css('--ink');x.font='bold 13px sans-serif';x.textAlign='center';x.fillText(p.s,(a+b)/2,y+19);
+      x.fillStyle=css('--muted');x.font='11px monospace';x.fillText(fmtDot(lo+w*p.lo,5),a,y+42)});
+    else{const fin=k===L.length-1;x.fillStyle=fin?css('--acc2'):css('--acc-soft');x.fillRect(m,y,W,28);x.fillStyle=fin?'#111':css('--ink');x.font='bold 13px sans-serif';x.textAlign='center';
+      x.fillText(fin?`Interval final [${fmtDot(lo,6)}, ${fmtDot(hi,6)})  ·  cod = mijlocul = ${fmtDot((lo+hi)/2,6)}`:`Interval curent [${fmtDot(lo,6)}, ${fmtDot(hi,6)}) – urmează împărțirea pentru simbolul următor`,m+W/2,y+19);
+      x.fillStyle=css('--muted');x.font='11px monospace';x.fillText(fmtDot(lo,5),m,y+42)}
+    x.fillStyle=css('--muted');x.font='11px monospace';x.textAlign='center';x.fillText(fmtDot(hi,5),m+W,y+42);x.textAlign='left';x.font='12px sans-serif';x.fillStyle=css('--ink');x.fillText(k===0?'start':'după '+L[k].s,4,y+18);
+    if(k<=upto&&L[k+1]){const sp=P.find(p=>p.s===L[k+1].s);x.strokeStyle=css('--acc2');x.setLineDash([4,4]);x.beginPath();x.moveTo(m+sp.lo*W,y+30);x.lineTo(m,y+78);x.moveTo(m+sp.hi*W,y+30);x.lineTo(m+W,y+78);x.stroke();x.setLineDash([])}}}
+let AR=null;const arStep=new Stepper('#arSt',{title:'Codare aritmetică',steps:[],cumulative:true,onShow:i=>{if(AR)arDraw(AR.P,AR.L,Math.max(-1,i))}});
+function arLoad(){const P=arParse(),seq=$('#arS').value.trim().split(/\s+/);const L=arIntervals(P,seq);AR={P,L};
+  const steps=L.slice(1).map((iv,k)=>{const pr=L[k],w=pr.hi-pr.lo,p=P.find(q=>q.s===iv.s);return `Simbolul <b>${iv.s}</b>: împărțim [${fmtDot(pr.lo,5)}, ${fmtDot(pr.hi,5)}) proporțional; ${iv.s} primește [${fmtDot(pr.lo,5)} + ${fmtDot(w,5)}·${fmtDot(p.lo,3)}, ${fmtDot(pr.lo,5)} + ${fmtDot(w,5)}·${fmtDot(p.hi,3)}) = <b>[${fmtDot(iv.lo,5)}, ${fmtDot(iv.hi,5)})</b>`});
+  const f=L[L.length-1];steps.push(`Secvența este codată. Orice număr din [${fmtDot(f.lo,5)}, ${fmtDot(f.hi,5)}) o reprezintă; de obicei se alege mijlocul: (${fmtDot(f.lo,5)} + ${fmtDot(f.hi,5)}) / 2 = <b>${fmtDot((f.lo+f.hi)/2,6)}</b>. Lățimea intervalului ${fmtDot(f.hi-f.lo,6)} ⇒ ≈ ${Math.ceil(-log2(f.hi-f.lo))} biți necesari.`);
+  arStep.setSteps(steps,`Codarea secvenței ${seq.join(' ')}`)}
+$('#arGo').onclick=arLoad;arLoad();
+$('#adGo').onclick=()=>{const P=arParse();let v=parseP($('#adN').value),k=+$('#adK').value;let lo=0,hi=1,out=[];
+  for(let i=0;i<k;i++){const w=hi-lo;const p=P.find(q=>v>=lo+w*q.lo&&v<lo+w*q.hi);if(!p)break;const nl=lo+w*p.lo,nh=lo+w*p.hi;out.push(`${v} ∈ [${fmtDot(nl,5)}, ${fmtDot(nh,5)}) → ${p.s}`);lo=nl;hi=nh}
+  $('#adOut').textContent=out.join('\n')+`\nSecvența decodificată: ${out.map(l=>l.split('→ ')[1]).join(' ')}`};$('#adGo').click();
+
+/* ---------- 6. Shannon-Fano ---------- */
+function shannonFano(ps){const items=ps.map((p,i)=>({s:'s'+(i+1),p,code:''})).sort((a,b)=>b.p-a.p);const stages=[];
+  (function split(arr,depth){if(arr.length<2)return;const tot=arr.reduce((a,b)=>a+b.p,0);let best=1e9,k=1,acc=0;for(let i=0;i<arr.length-1;i++){acc+=arr[i].p;const d=Math.abs(2*acc-tot);if(d<best-1e-9){best=d;k=i+1}}
+    arr.forEach((x,i)=>{x.code+=i<k?'1':'0';(stages[depth]=stages[depth]||[]).push(x.s)});split(arr.slice(0,k),depth+1);split(arr.slice(k),depth+1)})(items,0);
+  return{items,depth:stages.length}}
+const sfStep=new Stepper('#sfSt',{title:'Algoritmul Shannon-Fano',steps:[],cumulative:false});
+function sfLoad(){const ps=$('#sfIn').value.split(/[,;\s]+/).filter(Boolean).map(parseP);const R=shannonFano(ps);const steps=[];
+  for(let st=0;st<=R.depth;st++){let h='<table class="t"><tr><th>Simbol</th><th>p</th>'+[...Array(st)].map((_,i)=>`<th>Etapa ${i+1}</th>`).join('')+'</tr>';
+    R.items.forEach((x,ri)=>{h+=`<tr><td>${x.s}</td><td>${x.p}</td>`;for(let e=1;e<=st;e++){const c=x.code.slice(0,e);const done=x.code.length<e;const fresh=e===st&&!done;h+=`<td class="mono" style="${fresh?'background:'+(c.endsWith('1')?'var(--acc-soft)':'var(--warn-soft)')+';font-weight:700':''}">${done?'':c}</td>`}h+='</tr>'});h+='</table>';
+    if(st===0)h='<p>Simbolurile sortate descrescător după probabilitate:</p>'+h;else h=`<p>Etapa ${st}: fiecare grup cu mai mult de un simbol se împarte în două părți cu sume cât mai apropiate; partea de sus primește <b>1</b>, cea de jos <b>0</b>.</p>`+h;
+    if(st===R.depth){const L=R.items.reduce((a,x)=>a+x.p*x.code.length,0),H=R.items.reduce((a,x)=>a-x.p*log2(x.p),0);h+=`<div class="out">Coduri finale: ${R.items.map(x=>x.s+' → '+x.code).join(', ')}\nLungime medie = ${R.items.map(x=>x.p+'·'+x.code.length).join(' + ')} = <b>${r4(L)}</b>\nEntropia = <b>${r4(H)}</b> ⇒ codul este foarte aproape de limita teoretică.</div>`}
+    steps.push(h)}
+  sfStep.setSteps(steps,'Shannon-Fano pentru '+ps.length+' simboluri')}
+$('#sfGo').onclick=sfLoad;sfLoad();
+
+/* ---------- 7. Multimedia ---------- */
+function rgb(){const b=+$('#rgbBits').value,q=v=>{const L=(1<<b)-1;return Math.round(Math.round(v/255*L)*255/L)};const R=+$('#rgbR').value,G=+$('#rgbG').value,B=+$('#rgbB').value;
+  const bin=v=>pad(Math.round(v/255*((1<<b)-1)).toString(2),b);[['R',R],['G',G],['B',B]].forEach(([k,v])=>$('#rgb'+k+'v').textContent=`${v} = ${bin(v)}`);
+  $('#rgbSw').style.background=`linear-gradient(90deg,rgb(${R},${G},${B}) 50%,rgb(${q(R)},${q(G)},${q(B)}) 50%)`;
+  $('#rgbOut').innerHTML=`stânga: original (8 biți/canal) · dreapta: ${b} biți/canal\n${3*b} biți/pixel → 2<sup>${3*b}</sup> = <b>${(2**(3*b)).toLocaleString('ro-RO')}</b> culori\nO imagine 1920×1080 ocupă ${(1920*1080*3*b/8/1048576).toFixed(2)} MB`}
+['#rgbR','#rgbG','#rgbB'].forEach(s=>$(s).oninput=rgb);$('#rgbBits').onchange=rgb;rgb();
+function rs(){const s=$('#rsIn').value,ch=$('#rsCh').value[0]||'0',f=$('#rsF').value||'f';const re=new RegExp(ch.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'{4,}','g');const o=s.replace(re,m=>f+m.length);
+  $('#rsOut').innerHTML=`${o}\n${s.length} → ${o.length} caractere · raport ${(o.length/s.length).toFixed(3)}`}
+['#rsIn','#rsCh','#rsF'].forEach(x=>$(x).oninput=rs);rs();
+function ps(){const s=$('#psIn').value;const w={};(s.match(/[a-zăâîșțA-Z]{4,}/g)||[]).forEach(x=>w[x]=(w[x]||0)+1);const top=Object.entries(w).filter(e=>e[1]>1).sort((a,b)=>b[1]*b[0].length-a[1]*a[0].length).slice(0,6);
+  let o=s;top.forEach(([x],i)=>o=o.split(x).join('§'+i));$('#psOut').innerHTML=`Dicționar: ${top.map(([x,n],i)=>`§${i} = „${x}” (×${n})`).join(', ')||'—'}\n\n${o}\n\n${s.length} → ${o.length} caractere (+ dicționarul)`}
+$('#psIn').oninput=ps;ps();
+// DCT
+let dctSig=[];function newSig(){const a=Math.random()*2,b=Math.random()*3+1,c=Math.random();dctSig=[...Array(64)].map((_,n)=>Math.sin(n/64*Math.PI*b)*a+Math.cos(n/64*Math.PI*6)*.5+(n>30&&n<44?c*1.2:0)+(Math.random()-.5)*.15)}
+function dct(){const N=64,K=+$('#dctK').value;$('#dctV').textContent=K;const X=[...Array(N)].map((_,k)=>dctSig.reduce((s,x,n)=>s+x*Math.cos(Math.PI/N*(n+.5)*k),0));
+  const rec=[...Array(N)].map((_,n)=>{let s=X[0]/2;for(let k=1;k<K;k++)s+=X[k]*Math.cos(Math.PI/N*(n+.5)*k);return s*2/N});
+  const c=$('#dctC'),x=c.getContext('2d'),W=c.width,H=c.height;x.clearRect(0,0,W,H);const mn=Math.min(...dctSig,...rec)-.2,mx=Math.max(...dctSig,...rec)+.2;const Xp=n=>20+n/(N-1)*(W*0.62-40),Yp=v=>H-20-(v-mn)/(mx-mn)*(H-40);
+  x.lineWidth=2;x.strokeStyle=css('--muted');x.beginPath();dctSig.forEach((v,n)=>n?x.lineTo(Xp(n),Yp(v)):x.moveTo(Xp(n),Yp(v)));x.stroke();
+  x.strokeStyle=css('--acc');x.lineWidth=2.5;x.beginPath();rec.forEach((v,n)=>n?x.lineTo(Xp(n),Yp(v)):x.moveTo(Xp(n),Yp(v)));x.stroke();
+  x.fillStyle=css('--ink');x.font='12px sans-serif';x.fillText('— semnal original',24,16);x.fillStyle=css('--acc');x.fillText('— reconstruit din '+K+' coeficienți',150,16);
+  const ox=W*0.65,bw=(W-ox-10)/N,am=Math.max(...X.map(Math.abs));x.fillStyle=css('--ink');x.fillText('Spectrul (coeficienți DCT)',ox,16);
+  X.forEach((v,k)=>{x.fillStyle=k<K?css('--acc'):css('--line');const hh=Math.abs(v)/am*(H-50);x.fillRect(ox+k*bw,H-20-hh,Math.max(1,bw-1),hh)});
+  const e=Math.sqrt(rec.reduce((s,v,n)=>s+(v-dctSig[n])**2,0)/N);$('#dctOut').innerHTML=`Se păstrează ${K} din 64 coeficienți ⇒ raport ≈ ${(K/64).toFixed(3)} · eroarea medie pătratică = <b>${e.toFixed(4)}</b> ${K===64?'(reconstrucție exactă)':''}`}
+$('#dctK').oninput=dct;$('#dctNew').onclick=()=>{newSig();dct()};newSig();dct();
+// VQ
+let VQ={cb:[],inp:[]};const vqNew=()=>{VQ.cb=[...Array(6)].map(()=>[rnd(60,840),rnd(40,320)]);VQ.inp=[...Array(14)].map(()=>[rnd(20,880),rnd(20,340)])};
+function vqDraw(){const c=$('#vqC'),x=c.getContext('2d'),W=c.width,H=c.height;const near=p=>{let b=0,d=1e18;VQ.cb.forEach((q,i)=>{const dd=(p[0]-q[0])**2+(p[1]-q[1])**2;if(dd<d){d=dd;b=i}});return[b,Math.sqrt(d)]};
+  for(let y=0;y<H;y+=6)for(let X=0;X<W;X+=6){x.fillStyle=RC[near([X+3,y+3])[0]%7]+'26';x.fillRect(X,y,6,6)}
+  let D=0;VQ.inp.forEach(p=>{const[i,d]=near(p);D+=d;x.strokeStyle=RC[i%7];x.setLineDash([3,3]);x.beginPath();x.moveTo(p[0],p[1]);x.lineTo(...VQ.cb[i]);x.stroke();x.setLineDash([]);x.fillStyle=css('--ink');x.beginPath();x.arc(p[0],p[1],4,0,7);x.fill()});
+  VQ.cb.forEach((q,i)=>{x.fillStyle=RC[i%7];x.beginPath();x.arc(q[0],q[1],9,0,7);x.fill();x.fillStyle='#fff';x.font='bold 10px sans-serif';x.textAlign='center';x.fillText('y'+(i+1),q[0],q[1]+3)});x.textAlign='left';
+  $('#vqOut').innerHTML=`${VQ.cb.length} vectori cod (cerculețe colorate) · ${VQ.inp.length} vectori de intrare (puncte negre)\nFiecare intrare se transmite doar ca indice (${Math.ceil(log2(Math.max(2,VQ.cb.length)))} biți) în loc de 2 coordonate.\nDistorsiunea medie (distanța euclidiană) = <b>${VQ.inp.length?(D/VQ.inp.length).toFixed(1):0}</b> px`}
+$('#vqC').onclick=e=>{const r=e.target.getBoundingClientRect(),k=e.target.width/r.width;const p=[(e.clientX-r.left)*k,(e.clientY-r.top)*k];(e.shiftKey?VQ.cb:VQ.inp).push(p);vqDraw()};
+$('#vqClr').onclick=()=>{VQ.inp=[];vqDraw()};$('#vqRnd').onclick=()=>{vqNew();vqDraw()};vqNew();vqDraw();
+function df(){const p=pad($('#dfP').value.replace(/[^01]/g,''),8).slice(-8),r=pad($('#dfR').value.replace(/[^01]/g,''),8).slice(-8);let k=0;while(k<8&&p[k]===r[k])k++;
+  $('#dfOut').innerHTML=`<div style="margin:.5rem 0">p:&nbsp;&nbsp;&nbsp;&nbsp;${bitsHTML(p,{cls:i=>i<k?'':i===k?'err':'exp'})}<br>ref: ${bitsHTML(r,{cls:i=>i<k?'':i===k?'err':''})}</div>`+
+  (k===8?'<p class="ok">Pixelii sunt identici: prefix 8, fără sufix.</p>':`<p>Primii <b>${k}</b> biți coincid ⇒ <b>prefix = ${k}</b>. Bitul ${k+1} diferă (roșu) – decodorul îl deduce (e inversul bitului din referință). <b>Sufix = ${p.slice(k+1)||'(gol)'}</b> (${7-k} biți).<br>Cod: prefix pe 3–4 biți + ${7-k} biți sufix, în loc de 8 biți.</p>`)}
+$('#dfP').oninput=df;$('#dfR').oninput=df;df();
+
+/* ================= SEMINAR ================= */
+const PROBS=[
+ {t:'Lungimea medie pentru alfabetul s1…s8 (exemplul din curs)',s:['Probabilități: s1 5/18, s2 4/18, s3 3/18, s4 2/18, s5…s8 câte 1/18.','Lungimi: s1 → 0 (1 bit), s2…s4 → 2 biți, s5…s8 → 3 biți.','l̄ = 5/18·1 + 4/18·2 + 3/18·2 + 2/18·2 + 4·(1/18·3) = (5 + 8 + 6 + 4 + 12)/18 = 35/18','l̄ ≈ <b>1.94</b> biți/simbol față de 3 biți în codarea cu lungime fixă.','<div class="note obs">Codul ales în curs are lungime medie mică, dar nu este unic decodabil: de exemplu „010” poate fi s5 sau s2 urmat de s1. Suma Kraft = 2<sup>−1</sup> + 3·2<sup>−2</sup> + 4·2<sup>−3</sup> = 1.75 &gt; 1, iar l̄ = 1.94 este chiar sub entropia H(S) ≈ 2.71. Exemplul ilustrează doar calculul lungimii medii.</div>']},
+ {t:'Entropia sursei {0.0625, 0.0625, 0.125, 0.25, 0.5}',s:['H(S) = Σ p·log<sub>2</sub>(1/p)','= 0.0625·log<sub>2</sub>16 + 0.0625·log<sub>2</sub>16 + 0.125·log<sub>2</sub>8 + 0.25·log<sub>2</sub>4 + 0.5·log<sub>2</sub>2','= 0.0625·4 + 0.0625·4 + 0.125·3 + 0.25·2 + 0.5·1','= 0.25 + 0.25 + 0.375 + 0.5 + 0.5 = <b>1.875</b> biți/simbol','Codul 1110, 1111, 110, 10, 0 atinge exact această valoare (l̄ = 1.875), pentru că probabilitățile sunt puteri ale lui 2.']},
+ {t:'RLE: aaaaacccbbaaabbbcccccc',s:['Identificăm secvențele: aaaaa | ccc | bb | aaa | bbb | cccccc','Lungimi: 5, 3, 2, 3, 3, 6','Cod: <b>(a,5), (c,3), (b,2), (a,3), (b,3), (c,6)</b>','22 caractere → 6 perechi = 12 simboluri ⇒ raport ≈ 0.55']},
+ {t:'RLE pe imagine: 111100000011110000111111111001111',s:['Primul element: 1','Secvențe: 1111 (4), 000000 (6), 1111 (4), 0000 (4), 111111111 (9), 00 (2), 1111 (4)','Cod: <b>1 4 6 4 4 9 2 4</b>']},
+ {t:'Huffman pentru „programarea calculatoarelor”',s:['Frecvențe (din 27): a 6, r 5, o 3, l 3, e 2, c 2, p 1, g 1, m 1, ␣ 1, u 1, t 1','Se unesc repetat cele mai mici două noduri: 1+1, 1+1, 1+1, 2+2, 2+2, 3+3 …','Coduri (curs): r 10, a 11, o 011, e 0010, c 0101, l 0011, p 01001, ␣ 01000, g 00011, m 00010, u 00001, t 00000','l̄ = 89/27 ≈ <b>3.29</b> biți/simbol; H(S) ≈ 3.25; lungime fixă: 4 biți','<div class="note fix">în suport, entropia apare ca rezultat al unei expresii simplificate; valoarea numerică 3.25 este corectă (3.2501).</div>','Kraft: 6·2<sup>−5</sup> + 2·2<sup>−2</sup> + 2<sup>−3</sup> + 3·2<sup>−4</sup> = 1 ✔']},
+ {t:'Codare aritmetică: s2 s3 s2 s2, p = 0.3 / 0.5 / 0.2',s:['[0,1): s1 [0, 0.3), s2 [0.3, 0.8), s3 [0.8, 1) → s2: <b>[0.3, 0.8)</b>','Lățime 0.5: s1 [0.3, 0.45), s2 [0.45, 0.70), s3 [0.70, 0.80) → s3: <b>[0.70, 0.80)</b>','Lățime 0.1: s1 [0.70, 0.73), s2 [0.73, 0.78) → s2: <b>[0.73, 0.78)</b>','Lățime 0.05: s1 [0.73, 0.745), s2 [0.745, 0.770) → s2: <b>[0.745, 0.770)</b>','Cod = mijlocul: (0.745 + 0.770)/2 = <b>0.7575</b>']},
+ {t:'Shannon-Fano pentru 10 simboluri (Tabelul 1)',s:['Sortate: 0.25, 0.15, 0.15, 0.07, 0.07, 0.07, 0.06 ×4','Etapa 1: {s1,s2,s3} = 0.55 → 1; {s4…s10} = 0.45 → 0','Etapa 2: s1 → 11, {s2,s3} → 10; {s4,s5,s6} → 01, {s7…s10} → 00','Etapele 3–4: s2 101, s3 100, s4 011, s5 0101, s6 0100, s7 0011, s8 0010, s9 0001, s10 0000','l̄ = 0.25·2 + 0.15·3·2 + 0.07·3 + 0.07·4·2 + 0.06·4·4 = <b>3.13</b>; H(S) ≈ <b>3.10</b>']},
+ {t:'Codare diferențială: p = 11010101, referință 11010011',s:['Comparăm de la stânga: 1=1, 1=1, 0=0, 1=1, 0=0, 1≠0','Primii 5 biți coincid ⇒ <b>prefix = 5</b>','Bitul 6 diferă: decodorul îl deduce (este inversul bitului din referință)','Sufixul conține doar ultimii 2 biți (pozițiile 7 și 8): <b>01</b>']},
+];
+const prSel=$('#prSel');PROBS.forEach((p,i)=>prSel.append(h('option',{value:i},`Problema ${i+1}. ${p.t}`)));
+const prStep=new Stepper('#prSt',{title:'',steps:[]});const loadPr=()=>{const p=PROBS[+prSel.value];prStep.setSteps(p.s,p.t)};prSel.onchange=loadPr;loadPr();
+
+const near=(a,b,t=0.011)=>Math.abs(parseP(a)-b)<=t;
+const EX=[
+ {title:'Entropia unei surse',gen(){const sets=[[.5,.25,.125,.125],[.5,.25,.25],[.25,.25,.25,.25],[.5,.125,.125,.125,.125],[.25,.25,.125,.125,.125,.125],[.5,.25,.0625,.0625,.0625,.0625]];const p=sets[rnd(0,sets.length-1)];const H=p.reduce((a,x)=>a-x*log2(x),0);
+   return{q:`Calculați entropia H(S) pentru probabilitățile: <b>${p.join(', ')}</b>`,check:v=>near(v,H),sol:p.map(x=>`${x}·log<sub>2</sub>(1/${x}) = ${x}·${log2(1/x)}`).join('<br>')+`<br>H(S) = <b>${r4(H)}</b> biți/simbol`}}},
+ {title:'Lungimea medie',gen(){const n=rnd(3,5);let f=[...Array(n)].map(()=>rnd(1,9));const N=f.reduce((a,b)=>a+b,0);const codes=['0','10','110','1110','1111'].slice(0,n);if(n<5)codes[n-1]=codes[n-1].slice(0,-1)+'1';f.sort((a,b)=>b-a);const L=f.reduce((a,x,i)=>a+x/N*codes[i].length,0);
+   return{q:`Simbolurile au frecvențele ${f.map((x,i)=>`s${i+1}: ${x}/${N}`).join(', ')} și codurile ${codes.map((c,i)=>`s${i+1} → ${c}`).join(', ')}. Calculați lungimea medie l̄.`,check:v=>near(v,L),sol:f.map((x,i)=>`${x}/${N}·${codes[i].length}`).join(' + ')+` = ${f.reduce((a,x,i)=>a+x*codes[i].length,0)}/${N} = <b>${r4(L)}</b>`}}},
+ {title:'Raport de compresie',gen(){const a=rnd(200,2000),b=rnd(50,a-20);return{q:`Un fișier de <b>${a} KB</b> devine <b>${b} KB</b> după compresie. Care este raportul de compresie?`,check:v=>near(v,b/a,0.006),sol:`raport = ${b}/${a} = <b>${(b/a).toFixed(3)}</b>; factor de compresie = ${(a/b).toFixed(2)}`}}},
+ {title:'Codificare RLE',ph:'ex. (a,3)(b,2)',gen(){const ch='abcx';let s='';const k=rnd(3,5);let last='';for(let i=0;i<k;i++){let c;do c=ch[rnd(0,3)];while(c===last);last=c;s+=c.repeat(rnd(1,6))}const R=runs(s);const ans=R.map(([c,n])=>`(${c},${n})`).join('');
+   return{q:`Codificați RLE șirul: <b class="mono">${s}</b>`,check:v=>v.replace(/[^a-z0-9]/gi,'').toLowerCase()===ans.replace(/[^a-z0-9]/gi,''),sol:`<b>${R.map(([c,n])=>`(${c},${n})`).join(', ')}</b>`}}},
+ {title:'Suma Kraft',gen(){const L=[...Array(rnd(3,6))].map(()=>rnd(1,4));const K=L.reduce((a,l)=>a+2**-l,0);return{q:`Un cod are lungimile cuvintelor ${L.join(', ')}. Calculați Σ2<sup>−l</sup>. (Poate fi codul unic decodabil?)`,check:v=>near(v,K,0.001),sol:L.map(l=>`2<sup>−${l}</sup>`).join(' + ')+` = <b>${K}</b> ⇒ ${K<=1?'poate fi unic decodabil':'NU poate fi unic decodabil (suma > 1)'}`}}},
+ {title:'Codare aritmetică (2 simboluri)',gen(){const pa=[.2,.3,.4,.6,.7][rnd(0,4)];const P=[{s:'A',p:pa,lo:0,hi:pa},{s:'B',p:+(1-pa).toFixed(1),lo:pa,hi:1}];const seq=[...Array(3)].map(()=>Math.random()<.5?'A':'B');const L=arIntervals(P,seq);const f=L[3];const m=(f.lo+f.hi)/2;
+   return{q:`p(A) = ${pa}, p(B) = ${P[1].p}. Codificați aritmetic secvența <b>${seq.join(' ')}</b> și dați mijlocul intervalului final.`,check:v=>near(v,m,0.0006),sol:L.slice(1).map(iv=>`după ${iv.s}: [${fmtDot(iv.lo,4)}, ${fmtDot(iv.hi,4)})`).join('<br>')+`<br>mijlocul = <b>${fmtDot(m,5)}</b>`}}},
+ {title:'Huffman: lungimea medie',gen(){const n=rnd(4,6);const f=[...Array(n)].map(()=>rnd(1,10));const N=f.reduce((a,b)=>a+b,0);const H=huffman(f.map((w,i)=>({sym:'s'+(i+1),w,ord:i})),'after');const L=f.reduce((a,w,i)=>a+w*H.codes['s'+(i+1)].length,0)/N;
+   return{q:`Frecvențe: ${f.map((w,i)=>`s${i+1}: ${w}`).join(', ')} (total ${N}). Construiți codul Huffman și calculați lungimea medie (biți/simbol).`,check:v=>near(v,L),sol:`Coduri posibile: ${f.map((w,i)=>`s${i+1} → ${H.codes['s'+(i+1)]}`).join(', ')}<br>l̄ = ${f.map((w,i)=>`${w}·${H.codes['s'+(i+1)].length}`).join(' + ')} / ${N} = <b>${r4(L)}</b>`}}},
+ {title:'Este cod prefix?',ph:'da / nu',gen(){const pool=[['0','10','110','111'],['0','01','11'],['1','01','010','000'],['00','01','10','11'],['0','10','101'],['11','10','01','001','000'],['1','00','01','001']];const c=pool[rnd(0,pool.length-1)];const bad=[];c.forEach((a,i)=>c.forEach((b,j)=>{if(i!==j&&b.startsWith(a))bad.push(`${a} e prefix pentru ${b}`)}));
+   return{q:`Este codul <b class="mono">{${c.join(', ')}}</b> instantaneu decodabil?`,check:v=>/^(da|d|yes)$/i.test(v)===!bad.length&&/^(da|d|yes|nu|n|no)$/i.test(v),sol:bad.length?`<b>NU</b>: ${bad.join('; ')}`:'<b>DA</b>: niciun cuvânt nu este prefixul altuia.'}}},
+];
+EX.forEach(e=>{const d=h('div');$('#exGrid').append(d);Exercise(d,e)});
+
+/* ================= LABORATOR ================= */
+$('#l1run').onclick=()=>{const s=($('#l1s').value.split(/\s/)[0]||'').slice(0,255);const R=runs(s);$('#l1out').textContent=`sir: ${s}\nRLE: ${R.map(([c,n])=>`(${c},${n}) `).join('')}\n${s.length} caractere -> ${R.length} perechi (${2*R.length} octeti)`};
+$('#l2run').onclick=()=>{const s=$('#l2s').value;const n=s.length;const f={};[...s].forEach(c=>f[c]=(f[c]||0)+1);let H=0,o=`text: ${s}\n`;
+  Object.keys(f).sort((a,b)=>a.charCodeAt(0)-b.charCodeAt(0)).forEach(c=>{const p=f[c]/n;H-=p*log2(p);o+=`'${c}': ${String(f[c]).padStart(2)}/${n}  p=${p.toFixed(4)}  i=${(-log2(p)).toFixed(3)} biti\n`});
+  $('#l2out').textContent=o+`Entropia H = ${H.toFixed(4)} biti/simbol\nMinim teoretic: ${(H*n).toFixed(1)} biti (fata de ${8*n} biti in ASCII-8)`};
+$('#l3run').onclick=()=>{const s=$('#l3s').value;const f={};[...s].forEach(c=>f[c]=(f[c]||0)+1);const sy=Object.keys(f).sort((a,b)=>a.charCodeAt(0)-b.charCodeAt(0));const n=sy.length;
+  const fr=sy.map(c=>f[c]),st=[],dr=[],par=[],viu=sy.map(()=>1);let total=n;
+  for(let p=0;p<n-1;p++){let a=-1,b=-1;for(let i=0;i<total;i++)if(viu[i]){if(a<0||fr[i]<fr[a]){b=a;a=i}else if(b<0||fr[i]<fr[b])b=i}fr[total]=fr[a]+fr[b];st[total]=a;dr[total]=b;viu[a]=viu[b]=0;viu[total]=1;par[a]=par[b]=total;total++}
+  const rad=total-1;let bits=0,o=`text: ${s}\n`;for(let i=0;i<n;i++){let c='',x=i;while(x!==rad){c=(st[par[x]]===x?'0':'1')+c;x=par[x]}if(n===1)c='';o+=`'${sy[i]}' (${fr[i]}): ${c}\n`;bits+=c.length*fr[i]}
+  $('#l3out').textContent=o+`Total: ${bits} biti, medie ${(bits/s.length).toFixed(3)} biti/simbol`};
+$('#l4run').onclick=()=>{const P=[{s:'1',lo:0,hi:.3},{s:'2',lo:.3,hi:.8},{s:'3',lo:.8,hi:1}];const seq=$('#l4s').value.trim().split(/\s+/).filter(x=>/^[123]$/.test(x));const L=arIntervals(P,seq);
+  $('#l4out').textContent=L.slice(1).map(iv=>`dupa s${iv.s}: [${iv.lo.toFixed(4)}, ${iv.hi.toFixed(4)})`).join('\n')+`\ncod = mijlocul intervalului = ${((L[L.length-1].lo+L[L.length-1].hi)/2).toFixed(5)}`};
+$('#l5run').onclick=()=>{const p=(+$('#l5p').value)&255,r=(+$('#l5r').value)&255;let k=0;for(let b=7;b>=0&&((p>>b)&1)===((r>>b)&1);b--)k++;let suf='';for(let b=6-k;b>=0;b--)suf+=(p>>b)&1;
+  $('#l5out').textContent=`pixel si referinta (0..255): ${p} ${r}\n(${pad(p.toString(2),8)} / ${pad(r.toString(2),8)})\nprefix = ${k}\nsufix  = ${suf}`};
+['#l1run','#l2run','#l3run','#l4run','#l5run'].forEach(s=>$(s).click());
+
+/* ================= TEST ================= */
+Quiz('#quiz',[
+ {open:true,t:'Se dă alfabetul S = {s1, …, s8} cu p(s1)=p(s2)=p(s3)=1/30, p(s4)=2/30, p(s5)=3/30, p(s6)=p(s7)=4/30, p(s8)=14/30. Construiți arborele Huffman. Există mai multe variante?',expl:'Da. La pasul în care apar noduri cu aceeași probabilitate (ex. 2/30 și 2/30, sau 4/30, 4/30 și 4/30), alegerea perechii nu este unică, deci se obțin arbori diferiți (vezi cele două variante desenate sub test). Ambele variante au aceeași lungime medie, deci sunt la fel de bune.'},
+ {open:true,t:'Codul Huffman nu este unic. Câte arborescențe Huffman pot fi generate pentru aceeași structură a alfabetului sursei?',expl:'Un arbore Huffman pentru n simboluri are <b>n − 1 noduri interioare</b>. Fiecare are două ramuri etichetate 0 și 1, dar etichetarea poate fi inversată. Rezultă <b>2<sup>n−1</sup></b> posibilități de etichetare a aceleiași arborescențe.'},
+ {open:true,t:'În ce măsură dimensiunea cuvântului de cod asociat unui simbol s<sub>i</sub> depinde doar de probabilitatea sa?',expl:'Nu depinde doar de probabilitate. Într-un alfabet cu multe simboluri egal probabile, probabilitățile sunt mici și codurile lungi. Dacă unele simboluri au probabilități mari, ele primesc coduri scurte, iar celelalte coduri mai lungi. Lungimea codului depinde deci de probabilitatea simbolului <b>și</b> de dimensiunea (și distribuția) alfabetului.'},
+ {t:'<span class="pill">suplimentar</span> Raportul de compresie 0.7 înseamnă că:',opts:['datele s-au redus cu 70%','datele comprimate ocupă 70% din dimensiunea inițială','factorul de compresie este 0.7','compresia a fost cu pierderi'],a:1,expl:'raport = comprimat / necomprimat ⇒ 70% din dimensiunea inițială. Factorul de compresie este 1/0.7 ≈ 1.43.'},
+ {t:'<span class="pill">suplimentar</span> Un cod este instantaneu decodabil dacă:',opts:['toate cuvintele de cod sunt distincte','are lungime fixă','niciun cuvânt de cod nu este prefix pentru altul','suma Kraft este exact 1'],a:2,expl:'Aceasta este proprietatea de prefix. Cuvinte distincte = cod nesingular.'},
+ {t:'<span class="pill">suplimentar</span> Care este entropia unei surse cu 8 simboluri egal probabile?',opts:['1 bit','2 biți','3 biți','8 biți'],a:2,expl:'H = 8 · (1/8) · log<sub>2</sub>8 = <b>3</b> biți: cu simboluri egal probabile, entropia este maximă (log<sub>2</sub>n).'},
+ {t:'<span class="pill">suplimentar</span> Care tehnică este cu pierderi?',opts:['Huffman','RLE','Codarea aritmetică','Cuantizarea vectorială'],a:3,expl:'Cuantizarea vectorială înlocuiește vectorul de intrare cu cel mai apropiat vector cod: informația exactă se pierde.'},
+ {t:'<span class="pill">suplimentar</span> Pentru codarea aritmetică cu p(s1)=0.3, p(s2)=0.5, p(s3)=0.2, după primul simbol s2 intervalul este:',opts:['[0, 0.3)','[0.3, 0.8)','[0.5, 1)','[0.8, 1)'],a:1,expl:'Intervalele cumulative: s1 [0, 0.3), s2 [0.3, 0.8), s3 [0.8, 1).'},
+ {t:'<span class="pill">suplimentar</span> Câte culori se pot reda în RGB cu 8 biți pe canal?',opts:['256','65 536','≈ 16.77 milioane','≈ 4.29 miliarde'],a:2,expl:'2<sup>8</sup>·2<sup>8</sup>·2<sup>8</sup> = 2<sup>24</sup> = 16 777 216.'},
+]);
+const TQ=[1,1,1,2,3,4,4,14].map((w,i)=>({sym:'s'+(i+1),w,ord:i}));
+function tq(){const H=huffman(TQ,$('#tqTie').value);drawHuff($('#tqSvg'),H,99,{fmt:w=>w+'/30',codes:true});const L=TQ.reduce((a,x)=>a+x.w*H.codes[x.sym].length,0);
+  $('#tqCodes').textContent=TQ.map(x=>`${x.sym} → ${H.codes[x.sym]}`).join('   ')+`\nLungime medie = ${L}/30 = ${(L/30).toFixed(3)} biți/simbol`}
+$('#tqTie').onchange=tq;
+const tqObs=new MutationObserver(()=>{if($('#test').classList.contains('active'))tq()});tqObs.observe($('#test'),{attributes:true});
+
+renderCode();initShell();tq();
+// redesenare la schimbarea temei / dimensiunii
+$('#themeBtn').addEventListener('click',()=>setTimeout(()=>{h2();gridDraw();dct();vqDraw();hufStep.go(hufStep.i);arStep.go(arStep.i);tq()},30));
+let rsT;addEventListener('resize',()=>{clearTimeout(rsT);rsT=setTimeout(()=>{hufStep.go(hufStep.i);arStep.go(arStep.i)},200)});
+
+</script>
+</body>
+</html>

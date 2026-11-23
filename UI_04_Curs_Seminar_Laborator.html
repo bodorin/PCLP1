@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UI 4 · Componentele unui sistem de calcul — PCLP I</title>
+<style>
+:root{
+  --paper:#f6f4ee; --card:#ffffff; --ink:#1c2230; --muted:#5d6678; --line:#e2ddd2;
+  --acc:#2f5bd3; --acc2:#e8a33d; --acc-soft:#e7edfb; --ok:#1f8a5b; --ok-soft:#e3f4ec;
+  --bad:#c23a3a; --bad-soft:#fbe9e9; --warn:#a86a00; --warn-soft:#fff4dc;
+  --mono:"JetBrains Mono","Cascadia Code","Fira Code",Consolas,"DejaVu Sans Mono",monospace;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"DejaVu Serif",serif;
+  --sans:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+  --r:12px; --shadow:0 1px 2px rgba(20,25,40,.06),0 4px 14px rgba(20,25,40,.06);
+}
+body.dark{
+  --paper:#12151c; --card:#1b2029; --ink:#e6e9f0; --muted:#9aa3b5; --line:#2c3340;
+  --acc-soft:#1f2a44; --ok-soft:#14302a; --bad-soft:#3a1d1f; --warn-soft:#3a2e14;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);transition:background .3s,color .3s}
+h1,h2,h3,h4{font-family:var(--serif);line-height:1.25;margin:1.2em 0 .5em}
+h1{font-size:1.9rem;margin:0}
+h2{font-size:1.55rem;border-bottom:2px solid var(--line);padding-bottom:.3em}
+h3{font-size:1.2rem;color:var(--acc)}
+h4{font-size:1.05rem}
+a{color:var(--acc)}
+code,.mono{font-family:var(--mono);font-size:.92em}
+p{margin:.5em 0 .8em}
+small{color:var(--muted)}
+
+/* ===== Header ===== */
+header.top{position:sticky;top:0;z-index:50;background:var(--card);border-bottom:1px solid var(--line);box-shadow:var(--shadow)}
+.top-inner{max-width:1240px;margin:0 auto;padding:.8rem 1.2rem .3rem;display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
+.badge-ui{background:var(--acc);color:#fff;font-weight:700;border-radius:10px;padding:.35rem .7rem;font-family:var(--mono);letter-spacing:.03em}
+.top-title{flex:1;min-width:260px}
+.top-title .sub{color:var(--muted);font-size:.9rem}
+.top-title h1{font-size:1.25rem}
+.icon-btn{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:8px;padding:.35rem .6rem;cursor:pointer;font-size:.95rem}
+.icon-btn:hover{background:var(--acc-soft)}
+nav.tabs{max-width:1240px;margin:0 auto;padding:0 1.2rem;display:flex;gap:.25rem;overflow-x:auto}
+nav.tabs button{border:none;background:none;color:var(--muted);font:600 .98rem var(--sans);padding:.6rem 1rem;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+nav.tabs button:hover{color:var(--ink)}
+nav.tabs button.active{color:var(--acc);border-bottom-color:var(--acc)}
+.progress{height:3px;background:var(--line)}
+.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .15s}
+
+/* ===== Layout ===== */
+main{max-width:1240px;margin:0 auto;padding:1.2rem}
+.panel{display:none;animation:fadeUp .35s ease}
+.panel.active{display:block}
+.with-toc{display:grid;grid-template-columns:240px 1fr;gap:1.6rem;align-items:start}
+.toc{position:sticky;top:120px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:.8rem;font-size:.9rem;max-height:calc(100vh - 140px);overflow:auto}
+.toc b{display:block;font-family:var(--serif);margin-bottom:.4rem}
+.toc a{display:block;color:var(--muted);text-decoration:none;padding:.25rem .5rem;border-radius:6px;border-left:3px solid transparent}
+.toc a:hover{background:var(--acc-soft);color:var(--ink)}
+.toc a.on{border-left-color:var(--acc);color:var(--acc);background:var(--acc-soft);font-weight:600}
+@media(max-width:900px){.with-toc{grid-template-columns:1fr}.toc{position:static;max-height:none}}
+
+section.unit-sec{scroll-margin-top:120px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1.1rem 1.3rem;margin:1rem 0;box-shadow:var(--shadow)}
+.card>h3:first-child,.card>h4:first-child{margin-top:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+@media(max-width:800px){.grid2,.grid3{grid-template-columns:1fr}}
+.hero{background:linear-gradient(135deg,var(--acc) 0%,#20366f 100%);color:#fff;border-radius:16px;padding:1.6rem 1.8rem;margin-bottom:1.2rem;position:relative;overflow:hidden}
+.hero h2{border:none;color:#fff;margin:0 0 .4rem;font-size:1.7rem}
+.hero ul{margin:.3rem 0 0;padding-left:1.2rem}
+.hero .meta{opacity:.85;font-size:.9rem;margin-top:.8rem}
+.hero canvas{position:absolute;inset:0;opacity:.18;pointer-events:none}
+.hero>*{position:relative}
+
+.note{border-left:4px solid var(--acc);background:var(--acc-soft);padding:.6rem .9rem;border-radius:0 8px 8px 0;margin:.8rem 0}
+.note.obs{border-color:var(--acc2);background:var(--warn-soft)}
+.note.fix{border-color:var(--bad);background:var(--bad-soft)}
+.note.fix::before{content:"Notă de corectură · ";font-weight:700;color:var(--bad)}
+.note.obs::before{content:"Obs. · ";font-weight:700;color:var(--warn)}
+.def{border:1px dashed var(--acc);border-radius:10px;padding:.6rem .9rem;margin:.8rem 0}
+.def b:first-child{color:var(--acc)}
+.formula{font-family:var(--serif);font-size:1.15rem;text-align:center;padding:.7rem;margin:.6rem 0;background:var(--paper);border-radius:8px;overflow-x:auto}
+
+table.t{border-collapse:collapse;width:100%;margin:.6rem 0;font-size:.93rem}
+table.t th,table.t td{border:1px solid var(--line);padding:.35rem .55rem;text-align:center}
+table.t th{background:var(--acc-soft);font-weight:600}
+table.t tr:hover td{background:rgba(127,127,127,.06)}
+table.t td.l,table.t th.l{text-align:left}
+.scroll-x{overflow-x:auto}
+
+/* ===== Controls ===== */
+button.btn,.btn{border:1px solid var(--acc);background:var(--acc);color:#fff;border-radius:8px;padding:.42rem .9rem;font:600 .92rem var(--sans);cursor:pointer;transition:transform .1s,filter .15s}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;color:var(--acc)}
+.btn.small{padding:.25rem .6rem;font-size:.85rem}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+input[type=text],input[type=number],select,textarea{font:1rem var(--mono);padding:.4rem .55rem;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);min-width:0}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--acc);outline-offset:1px}
+input[type=range]{accent-color:var(--acc);width:100%}
+.row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin:.5rem 0}
+.row label{font-size:.9rem;color:var(--muted)}
+.out{font-family:var(--mono);background:var(--paper);border-radius:8px;padding:.6rem .8rem;margin:.5rem 0;white-space:pre-wrap;word-break:break-all;min-height:2.2em}
+.pill{display:inline-block;padding:.05rem .5rem;border-radius:999px;background:var(--acc-soft);color:var(--acc);font-size:.8rem;font-weight:600}
+.ok{color:var(--ok);font-weight:600}.bad{color:var(--bad);font-weight:600}
+.hl{background:var(--acc2);color:#111;border-radius:4px;padding:0 .2em;transition:background .3s}
+
+/* ===== Bits ===== */
+.bits{display:inline-flex;gap:3px;flex-wrap:wrap;font-family:var(--mono)}
+.bit{width:30px;height:36px;display:inline-flex;align-items:center;justify-content:center;border:1.5px solid var(--line);border-radius:6px;background:var(--card);font-weight:700;font-size:1.05rem;transition:all .35s;position:relative;user-select:none}
+.bit.one{background:var(--acc);border-color:var(--acc);color:#fff}
+.bit.click{cursor:pointer}.bit.click:hover{transform:translateY(-2px)}
+.bit.flip{animation:flip .45s}
+.bit.sign{box-shadow:0 0 0 2px var(--bad) inset}
+.bit.exp{border-color:var(--acc2)}
+.bit.exp.one{background:var(--acc2);border-color:var(--acc2);color:#111}
+.bit.err{background:var(--bad)!important;border-color:var(--bad)!important;color:#fff!important;animation:shake .4s}
+.bit.par{border-style:dashed}
+.bit.gap{margin-left:10px}
+.bit .w{position:absolute;top:-17px;font-size:.62rem;color:var(--muted);font-weight:500}
+.bitlbl{display:flex;gap:3px;font:600 .7rem var(--mono);color:var(--muted)}
+.bitlbl span{width:30px;text-align:center}
+
+/* ===== Stepper ===== */
+.stepper{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin:.8rem 0;background:var(--card)}
+.stepper .st-head{display:flex;align-items:center;gap:.4rem;padding:.5rem .7rem;background:var(--acc-soft);flex-wrap:wrap}
+.stepper .st-title{font-weight:700;flex:1;min-width:140px}
+.stepper .st-count{font:600 .85rem var(--mono);color:var(--muted)}
+.stepper .st-body{padding:.9rem 1rem;min-height:90px}
+.stepper .st-bar{height:3px;background:var(--line)}
+.stepper .st-bar>div{height:100%;background:var(--acc);transition:width .3s}
+.step-line{opacity:0;transform:translateX(-8px);animation:slideIn .4s forwards}
+
+/* ===== Quiz ===== */
+.q{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1rem 1.2rem;margin:.9rem 0}
+.q .qn{font:700 .8rem var(--mono);color:var(--acc)}
+.q .qt{font-weight:600;margin:.2rem 0 .6rem}
+.q .opts{display:grid;gap:.4rem}
+.q .opt{border:1.5px solid var(--line);border-radius:8px;padding:.45rem .7rem;cursor:pointer;transition:all .2s;font-family:var(--mono);background:var(--paper)}
+.q .opt:hover{border-color:var(--acc)}
+.q .opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.q .opt.wrong{border-color:var(--bad);background:var(--bad-soft);animation:shake .35s}
+.q .expl{display:none;margin-top:.6rem;padding:.6rem .8rem;border-radius:8px;background:var(--paper);border-left:3px solid var(--ok)}
+.q.done .expl{display:block;animation:fadeUp .3s}
+.score{position:sticky;bottom:12px;margin-left:auto;width:max-content;background:var(--ink);color:var(--paper);padding:.5rem 1rem;border-radius:999px;font-weight:700;box-shadow:var(--shadow)}
+
+/* ===== Exercise ===== */
+.ex{border:1px solid var(--line);border-radius:var(--r);padding:.9rem 1.1rem;background:var(--card);margin:.8rem 0}
+.ex .ex-q{font-weight:600}
+.ex .fb{margin-top:.4rem;min-height:1.4em}
+.ex details{margin-top:.5rem}
+.ex summary{cursor:pointer;color:var(--acc);font-weight:600}
+.streak{font:700 .85rem var(--mono);color:var(--acc2)}
+
+/* ===== Code ===== */
+pre.code{background:#0f1420;color:#d8dee9;border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:13.5px/1.55 var(--mono);margin:.6rem 0;position:relative}
+pre.code .k{color:#81a1c1}pre.code .s{color:#a3be8c}pre.code .c{color:#6b7891;font-style:italic}pre.code .n{color:#b48ead}pre.code .f{color:#88c0d0}pre.code .p{color:#ebcb8b}
+.copy{position:absolute;top:6px;right:6px;background:#2b3245;color:#cdd6e4;border:none;border-radius:6px;padding:.15rem .5rem;font-size:.75rem;cursor:pointer}
+.term{background:#0b0d12;color:#9ef0a8;font:13px/1.5 var(--mono);border-radius:10px;padding:.8rem 1rem;white-space:pre-wrap;min-height:3em}
+
+/* ===== SVG helpers ===== */
+svg text{font-family:var(--sans)}
+.svgbox{width:100%;overflow-x:auto;background:var(--paper);border-radius:10px;padding:.4rem}
+svg .node circle,svg .node rect{transition:all .4s}
+.fadein{animation:fadeUp .5s both}
+
+/* ===== Animations ===== */
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes slideIn{to{opacity:1;transform:none}}
+@keyframes flip{0%{transform:rotateX(0)}50%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(47,91,211,.45)}50%{box-shadow:0 0 0 8px rgba(47,91,211,0)}}
+.pulse{animation:pulse 1.2s infinite}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+footer{max-width:1240px;margin:2rem auto 1rem;padding:1rem 1.2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--line)}
+.biblio li{margin:.2rem 0}
+@media print{header.top,.toc,.btn,.stepper .st-head{display:none!important}.panel{display:block!important}.with-toc{display:block}}
+
+:root{--acc:#7a3fc4;--acc2:#e8a33d;--acc-soft:#efe7fa}
+body.dark{--acc-soft:color-mix(in srgb,#7a3fc4 22%,#1b2029)}
+.hero{background:linear-gradient(135deg,#7a3fc4 0%,#1b2340 100%)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <span class="badge-ui">UI 04</span>
+    <div class="top-title"><div class="sub">Programarea calculatoarelor și limbaje de programare I · Unitatea de învățare nr. 4</div><h1>Componentele unui sistem de calcul</h1></div>
+    <button class="icon-btn" id="themeBtn" title="Temă luminoasă / întunecată">◐ Temă</button>
+    <button class="icon-btn" onclick="window.print()" title="Tipărire">⎙</button>
+  </div>
+  <nav class="tabs">
+    <button data-tab="curs">📘 Curs</button>
+    <button data-tab="seminar">✏️ Seminar</button>
+    <button data-tab="laborator">💻 Laborator</button>
+    <button data-tab="test">✅ Autoevaluare</button>
+  </nav>
+  <div class="progress"><div></div></div>
+</header>
+<main>
+<!-- ===================== CURS ===================== -->
+<div class="panel" id="curs">
+<div class="hero">
+  <h2>Componentele unui sistem de calcul</h2>
+  <div>Obiectivele unității de învățare nr. 4:</div>
+  <ul>
+    <li>Descrierea principalelor componente ale unui sistem de calcul și a relațiilor dintre ele</li>
+    <li>Descrierea caracteristicilor sistemului de memorii</li>
+    <li>Descrierea principalelor tehnici de gestiune a memoriei folosite de sistemele de operare</li>
+  </ul>
+  <div class="meta">⏱ Timp mediu de studiu: 2–3 ore · Reprodu individual elementele grafice, nu te limita la vizionare.</div>
+</div>
+<div class="with-toc">
+<aside class="toc" data-for="curs"></aside>
+<div>
+
+<section class="unit-sec" id="c1" data-title="1. Arhitectura calculatoarelor">
+<h2>1. Concepte fundamentale privind arhitectura calculatoarelor</h2>
+<p>Un <b>calculator</b> este o combinație de componente hardware și software prin care se colectează date de la dispozitive de intrare, care sunt convertite în informații utile prin execuția unor instrucțiuni software; rezultatul este trimis către dispozitive de ieșire (monitoare, imprimante).</p>
+<div class="grid3">
+<div class="card"><h4>🏛 Arhitectural</h4>Atributele care contează pentru programator: setul de operații, tipurile de date și numărul de biți, mecanismele de I/E, regiștrii, modurile de adresare a memoriei.</div>
+<div class="card"><h4>🔩 Structural</h4>Unitățile operaționale și legăturile dintre ele: semnalele de control, tehnologia memoriilor, interfețele cu perifericele, circuitele combinaționale și secvențiale.</div>
+<div class="card"><h4>⚙️ Funcțional</h4>Patru funcții de bază: <b>procesarea</b>, <b>stocarea</b> și <b>deplasarea</b> datelor, plus <b>controlul</b> acestor activități (prin Unitatea de Control).</div>
+</div>
+<div class="card">
+<h3>🔄 Cele patru funcții de bază, animate</h3>
+<div class="row"><button class="btn small" data-fn="0">Procesare</button><button class="btn small" data-fn="1">Stocare</button><button class="btn small" data-fn="2">Deplasare intrare → memorie → ieșire</button><button class="btn small" data-fn="3">Control</button></div>
+<div class="svgbox"><svg id="fnSvg" viewBox="0 0 860 260" width="100%" height="260"></svg></div>
+<div id="fnTxt" class="out">Alege o funcție.</div>
+</div>
+<h3>Organizarea ierarhică: cele 6 niveluri (Tanenbaum)</h3>
+<p>În „Structured Computer Organization”, A. S. Tanenbaum descrie calculatorul pe 6 niveluri. Fiecare nivel este o mașină (fizică sau virtuală) cu propriul limbaj și se construiește pe nivelul inferior. Doar programele din limbajul nivelului 0 sunt executate direct de circuite; celelalte sunt <b>interpretate</b> sau <b>traduse</b> într-un limbaj de nivel inferior.</p>
+<div class="grid2">
+<div id="lvlStack"></div>
+<div class="card" id="lvlInfo" style="margin-top:0"></div>
+</div>
+<div class="card">
+<h3>⬇ Traducerea unei instrucțiuni prin niveluri</h3>
+<p>Urmărește cum instrucțiunea C <code>a = b + c;</code> coboară de la nivelul 5 până la circuitele logice.</p>
+<div id="trSt"></div>
+</div>
+</section>
+
+<section class="unit-sec" id="c2" data-title="2. Componentele sistemului">
+<h2>2. Componentele unui sistem de calcul</h2>
+<div class="grid2">
+<div class="card"><h4>Hardware</h4>Mecanismele fizice pentru datele de intrare și rezultate, procesare și controlul componentelor de I/E și de stocare.</div>
+<div class="card"><h4>Software</h4>Programe de aplicație (specifice utilizatorului) și programe de sistem (sistem de operare, compilatoare, linkeditoare, asambloare).</div>
+<div class="card"><h4>Date</h4>Numerice, alfanumerice, grafice etc., într-o formă pe care calculatorul o poate utiliza.</div>
+<div class="card"><h4>Comunicare</h4>Hardware și software care transportă programe și date între sisteme interconectate.</div>
+</div>
+<h3>Componenta hardware</h3>
+<p>Model de bază: <b>UCP</b> (procesarea datelor), <b>memoria internă</b> (memoria centrală, RAM – acces aleator, același timp pentru orice locație), <b>memoria externă</b> (stocare pe termen lung), <b>dispozitive de I/E</b> (interfața om–mașină sau proces–mașină). Apasă pe o componentă:</p>
+<div class="svgbox"><svg id="hwSvg" viewBox="0 0 860 220" width="100%" height="220"></svg></div>
+<div id="hwTxt" class="out">Fig. 1 – Componente hardware de bază ale unui sistem de calcul.</div>
+<h3>Unitatea centrală de prelucrare (UCP)</h3>
+<p>Preia instrucțiunile binare din memorie, le <b>decodifică</b>, generează semnalele de control și prelucrează datele prin operații aritmetice, logice și de comparare. Are trei componente:</p>
+<div class="grid3">
+<div class="card"><h4>ALU</h4>Unitatea aritmetico-logică: operații logice (OR, AND, XOR) și aritmetice (adunare, scădere) pe secvențe binare.</div>
+<div class="card"><h4>Unitatea de Control</h4>Monitorizează hardware-ul, controlează intrarea/ieșirea datelor și fluxul de date în UCP. Interpretează instrucțiunile (decodificatorul de instrucțiuni) și emite comenzi (generatorul de comenzi).</div>
+<div class="card"><h4>Memoria imediată</h4>Regiștrii: celule de memorie pentru stocarea temporară a datelor prelucrate de ALU. Dimensiunea lor determină dimensiunea datelor cu care lucrează procesorul.</div>
+</div>
+<table class="t"><tr><th>Registru</th><th>Biți</th><th class="l">Rol</th></tr>
+<tr><td>DR – registrul de date</td><td>16</td><td class="l">reține operandul citit din memorie (2<sup>16</sup> combinații)</td></tr>
+<tr><td>AC – acumulator</td><td>16</td><td class="l">registru de prelucrare cu scop general</td></tr>
+<tr><td>IR – registrul de instrucțiuni</td><td>16</td><td class="l">instrucțiunea citită din memorie</td></tr>
+<tr><td>TR – registrul temporar</td><td>16</td><td class="l">date temporare în timpul procesării</td></tr>
+<tr><td>AR – registrul de adrese</td><td>12</td><td class="l">adresa de memorie (lățimea unei adrese)</td></tr>
+<tr><td>PC – contorul de program</td><td>12</td><td class="l">adresa următoarei instrucțiuni</td></tr></table>
+<div class="card">
+<h3>🖥 Simulator: ciclul fetch – decode – execute</h3>
+<p>Un calculator simplu cu acumulator. Instrucțiunile au 16 biți: 4 biți cod operație + 12 biți adresă. Rulează programul pas cu pas și urmărește regiștrii și magistralele.</p>
+<div class="row"><button class="btn small" id="cpuStep">Micro-pas ▶</button><button class="btn small ghost" id="cpuInstr">Instrucțiune completă ⏭</button><button class="btn small ghost" id="cpuRun">⏵ Rulează</button><button class="btn small ghost" id="cpuReset">↺ Reset</button><label>program</label><select id="cpuProg"><option value="0">a = b + c</option><option value="1">s = x + y − z</option><option value="2">numărare: c = c + 1 de 3 ori</option></select></div>
+<div class="svgbox"><svg id="cpuSvg" viewBox="0 0 880 330" width="100%" height="330"></svg></div>
+<div id="cpuLog" class="out"></div>
+</div>
+<h3>Caracteristicile microprocesorului</h3>
+<p><b>Frecvența de ceas</b>: ceasul sistemului generează un flux de impulsuri; o perioadă de ceas este cel mai mic element de timp al procesorului (MHz, GHz). O instrucțiune necesită de regulă mai multe cicluri; procesoarele moderne execută mai multe instrucțiuni pe ciclu.</p>
+<p><b>Viteza de lucru</b> se măsoară în MIPS (milioane de instrucțiuni pe secundă):</p>
+<div class="formula">t<sub>UCP</sub> = 1/f &nbsp;·&nbsp; CPI = Σ(CPI<sub>i</sub>·I<sub>i</sub>) / I<sub>C</sub> &nbsp;·&nbsp; T = I<sub>C</sub>·CPI·t<sub>UCP</sub> &nbsp;·&nbsp; MIPS = I<sub>C</sub>/(T·10<sup>6</sup>) = f/(CPI·10<sup>6</sup>)</div>
+<div class="card">
+<h3>🧮 Calculator CPI și MIPS</h3>
+<div class="row"><label>Frecvența (MHz)</label><input type="number" id="mipsF" value="2000" style="width:110px"></div>
+<table class="t" id="mipsTbl"></table>
+<div id="mipsOut"></div>
+</div>
+<div class="note obs">MIPS depinde de setul de instrucțiuni: comparația între procesoare cu seturi diferite de instrucțiuni nu este concludentă.</div>
+<h3>Legea lui Amdahl</h3>
+<p>O îmbunătățire într-o singură direcție nu implică o îmbunătățire corespunzătoare a performanței de ansamblu. Dacă o fracțiune F din timpul de execuție este accelerată de N ori:</p>
+<div class="formula">speedup = timp vechi / timp nou = 1 / ((1 − F) + F/N) &nbsp;&nbsp;→&nbsp;&nbsp; când N → ∞: speedup → 1/(1 − F)</div>
+<div class="card">
+<div class="grid2"><div><label>Fracțiunea accelerată F = <b id="amFv">0.30</b></label><input type="range" id="amF" min="0" max="1" step="0.01" value="0.3"></div><div><label>Factorul de accelerare N = <b id="amNv">10</b></label><input type="range" id="amN" min="1" max="100" value="10"></div></div>
+<div class="grid2"><div><div id="amBar"></div><div id="amOut" class="out"></div></div><canvas id="amC" width="520" height="260" style="width:100%"></canvas></div>
+</div>
+</section>
+
+<section class="unit-sec" id="c3" data-title="3. Sistemul de memorii">
+<h2>3. Caracteristicile sistemului de memorii; metode de acces</h2>
+<p><b>Amplasare</b>: memoria internă (principală, cache, regiștri) și memoria externă (discuri, benzi), accesată prin controlere de I/E.</p>
+<h3>Metode de acces la date</h3>
+<div class="card">
+<p>Alege o înregistrare țintă și pornește animația: compară cât durează accesul în fiecare tip de memorie.</p>
+<div class="row"><label>Înregistrarea țintă: <b id="acTv">12</b></label><input type="range" id="acT" min="0" max="19" value="12" style="max-width:260px"><button class="btn small" id="acGo">▶ Accesează</button><label>conținut căutat (asociativ)</label><input id="acK" type="text" value="K7" style="width:60px"></div>
+<canvas id="acC" width="900" height="300" style="width:100%"></canvas>
+</div>
+<div class="grid2">
+<div class="card"><h4>Acces secvențial</h4>Înregistrările se parcurg liniar: pentru a n-a trebuie parcurse primele n−1. Timp variabil. Ex.: banda magnetică.</div>
+<div class="card"><h4>Acces direct</h4>Blocurile au o adresă unică după locația fizică; mecanism de citire-scriere partajat; timp variabil. Ex.: hard-discul.</div>
+<div class="card"><h4>Acces aleator</h4>Fiecare locație are un mecanism de adresare propriu; timp constant, independent de accesările anterioare. Ex.: memoria principală.</div>
+<div class="card"><h4>Acces asociativ</h4>Adresare după conținut: datele se identifică după (o parte din) conținut. Ex.: memoriile cache.</div>
+</div>
+<h3>Organizarea memoriei și capacitatea</h3>
+<p>Memoria este o matrice de celule, fiecare stochează un bit. Capacitatea se măsoară în <b>octeți</b> (bytes, 8 biți) – cea mai mică unitate reprezentabilă și adresabilă. Un <b>cuvânt de memorie</b> (locație) poate avea 8, 16, 32 sau 64 de biți.</p>
+<div class="card">
+<h3>📏 Convertor de unități (multipli de 2<sup>10</sup>)</h3>
+<div class="row"><input type="number" id="unV" value="1" style="width:140px"><select id="unU"></select></div>
+<div id="unOut" class="out"></div>
+</div>
+<h3>Performanța memoriei</h3>
+<ul>
+<li><b>Timpul de acces (latența)</b> – pentru RAM: timpul dintre cererea de citire/scriere și momentul în care datele sunt disponibile (ns); pentru acces direct/secvențial: timpul de poziționare a mecanismului de citire-scriere.</li>
+<li><b>Ciclul de memorie</b> – timpul de acces plus timpul suplimentar până poate începe un nou acces (legat de magistrala sistemului).</li>
+<li><b>Rata de transfer</b> – pentru RAM: 1/ciclul de memorie; pentru celelalte: T<sub>n</sub> = T<sub>A</sub> + n/R.</li>
+</ul>
+<div class="card"><div class="row"><label>T<sub>A</sub> (ms)</label><input type="number" id="tnA" value="10" style="width:90px"><label>n (biți)</label><input type="number" id="tnN" value="4096" style="width:110px"><label>R (Mbps)</label><input type="number" id="tnR" value="400" style="width:90px"></div><div id="tnOut" class="out"></div></div>
+</section>
+
+<section class="unit-sec" id="c4" data-title="4. Ierarhia de memorii">
+<h2>4. Ierarhia de memorii</h2>
+<p>Memoria accesată direct de UCP este <b>memoria principală</b>; dispozitivele de stocare de backup formează <b>memoria auxiliară</b>. În memoria principală se află doar programele și datele folosite curent. Proiectarea e un compromis: acces mai rapid ⇒ cost/bit mai mare; capacitate mai mare ⇒ cost/bit mai mic, dar acces mai lent.</p>
+<div class="grid2">
+<div class="svgbox" style="text-align:center"><svg id="pyr" viewBox="0 0 440 330" width="100%" height="330"></svg></div>
+<div class="card" id="pyrInfo" style="margin-top:0"><h4>Fig. 2 – Organizarea memoriei pe niveluri ierarhice</h4><p>Treci cu mouse-ul peste un nivel.</p></div>
+</div>
+<p style="font-size:.88rem;color:var(--muted)">Valorile tipice afișate (latență, capacitate) sunt orientative pentru sisteme actuale și nu fac parte din suportul de curs.</p>
+<h3>Principiul localității referințelor</h3>
+<div class="grid2">
+<div class="def"><b>Localitate temporală</b>: o locație accesată o dată are o probabilitate crescută să fie accesată din nou în curând (bucle, funcții). Ierarhia păstrează datele recente aproape de procesor.</div>
+<div class="def"><b>Localitate spațială</b>: locațiile vecine celei accesate vor fi probabil accesate în curând. Ierarhia transferă <b>blocuri contigue</b> de date.</div>
+</div>
+<p>Dacă data cerută se găsește pe nivelul i: <b>hit</b> (succes). Altfel: <b>miss</b> (ratare) și data se aduce de pe nivelul i+1. <i>Hit time</i> = timpul de acces la acel nivel; <i>miss time</i> = timpul de aducere a blocului de pe nivelurile inferioare.</p>
+<div class="card">
+<h3>⚡ Simulator de memorie cache</h3>
+<p>Cache cu mapare directă: 8 linii, blocuri de 4 cuvinte. Alege un tipar de acces și urmărește hit-urile (verde) și miss-urile (roșu).</p>
+<div class="row"><label>Tipar</label><select id="chPat"><option value="seq">parcurgere secvențială a unui vector (localitate spațială)</option><option value="loop">buclă care reutilizează aceleași date (localitate temporală)</option><option value="stride">salturi de câte 32 de cuvinte (localitate slabă)</option><option value="rand">acces aleator</option></select>
+<button class="btn small" id="chRun">⏵ Rulează</button><button class="btn small ghost" id="chStep">Pas ▶</button><label>viteză</label><input type="range" id="chSpd" min="30" max="600" value="250" style="width:120px"></div>
+<div class="row"><label>hit time (ns)</label><input type="number" id="chHt" value="1" style="width:70px"><label>penalizare miss (ns)</label><input type="number" id="chMp" value="100" style="width:80px"></div>
+<canvas id="chC" width="900" height="300" style="width:100%"></canvas>
+<div id="chOut" class="out"></div>
+</div>
+<h3>Nivelurile ierarhiei</h3>
+<p><b>Regiștrii</b> – cel mai rapid, mai mic și mai scump tip de memorie (zeci până la sute de regiștri): memoria locală a procesorului.</p>
+<p><b>Memoria principală</b> – rapidă, cu capacitate relativ mare; fiecare locație are o adresă unică. Realizată din circuite integrate semiconductoare: <b>RAM</b> (citire și scriere) și <b>ROM</b> (doar citire).</p>
+<div class="scroll-x"><table class="t"><tr><th class="l">Caracteristică</th><th>SRAM (static)</th><th>DRAM (dinamic)</th><th>ROM</th></tr>
+<tr><td class="l">Celula de memorie</td><td>circuit flip-flop</td><td>condensator cu tranzistor MOS</td><td>o diodă sau un tranzistor</td></tr>
+<tr><td class="l">Volatilă</td><td>da</td><td>da</td><td>nu</td></tr>
+<tr><td class="l">Reîmprospătare</td><td>nu</td><td>da, la câteva ms</td><td>nu</td></tr>
+<tr><td class="l">Viteză</td><td>mai rapidă</td><td>mai lentă</td><td>–</td></tr>
+<tr><td class="l">Densitate / cost</td><td>mai mică / mai mare</td><td>mai mare / mai mic</td><td>scrisă la fabricație</td></tr>
+<tr><td class="l">Consum</td><td>mai mare</td><td>redus</td><td>–</td></tr></table></div>
+<div class="card">
+<h3>🔋 De ce are nevoie DRAM de reîmprospătare</h3>
+<p>Condensatoarele se descarcă în timp; controlerul citește periodic datele și le rescrie. Oprește reîmprospătarea și urmărește ce se întâmplă cu biții 1.</p>
+<div class="row"><button class="btn small" id="drTog">Oprește reîmprospătarea</button><button class="btn small ghost" id="drNew">Date noi</button></div>
+<canvas id="drC" width="900" height="170" style="width:100%"></canvas>
+</div>
+<p><b>ROM BIOS</b> stochează programul inițial de pornire, care lansează sistemul de operare. Variante: <b>PROM</b> (scrisă o singură dată după fabricație), <b>EPROM</b> (poate fi ștearsă), <b>EEPROM</b> (ștearsă electric și reprogramată selectiv de sistem).</p>
+<p><b>Memoria cache</b> – între regiștri și memoria principală; conține copii ale zonelor de program și date active. Dacă cuvântul căutat este în cache, e furnizat imediat; altfel se aduce din memoria principală, împreună cu locațiile vecine. Azi cache-ul are mai multe niveluri.</p>
+<p><b>Multiprogramarea</b> permite UCP să proceseze concomitent mai multe programe: când un program așteaptă o operație de I/E, altul folosește UCP. <b>Sistemul de management al memoriei</b> supraveghează fluxul dintre memoria auxiliară și cea principală.</p>
+<p><b>Memoria externă</b> (auxiliară) – capacitate mare, acces mai lent: discuri și benzi magnetice, discuri optice. Timpul de acces = timp de căutare + timp de transfer; de aceea datele sunt organizate în înregistrări sau blocuri.</p>
+<h3>Hard-discul</h3>
+<p>Mai multe platane așezate concentric, acoperite cu material magnetizat pe ambele fețe, fiecare față cu propriul cap de citire-scriere; se rotesc împreună la 3600 / 4500 / 5200 / 5400 / 7200 rot/min. Informația se înregistrează pe <b>piste</b> (cercuri concentrice) împărțite în <b>sectoare</b>, separate de spații intersector. Sectorul este cea mai mică unitate transferabilă. Capul nu atinge suprafața discului.</p>
+<div class="card">
+<h3>💿 Hard-disc animat</h3>
+<p>Apasă pe un sector al discului (sau alege pista/sectorul): brațul face căutarea (seek), apoi se așteaptă ca sectorul să ajungă sub cap (latența de rotație), apoi are loc transferul.</p>
+<div class="grid2">
+<canvas id="hdC" width="420" height="420" style="width:100%;max-width:420px;cursor:pointer"></canvas>
+<div>
+<div class="row"><label>rpm</label><select id="hdRpm"><option>3600</option><option>4500</option><option>5200</option><option>5400</option><option selected>7200</option></select><label>încetinire ×</label><select id="hdSlow"><option value="40">40</option><option value="100" selected>100</option><option value="300">300</option></select></div>
+<div class="row"><label>pista</label><input type="number" id="hdTr" value="5" min="0" max="7" style="width:60px"><label>sector</label><input type="number" id="hdSec" value="9" min="0" max="15" style="width:60px"><button class="btn small" id="hdGo">Citește</button></div>
+<div id="hdOut" class="out" style="min-height:190px"></div>
+</div></div>
+</div>
+<div class="formula">întârzierea medie de rotație = 0.5 / (rotații pe secundă) &nbsp;·&nbsp; timpul de transfer = dimensiune sector / rata de transfer</div>
+<div class="formula">timpul mediu de acces = timpul mediu de poziționare + întârzierea medie + timpul de transfer + overhead-ul controlerului</div>
+<div class="card">
+<h3>🧮 Calculator: timpul mediu de acces al discului</h3>
+<div class="row"><label>sector (KB)</label><input type="number" id="daS" value="0.5" step="0.5" style="width:80px"><label>rpm</label><input type="number" id="daR" value="7200" style="width:90px"><label>poziționare (ms)</label><input type="number" id="daP" value="6" style="width:70px"><label>rată (MB/s)</label><input type="number" id="daT" value="50" style="width:70px"><label>overhead (ms)</label><input type="number" id="daO" value="0.2" step="0.1" style="width:70px"></div>
+<div id="daOut"></div>
+</div>
+<div class="grid2">
+<div class="card"><h4>Memoria flash</h4>Tip de EEPROM; memorie semiconductoare nevolatilă – nu are nevoie de alimentare pentru a păstra datele.</div>
+<div class="card"><h4>Discurile optice</h4>Scriere și citire cu laser. ROM, WORM (write-once read-many), WMRM (rescriptibile). Ex.: CD-ROM, CD-RW, DVD, DVD-R, DVD-RW, Blu-ray.</div>
+</div>
+</section>
+
+<section class="unit-sec" id="c5" data-title="5. Adresarea memoriei">
+<h2>5. Adresarea memoriei</h2>
+<p>Managementul memoriei este o sarcină importantă a sistemului de operare. Obiective: <b>alocarea eficientă</b> (cât mai multe procese), <b>protecția</b> memoriei fiecărui proces, <b>partajarea</b> controlată a unor zone, <b>performanța</b> proceselor și a sistemului.</p>
+<p>Împotriva <b>fragmentării</b> (zone libere prea mici), SO poate aloca mai multe zone <b>neadiacente</b>. Procesele pot rula chiar dacă nu sunt integral în memorie, iar memoria totală a programelor poate depăși memoria fizică: acesta este mecanismul <b>memoriei virtuale</b>.</p>
+<div class="grid2">
+<div class="def"><b>Adresă virtuală</b> – adresa folosită în program; mulțimea lor formează spațiul de adresare.</div>
+<div class="def"><b>Adresă fizică</b> – adresa folosită de procesor pentru memoria fizică; mulțimea lor formează spațiul de memorie.</div>
+</div>
+<p><b>Paginarea</b>: memoria fizică se împarte în blocuri de dimensiune fixă (de obicei 4 KB) – <b>cadre-pagină</b>; spațiul virtual se împarte în <b>pagini</b> de aceeași dimensiune. (Alternativa cu blocuri de lungime variabilă se numește <b>segmentare</b>.) Doar paginile necesare imediat sunt aduse în memorie. <b>MMU</b> traduce automat adresele virtuale în adrese fizice, folosind <b>tabelul de pagini</b> al procesului și un cache special pentru intrările recente: <b>TLB</b> (Translation Look-aside Buffer).</p>
+<div class="card">
+<h3>🗺 Simulator: translatarea adreselor virtuale</h3>
+<p>Pagini de 4 KB ⇒ adresa virtuală (16 biți aici) = <b>număr de pagină</b> (4 biți de sus) + <b>deplasament</b> (12 biți de jos). Memoria fizică are 4 cadre; TLB are 2 intrări.</p>
+<div class="row"><label>Adresă virtuală (hex)</label><input id="vmA" type="text" value="3A7C" style="width:90px"><button class="btn small" id="vmGo">Translatează</button><button class="btn small ghost" id="vmRnd">Adresă aleatoare</button><button class="btn small ghost" id="vmReset">↺ Reset</button></div>
+<div class="svgbox"><svg id="vmSvg" viewBox="0 0 880 330" width="100%" height="330"></svg></div>
+<div id="vmLog" class="out"></div>
+</div>
+</section>
+
+<section class="unit-sec" id="c6" data-title="Rezumat">
+<h2>Rezumat</h2>
+<div class="card"><ul>
+<li>Un calculator combină hardware și software; organizarea internă se descrie pe 6 niveluri ierarhice.</li>
+<li>Componente: hardware, software, date, comunicare. UCP = ALU + Unitatea de Control + regiștri.</li>
+<li>Performanța procesorului: frecvența de ceas, CPI, MIPS; legea lui Amdahl limitează câștigul unei îmbunătățiri parțiale.</li>
+<li>Metode de acces: secvențial, direct, aleator, asociativ.</li>
+<li>Ierarhia de memorii (regiștri, cache, memorie principală, memorie auxiliară) se bazează pe principiul localității referințelor.</li>
+<li>Memoria virtuală și paginarea: MMU translatează adresele virtuale în adrese fizice prin tabelul de pagini și TLB.</li>
+</ul></div>
+<h3>Bibliografie</h3>
+<ol class="biblio"><li>Dinu, S., Pomazan, C. „Programarea calculatoarelor”, Ed. Nautica, 2013.</li><li>Kernighan, B. W., Ritchie, D. M. „Limbajul C”, Ed. Teora, 2003.</li><li>Năstac, I. „Programarea calculatoarelor în limbajul C – Elemente fundamentale”, Ed. Printech, 2006.</li><li>Negrescu, L. „Limbajele C și C++ pentru începători”, Vol. 1 și 2, Ed. Albastră, 2000.</li><li>Dinu, S., Vulcu, V. „Programarea Calculatoarelor – culegere de probleme”, Ed. Nautica, 2019.</li></ol>
+</section>
+</div></div></div>
+
+<!-- ===================== SEMINAR ===================== -->
+<div class="panel" id="seminar">
+<div class="with-toc"><aside class="toc" data-for="seminar"></aside><div>
+<section class="unit-sec" id="s1" data-title="Probleme rezolvate">
+<h2>Probleme rezolvate (pas cu pas)</h2>
+<div class="row"><select id="prSel" style="max-width:100%"></select></div>
+<div id="prSt"></div>
+</section>
+<section class="unit-sec" id="s2" data-title="Exerciții generate">
+<h2>Exerciții de antrenament (generate aleator)</h2>
+<p>Răspunsurile numerice se acceptă cu o toleranță de ±1% (poți folosi punct sau virgulă).</p>
+<div class="grid2" id="exGrid"></div>
+</section>
+<section class="unit-sec" id="s3" data-title="Teme de seminar">
+<h2>Teme propuse pentru seminar</h2>
+<div class="card"><ol>
+<li>Un program execută 2·10<sup>9</sup> instrucțiuni: 50% ALU (CPI 1), 30% load/store (CPI 3), 20% salturi (CPI 2), pe un procesor de 3 GHz. Calculați CPI, timpul de execuție și MIPS.</li>
+<li>O îmbunătățire accelerează de 4 ori 60% din timpul de execuție. Care este câștigul total? Care este câștigul maxim posibil?</li>
+<li>Un disc de 5400 rpm are timpul mediu de poziționare 9 ms, rata de transfer 30 MB/s, sectoare de 4 KB și overhead 0.5 ms. Calculați timpul mediu de acces.</li>
+<li>Un cache are hit time 2 ns, rata de miss 5% și penalizarea 80 ns. Calculați timpul mediu de acces. Cât devine dacă rata de miss scade la 2%?</li>
+<li>Pentru pagini de 4 KB și adrese virtuale de 32 de biți: câți biți are deplasamentul? Câte pagini are spațiul virtual?</li>
+<li>Explicați, folosind principiul localității, de ce parcurgerea unei matrice pe linii este mai rapidă în C decât parcurgerea pe coloane.</li>
+</ol></div>
+</section>
+</div></div></div>
+
+<!-- ===================== LABORATOR ===================== -->
+<div class="panel" id="laborator">
+<div class="with-toc"><aside class="toc" data-for="laborator"></aside><div>
+<section class="unit-sec" id="l0" data-title="Introducere">
+<h2>Laborator: memoria văzută din C</h2>
+<p>Programele de mai jos explorează din C dimensiunile tipurilor, adresele, localitatea și calculele de performanță din curs. Compilare: <code>gcc prog.c -o prog</code>.</p>
+</section>
+<section class="unit-sec" id="l1" data-title="L1. Dimensiuni și adrese">
+<h2>L1. Dimensiunea tipurilor și adresele variabilelor</h2>
+<pre class="code" data-c>
+#include &lt;stdio.h&gt;
+
+int main(void) {
+    char c = 'A'; short s = 1; int i = 2; long long l = 3; double d = 4.0;
+    int v[4] = {10, 20, 30, 40};
+    printf("char: %zu octet(i), adresa %p\n", sizeof c, (void *)&amp;c);
+    printf("short: %zu, int: %zu, long long: %zu, double: %zu\n",
+           sizeof s, sizeof i, sizeof l, sizeof d);
+    printf("pointer: %zu octeti -> spatiu de adrese de %zu biti\n",
+           sizeof(void *), 8 * sizeof(void *));
+    for (int k = 0; k < 4; k++)              /* elemente adiacente in memorie */
+        printf("&amp;v[%d] = %p\n", k, (void *)&amp;v[k]);
+    return 0;
+}</pre>
+<p>Ieșire tipică pe un sistem de 64 de biți (adresele diferă la fiecare rulare):</p>
+<div class="term" id="l1out"></div>
+<p style="font-size:.92rem">Observă că adresele elementelor lui <code>v</code> cresc cu câte 4 (dimensiunea unui <code>int</code>): elementele unui vector sunt contigue, ceea ce favorizează localitatea spațială.</p>
+</section>
+<section class="unit-sec" id="l2" data-title="L2. Ordinea octeților">
+<h2>L2. Octeții unui întreg în memorie (little-endian)</h2>
+<pre class="code" data-c>
+#include &lt;stdio.h&gt;
+
+int main(void) {
+    unsigned int x;
+    printf("x (hex) = "); scanf("%x", &amp;x);
+    unsigned char *p = (unsigned char *)&amp;x;   /* vedem memoria octet cu octet */
+    for (int k = 0; k < (int)sizeof x; k++)
+        printf("adresa+%d: %02X\n", k, p[k]);
+    printf(p[0] == (x &amp; 0xFF) ? "little-endian\n" : "big-endian\n");
+    return 0;
+}</pre>
+<div class="row"><label>x (hex)</label><input id="l2x" type="text" value="12345678" style="width:120px"><button class="btn small" id="l2run">▶ Rulează simularea</button></div>
+<div class="term" id="l2out"></div>
+</section>
+<section class="unit-sec" id="l3" data-title="L3. Localitatea în practică">
+<h2>L3. Localitatea spațială: parcurgere pe linii vs. pe coloane</h2>
+<pre class="code" data-c>
+#include &lt;stdio.h&gt;
+#include &lt;time.h&gt;
+#define N 2048
+
+static int a[N][N];
+
+int main(void) {
+    long long s = 0;
+    clock_t t = clock();
+    for (int i = 0; i < N; i++)            /* pe linii: adrese consecutive */
+        for (int j = 0; j < N; j++) s += a[i][j];
+    double t1 = (double)(clock() - t) / CLOCKS_PER_SEC;
+    t = clock();
+    for (int j = 0; j < N; j++)            /* pe coloane: salturi de N*4 octeti */
+        for (int i = 0; i < N; i++) s += a[i][j];
+    double t2 = (double)(clock() - t) / CLOCKS_PER_SEC;
+    printf("pe linii: %.3f s, pe coloane: %.3f s (s=%lld)\n", t1, t2, s);
+    return 0;
+}</pre>
+<p>Programul măsoară timpi reali, deci nu poate fi simulat exact aici. Simulatorul de mai jos numără miss-urile într-un cache mic pentru o matrice 16×16:</p>
+<div class="row"><button class="btn small" id="l3run">▶ Simulează cache-ul</button></div>
+<div class="term" id="l3out"></div>
+</section>
+<section class="unit-sec" id="l4" data-title="L4. Timpul de acces la disc">
+<h2>L4. Calculul timpului mediu de acces la disc</h2>
+<pre class="code" data-c>
+#include &lt;stdio.h&gt;
+
+int main(void) {
+    double sector_kb, rpm, seek_ms, rata_mb, overhead_ms;
+    printf("sector(KB) rpm pozitionare(ms) rata(MB/s) overhead(ms): ");
+    scanf("%lf %lf %lf %lf %lf", &amp;sector_kb, &amp;rpm, &amp;seek_ms, &amp;rata_mb, &amp;overhead_ms);
+    double rot_ms = 0.5 / (rpm / 60.0) * 1000.0;           /* jumatate de rotatie */
+    double transfer_ms = sector_kb / (rata_mb * 1024.0) * 1000.0;
+    double total = seek_ms + rot_ms + transfer_ms + overhead_ms;
+    printf("intarziere de rotatie = %.2f ms\n", rot_ms);
+    printf("timp de transfer      = %.4f ms\n", transfer_ms);
+    printf("timp mediu de acces   = %.2f ms\n", total);
+    return 0;
+}</pre>
+<div class="row"><label>date</label><input id="l4in" type="text" value="0.5 7200 6 50 0.2" style="width:200px"><button class="btn small" id="l4run">▶ Rulează simularea</button></div>
+<div class="term" id="l4out"></div>
+</section>
+<section class="unit-sec" id="l5" data-title="L5. Legea lui Amdahl">
+<h2>L5. Tabel cu legea lui Amdahl</h2>
+<pre class="code" data-c>
+#include &lt;stdio.h&gt;
+
+double speedup(double F, double N) { return 1.0 / ((1.0 - F) + F / N); }
+
+int main(void) {
+    double F;
+    printf("F = "); scanf("%lf", &amp;F);
+    int N[] = {1, 2, 4, 8, 16, 100, 1000};
+    for (int k = 0; k < 7; k++)
+        printf("N = %4d  speedup = %.3f\n", N[k], speedup(F, N[k]));
+    printf("limita (N -> infinit) = %.3f\n", 1.0 / (1.0 - F));
+    return 0;
+}</pre>
+<div class="row"><label>F</label><input id="l5f" type="text" value="0.3" style="width:80px"><button class="btn small" id="l5run">▶ Rulează simularea</button></div>
+<div class="term" id="l5out"></div>
+</section>
+<section class="unit-sec" id="l6" data-title="L6. Pagină și deplasament">
+<h2>L6. Descompunerea unei adrese virtuale (pagini de 4 KB)</h2>
+<pre class="code" data-c>
+#include &lt;stdio.h&gt;
+
+int main(void) {
+    unsigned int va;
+    printf("adresa virtuala (hex) = "); scanf("%x", &amp;va);
+    unsigned int pagina = va >> 12;          /* 4 KB = 2^12 */
+    unsigned int depl   = va &amp; 0xFFF;        /* ultimii 12 biti */
+    printf("pagina = %u (0x%X), deplasament = %u (0x%03X)\n", pagina, pagina, depl, depl);
+    unsigned int cadru = 7;                  /* presupunem: pagina e in cadrul 7 */
+    printf("adresa fizica = 0x%X\n", (cadru << 12) | depl);
+    return 0;
+}</pre>
+<div class="row"><label>adresă (hex)</label><input id="l6a" type="text" value="3A7C" style="width:110px"><button class="btn small" id="l6run">▶ Rulează simularea</button></div>
+<div class="term" id="l6out"></div>
+</section>
+<section class="unit-sec" id="l7" data-title="Sarcini de laborator">
+<h2>Sarcini de laborator</h2>
+<div class="card"><ol>
+<li>Rulați L3 pentru N = 512, 1024, 2048, 4096 și notați raportul timpilor. Explicați rezultatele.</li>
+<li>Modificați L4 pentru a citi un fișier de k sectoare consecutive (o singură poziționare și o singură latență).</li>
+<li>Scrieți un program care calculează CPI și MIPS pentru un amestec de instrucțiuni citit de la tastatură.</li>
+<li>Extindeți L6 cu un tabel de pagini (vector) și semnalați „page fault” pentru paginile absente.</li>
+<li>Scrieți un program care afișează capacitatea unui disc din numărul de platane, piste, sectoare și octeți/sector, în B, KB, MB și GB.</li>
+</ol></div>
+</section>
+</div></div></div>
+
+<!-- ===================== TEST ===================== -->
+<div class="panel" id="test">
+<h2>Test de autoevaluare – Unitatea de învățare nr. 4</h2>
+<p>Primele trei întrebări sunt cele din suportul de curs; urmează întrebări grilă suplimentare.</p>
+<div id="quiz"></div>
+</div>
+
+</main>
+<footer>
+  Material interactiv realizat pe baza suportului de curs „Programarea calculatoarelor și limbaje de programare I – Curs și aplicații”, Unitatea de învățare nr. 4.
+  Funcționează offline, fără dependențe externe.
+</footer>
+<script>
+/* ===== Utilitare comune ===== */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+function h(tag,attrs={},...kids){const e=document.createElement(tag);for(const[k,v]of Object.entries(attrs||{})){if(k==='class')e.className=v;else if(k==='html')e.innerHTML=v;else if(k.startsWith('on'))e.addEventListener(k.slice(2),v);else e.setAttribute(k,v)}for(const c of kids.flat()){if(c==null)continue;e.append(c.nodeType?c:document.createTextNode(c))}return e}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pad=(s,n,c='0')=>String(s).padStart(n,c);
+const fmt=(x,d=4)=>{const r=Number(x.toFixed(d));return String(r).replace('.',',')};
+const fmtDot=(x,d=4)=>String(Number(x.toFixed(d)));
+const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+function bitsHTML(str,o={}){
+  // o: {click, cls:(i,ch)=>string, weights:true, gapEvery:n, id}
+  let s='<span class="bits"'+(o.id?` id="${o.id}"`:'')+'>';
+  const n=str.length;
+  for(let i=0;i<n;i++){const ch=str[i];
+    if(ch===' '||ch==='.'||ch===','){s+=`<span style="align-self:center;font-weight:700;padding:0 2px">${ch===' '?'':ch}</span>`;continue}
+    let c='bit'+(ch==='1'?' one':'')+(o.click?' click':'');
+    if(o.cls)c+=' '+o.cls(i,ch);
+    if(o.gapEvery&&i>0&&(n-i)%o.gapEvery===0)c+=' gap';
+    const w=o.weights?`<span class="w">${o.weights===true?(n-1-i):o.weights[i]}</span>`:'';
+    s+=`<span class="${c}" data-i="${i}">${w}${ch}</span>`}
+  return s+'</span>'}
+
+/* ===== Tab-uri, cuprins, progres, temă ===== */
+function initShell(){
+  const btns=$$('nav.tabs button');
+  function show(id,push=true){btns.forEach(b=>b.classList.toggle('active',b.dataset.tab===id));$$('.panel').forEach(p=>p.classList.toggle('active',p.id===id));if(push)try{history.replaceState(null,'','#'+id)}catch(e){}window.scrollTo({top:0});setTimeout(spy,50)}
+  btns.forEach(b=>b.onclick=()=>show(b.dataset.tab));
+  const hsh=(location.hash||'').slice(1); show(btns.some(b=>b.dataset.tab===hsh)?hsh:btns[0].dataset.tab,false);
+  // cuprinsuri
+  $$('.toc[data-for]').forEach(toc=>{const p=document.getElementById(toc.dataset.for);toc.innerHTML='<b>Cuprins</b>';$$('section.unit-sec',p).forEach(s=>{const t=s.dataset.title||$('h2',s).textContent;toc.append(h('a',{href:'#'+s.id,onclick:e=>{e.preventDefault();s.scrollIntoView({behavior:'smooth'})}},t))})});
+  const bar=$('.progress>div');
+  function spy(){const st=document.documentElement;const pr=st.scrollTop/(st.scrollHeight-st.clientHeight||1);if(bar)bar.style.width=(pr*100)+'%';
+    const p=$('.panel.active');if(!p)return;const secs=$$('section.unit-sec',p);let cur=null;for(const s of secs){if(s.getBoundingClientRect().top<160)cur=s.id}
+    $$('.toc a',p).forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+cur))}
+  addEventListener('scroll',spy,{passive:true});
+  // temă
+  const tb=$('#themeBtn');if(store.get('dark',false))document.body.classList.add('dark');
+  if(tb)tb.onclick=()=>{document.body.classList.toggle('dark');store.set('dark',document.body.classList.contains('dark'))};
+  // copiere cod
+  $$('pre.code').forEach(p=>{const b=h('button',{class:'copy'},'copiază');b.onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(p.dataset.raw||p.innerText.replace(/copiază$/,''));b.textContent='copiat ✓';setTimeout(()=>b.textContent='copiază',1200)};p.append(b)});
+  heroRain();
+}
+
+/* fundal animat în banner: cifre binare care cad */
+function heroRain(){const hero=$('.hero');if(!hero)return;const c=h('canvas');hero.prepend(c);const x=c.getContext('2d');let W,H,cols,drops;
+  function rs(){W=c.width=hero.clientWidth;H=c.height=hero.clientHeight;cols=Math.floor(W/16);drops=Array.from({length:cols},()=>Math.random()*H/16)}
+  rs();addEventListener('resize',rs);
+  let last=0;function fr(t){requestAnimationFrame(fr);if(t-last<70)return;last=t;x.fillStyle='rgba(0,0,0,0.08)';x.globalCompositeOperation='destination-out';x.fillRect(0,0,W,H);x.globalCompositeOperation='source-over';x.fillStyle='#fff';x.font='14px monospace';
+    for(let i=0;i<cols;i++){x.fillText(Math.random()<.5?'0':'1',i*16,drops[i]*16);if(drops[i]*16>H&&Math.random()>.97)drops[i]=0;drops[i]+=.5}}
+  if(!matchMedia('(prefers-reduced-motion: reduce)').matches)requestAnimationFrame(fr)}
+
+/* ===== Stepper: animație pas cu pas ===== */
+class Stepper{
+  /* opts: {title, steps:[html|fn], cumulative:true|false, render:(i)=>html, n, delay, onShow:(i,body)=>{}} */
+  constructor(host,opts){this.o=Object.assign({delay:1400,cumulative:true},opts);this.i=-1;this.timer=null;
+    const el=typeof host==='string'?$(host):host;el.classList.add('stepper');el.innerHTML='';
+    this.n=this.o.n??this.o.steps.length;
+    const hd=h('div',{class:'st-head'});this.tt=h('span',{class:'st-title'},this.o.title||'Animație pas cu pas');
+    this.bR=h('button',{class:'btn small ghost',title:'De la început'},'⏮');this.bP=h('button',{class:'btn small ghost',title:'Pasul anterior'},'◀');
+    this.bN=h('button',{class:'btn small',title:'Pasul următor'},'Pas ▶');this.bA=h('button',{class:'btn small ghost',title:'Redare automată'},'⏵ Auto');
+    this.ct=h('span',{class:'st-count'});
+    hd.append(this.tt,this.ct,this.bR,this.bP,this.bN,this.bA);
+    this.bar=h('div',{class:'st-bar'},h('div'));this.body=h('div',{class:'st-body'});el.append(hd,this.bar,this.body);
+    this.bR.onclick=()=>{this.stop();this.go(-1)};this.bP.onclick=()=>{this.stop();this.go(this.i-1)};this.bN.onclick=()=>{this.stop();this.go(this.i+1)};
+    this.bA.onclick=()=>this.timer?this.stop():this.play();this.el=el;this.go(-1)}
+  setSteps(steps,title){this.stop();this.o.steps=steps;this.n=steps.length;if(title)this.tt.textContent=title;this.go(-1)}
+  go(i){i=Math.max(-1,Math.min(this.n-1,i));this.i=i;const o=this.o;
+    if(o.render){this.body.innerHTML=o.render(i)}
+    else if(o.cumulative){if(i<0)this.body.innerHTML=o.intro||'<small>Apasă „Pas ▶” sau „⏵ Auto” pentru a porni animația.</small>';else{this.body.innerHTML=(o.intro||'');for(let k=0;k<=i;k++){const s=o.steps[k];const d=h('div',{class:k===i?'step-line':''});d.innerHTML=typeof s==='function'?s():s;this.body.append(d)}}}
+    else{this.body.innerHTML=i<0?(o.intro||'<small>Apasă „Pas ▶”.</small>'):(typeof o.steps[i]==='function'?o.steps[i]():o.steps[i])}
+    if(o.onShow)o.onShow(i,this.body);
+    this.ct.textContent=`${i+1}/${this.n}`;this.bar.firstChild.style.width=((i+1)/this.n*100)+'%';this.bP.disabled=i<0;this.bN.disabled=i>=this.n-1}
+  play(){if(this.i>=this.n-1)this.go(-1);this.bA.textContent='⏸ Pauză';this.timer=setInterval(()=>{if(this.i>=this.n-1){this.stop();return}this.go(this.i+1)},this.o.delay)}
+  stop(){clearInterval(this.timer);this.timer=null;this.bA.textContent='⏵ Auto'}
+}
+
+/* ===== Test grilă ===== */
+function Quiz(host,qs,key){const el=typeof host==='string'?$(host):host;let score=0,ans=0;const sc=h('div',{class:'score'});
+  const upd=()=>sc.textContent=`Scor: ${score} / ${qs.filter(q=>!q.open).length}  ·  răspunse: ${ans}/${qs.length}`;
+  qs.forEach((q,qi)=>{const box=h('div',{class:'q'});box.append(h('div',{class:'qn'},`Întrebarea ${qi+1}`),h('div',{class:'qt',html:q.t}));
+    if(q.open){const ta=h('textarea',{rows:2,style:'width:100%',placeholder:'Scrie răspunsul tău aici (opțional), apoi verifică soluția…'});const b=h('button',{class:'btn small'},'Arată soluția');b.onclick=()=>{if(!box.classList.contains('done')){box.classList.add('done');ans++;upd()}};box.append(ta,h('div',{class:'row'},b))}
+    else{const opts=h('div',{class:'opts'});q.opts.forEach((o,oi)=>{const d=h('div',{class:'opt',html:String.fromCharCode(97+oi)+') '+o});d.onclick=()=>{if(box.classList.contains('done'))return;box.classList.add('done');ans++;if(oi===q.a){d.classList.add('right');score++}else{d.classList.add('wrong');opts.children[q.a].classList.add('right')}upd()};opts.append(d)});box.append(opts)}
+    box.append(h('div',{class:'expl',html:q.expl||''}));el.append(box)});
+  const rb=h('button',{class:'btn ghost',style:'margin-top:.5rem'},'↺ Reia testul');rb.onclick=()=>{el.innerHTML='';Quiz(el,qs,key)};el.append(rb,sc);upd()}
+
+/* ===== Exerciții generate ===== */
+function Exercise(host,o){const el=typeof host==='string'?$(host):host;el.classList.add('ex');let cur,streak=0;
+  const qd=h('div',{class:'ex-q'}),inp=h('input',{type:'text',placeholder:o.ph||'răspuns',style:'flex:1;min-width:160px'}),fb=h('div',{class:'fb'}),sol=h('div'),st=h('span',{class:'streak'});
+  const chk=h('button',{class:'btn small'},'Verifică'),nw=h('button',{class:'btn small ghost'},'↻ Exercițiu nou');
+  const det=h('details',{},h('summary',{},'Vezi rezolvarea pas cu pas'),sol);
+  el.append(h('div',{class:'row',style:'justify-content:space-between'},h('b',{},o.title||'Exercițiu'),st),qd,h('div',{class:'row'},inp,chk,nw),fb,det);
+  function gen(){cur=o.gen();qd.innerHTML=cur.q;inp.value='';fb.innerHTML='';sol.innerHTML=cur.sol;det.open=false}
+  function check(){const v=inp.value.trim();if(!v)return;const r=cur.check?cur.check(v):norm(v)===norm(cur.ans);
+    if(r){streak++;fb.innerHTML=`<span class="ok">✔ Corect!</span> ${streak>1?'Serie: '+streak+' 🔥':''}`}else{streak=0;fb.innerHTML=`<span class="bad">✘ Nu este corect.</span> Încearcă din nou sau vezi rezolvarea.`}st.textContent=streak?('serie '+streak):''}
+  const norm=s=>String(s).toUpperCase().replace(/\s|_/g,'').replace(',','.').replace(/^0+(?=.)/,'');
+  chk.onclick=check;inp.onkeydown=e=>{if(e.key==='Enter')check()};nw.onclick=gen;gen()}
+
+/* ===== Evidențiere sintaxă C ===== */
+function hlC(src){const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const re=/(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|(#\w+)|\b(int|unsigned|char|float|double|long|short|void|return|for|while|if|else|struct|union|const|sizeof|signed|do|break|uint8_t|uint16_t|uint32_t|int8_t|size_t)\b|\b(0x[0-9a-fA-F]+|\d+\.?\d*[fFuU]?)\b|\b(printf|scanf|main|putchar|memcpy|strlen)\b/g;
+  let out='',last=0,m;while((m=re.exec(src))){out+=esc(src.slice(last,m.index));const t=esc(m[0]);
+    out+=m[1]?`<span class="c">${t}</span>`:m[2]?`<span class="s">${t}</span>`:m[3]?`<span class="p">${t}</span>`:m[4]?`<span class="k">${t}</span>`:m[5]?`<span class="n">${t}</span>`:`<span class="f">${t}</span>`;last=re.lastIndex}
+  return out+esc(src.slice(last))}
+function renderCode(){$$('pre.code[data-c]').forEach(p=>{const raw=p.textContent.replace(/^\n/,'');p.dataset.raw=raw;p.innerHTML=hlC(raw)})}
+
+/* ===== SVG ===== */
+const SVGNS='http://www.w3.org/2000/svg';
+function S(tag,attrs={},txt){const e=document.createElementNS(SVGNS,tag);for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);if(txt!=null)e.textContent=txt;return e}
+
+</script>
+<script>
+/* ================= UI 4 ================= */
+const css=v=>getComputedStyle(document.body).getPropertyValue(v).trim()||'#888';
+const num=s=>parseFloat(String(s).replace(',','.'));
+const f2=(x,d=2)=>(+x.toFixed(d)).toString();
+
+/* ---------- 1. Cele 4 funcții ---------- */
+(function(){const svg=$('#fnSvg');const B={in:[40,100,'Dispozitive de intrare'],mem:[330,30,'Memorie'],cpu:[330,160,'UCP (ALU)'],out:[640,100,'Dispozitive de ieșire'],uc:[600,195,'Unitatea de Control']};
+  const box=(k)=>{const[x,y,t]=B[k];svg.append(S('rect',{x,y,width:180,height:56,rx:10,fill:css('--card'),stroke:css('--acc'),'stroke-width':2,id:'fb_'+k}));svg.append(S('text',{x:x+90,y:y+33,'text-anchor':'middle','font-size':14,'font-weight':600,fill:css('--ink')},t))};
+  const P={in_mem:'M220 128 L330 58',mem_out:'M510 58 L640 128',mem_cpu:'M400 86 L400 160',cpu_mem:'M440 160 L440 86',cpu_cpu:'M380 216 C330 260 520 260 470 216',mem_mem:'M360 30 C330 -10 500 -10 470 30',uc_all:'M600 222 L510 190 M600 210 L510 60 M640 195 L700 156'};
+  Object.entries(P).forEach(([k,d])=>svg.append(S('path',{d,fill:'none',stroke:css('--line'),'stroke-width':2,id:'fp_'+k,'stroke-dasharray':k==='uc_all'?'5 5':''})));Object.keys(B).forEach(box);
+  const dot=S('circle',{r:8,fill:css('--acc2'),opacity:0});svg.append(dot);
+  const T=['<b>Procesarea datelor</b>: UCP preia operanzii din memorie, ALU calculează, rezultatul se întoarce în memorie.','<b>Stocarea datelor</b>: datele rămân în memorie pentru accesări ulterioare.','<b>Deplasarea datelor</b>: de la dispozitivele de intrare în memorie, din memorie către ieșire sau între locații de memorie.','<b>Controlul</b>: Unitatea de Control coordonează procesarea, stocarea și deplasarea datelor prin semnale de control.'];
+  const SEQ=[['mem_cpu','cpu_cpu','cpu_mem'],['mem_mem','mem_mem'],['in_mem','mem_out'],['uc_all']];let run=0;
+  async function anim(i){const my=++run;$('#fnTxt').innerHTML=T[i];$$('#fnSvg path').forEach(p=>p.setAttribute('stroke',css('--line')));
+    for(const k of SEQ[i]){const p=$('#fp_'+k);p.setAttribute('stroke',css('--acc'));if(k==='uc_all'){for(let r=0;r<3;r++){if(my!==run)return;p.setAttribute('stroke-width',4);await sleep(350);p.setAttribute('stroke-width',2);await sleep(250)}continue}
+      const L=p.getTotalLength();dot.setAttribute('opacity',1);const t0=performance.now();await new Promise(res=>{function fr(t){if(my!==run){res();return}const q=Math.min(1,(t-t0)/900);const pt=p.getPointAtLength(q*L);dot.setAttribute('cx',pt.x);dot.setAttribute('cy',pt.y);q<1?requestAnimationFrame(fr):res()}requestAnimationFrame(fr)})}
+    dot.setAttribute('opacity',0)}
+  $$('[data-fn]').forEach(b=>b.onclick=()=>anim(+b.dataset.fn))})();
+
+/* ---------- 2. Nivelurile Tanenbaum ---------- */
+const LV=[
+ ['0','Nivelul logic','Circuite digitale; operații ale logicii booleene. <b>Secvențiale</b>: ieșirile depind de intrări și de ordinea aplicării lor (contoare, regiștri de deplasare). <b>Combinaționale</b>: ieșirile depind doar de intrările prezente, nu stochează informații (sumatoare, multiplicatoare, comparatoare).','executat direct de hardware'],
+ ['1','Nivelul microarhitecturii','Microinstrucțiuni – instrucțiuni de control low-level care definesc semnalele de control pentru calea de date (partea din UCP cu ALU, intrările și ieșirile ei) într-un ciclu de execuție.','interpretat de hardware'],
+ ['2','Nivelul setului de instrucțiuni (ISA)','Primul nivel programabil de utilizator: interfața software–hardware. Setul de instrucțiuni mașină, formatul lor, tipurile de date, modurile de adresare, regiștrii, structura memoriei.','interpretat de microprogram / executat'],
+ ['3','Nivelul sistemului de operare','Structura și funcțiile SO; instrucțiuni noi pentru accesarea resurselor partajate, biblioteci (ex. alocarea memoriei), tratarea întreruperilor și a operațiilor de I/E.','interpretat parțial (apeluri de sistem)'],
+ ['4','Nivelul limbajului de asamblare','Limbaj foarte detaliat, rapid și puternic în accesarea hardware-ului; cod pentru nivelurile inferioare în formă simbolică. Multe compilatoare sunt scrise în asamblare.','tradus de asamblor'],
+ ['5','Nivelul limbajului orientat pe problemă','Limbaje de nivel înalt (C, C++, Java). Aici lucrează majoritatea utilizatorilor și programatorilor de aplicații; un algoritm poate fi implementat în diferite limbaje.','tradus de compilator']];
+(function(){const st=$('#lvlStack');LV.slice().reverse().forEach((l,i)=>{const d=h('div',{class:'card',style:`margin:.35rem 0;padding:.55rem .9rem;cursor:pointer;border-left:6px solid var(--acc);margin-left:${(5-+l[0])*10}px;transition:all .25s`},h('b',{},'Nivelul '+l[0]+' · '),l[1]);
+  d.onmouseenter=d.onclick=()=>{$$('.card',st).forEach(x=>{x.style.background='';x.style.transform=''});d.style.background='var(--acc-soft)';d.style.transform='translateX(6px)';$('#lvlInfo').innerHTML=`<h4>Nivelul ${l[0]} – ${l[1]}</h4><p>${l[2]}</p><p><span class="pill">${l[3]}</span></p>`};st.append(d)});$$('.card',st)[0].click()})();
+new Stepper('#trSt',{title:'a = b + c; de la nivelul 5 la nivelul 0',delay:1800,steps:[
+ '<b>Nivelul 5 (C):</b> <code>a = b + c;</code> — programatorul nu se interesează cum se execută instrucțiunea.',
+ '<b>Compilatorul</b> traduce în limbaj de asamblare (nivelul 4): <code>MOV AX, [b]</code> · <code>ADD AX, [c]</code> · <code>MOV [a], AX</code>',
+ '<b>Nivelul 3 (SO):</b> programul este încărcat în memorie de sistemul de operare, care îi alocă spațiu și îi gestionează accesul la resurse.',
+ '<b>Asamblorul</b> produce cod mașină (nivelul 2, ISA), ex. <code>A1 00 10 · 03 06 02 10 · A3 04 10</code> (octeți – cod operație + adrese).',
+ '<b>Nivelul 1 (microarhitectură):</b> fiecare instrucțiune mașină devine o secvență de semnale de control: <code>AR←PC; IR←M[AR]; PC←PC+1; AR←adresă; DR←M[AR]; AC←AC+DR</code>',
+ '<b>Nivelul 0 (logic):</b> adunarea AC+DR este realizată de un sumator – circuit combinațional din porți XOR, AND, OR; registrele sunt circuite secvențiale (bistabile).']});
+
+/* ---------- 3. Componente hardware (Fig. 1) ---------- */
+(function(){const svg=$('#hwSvg');const N=[['hw',340,10,'Componenta hardware','Mecanismele fizice ale sistemului: unitatea centrală și dispozitivele periferice.'],['uc',140,80,'Unitatea Centrală (UC)','UCP + memoria principală: execută programele.'],['per',540,80,'Dispozitive periferice','Dispozitivele de I/E și memoria externă, accesate prin controlere.'],
+  ['ucp',20,150,'UCP','Unitatea centrală de prelucrare: microprocesorul. Preia, decodifică și execută instrucțiunile; conține ALU, Unitatea de Control și regiștrii.'],['mp',230,150,'Memorie principală','Memoria internă (RAM): stocare temporară a datelor și instrucțiunilor în timpul execuției; acces aleator, același timp pentru orice locație.'],
+  ['io',450,150,'Dispozitive de I/E','Interfața om–mașină sau proces–mașină: tastatură, mouse, monitor, imprimantă, senzori.'],['me',660,150,'Memorie externă','Stocare pe termen lung: hard-disc, SSD, discuri optice, benzi magnetice.']];
+  const pos={};N.forEach(n=>pos[n[0]]=n);[['hw','uc'],['hw','per'],['uc','ucp'],['uc','mp'],['per','io'],['per','me']].forEach(([a,b])=>svg.append(S('line',{x1:pos[a][1]+90,y1:pos[a][2]+44,x2:pos[b][1]+90,y2:pos[b][2],stroke:css('--muted'),'stroke-width':1.5})));
+  N.forEach(([k,x,y,t,d])=>{const g=S('g',{style:'cursor:pointer'});const r=S('rect',{x,y,width:180,height:44,rx:9,fill:css('--card'),stroke:css('--acc'),'stroke-width':2});g.append(r,S('text',{x:x+90,y:y+27,'text-anchor':'middle','font-size':13,'font-weight':600,fill:css('--ink')},t));
+    g.onclick=g.onmouseenter=()=>{$$('#hwSvg rect').forEach(q=>q.setAttribute('fill',css('--card')));r.setAttribute('fill',css('--acc-soft'));$('#hwTxt').innerHTML=`<b>${t}</b>: ${d}`};svg.append(g)})})();
+
+/* ---------- 4. Simulator CPU ---------- */
+const OPS={0:'HALT',1:'LOAD',2:'ADD',3:'SUB',4:'STORE',5:'JNZ'};
+const PROGS=[
+ {code:[[1,10],[2,11],[4,12],[0,0]],data:{10:7,11:5,12:0},names:{10:'b',11:'c',12:'a'}},
+ {code:[[1,10],[2,11],[3,12],[4,13],[0,0]],data:{10:20,11:15,12:8,13:0},names:{10:'x',11:'y',12:'z',13:'s'}},
+ {code:[[1,10],[2,11],[4,10],[1,12],[3,11],[4,12],[5,0],[0,0]],data:{10:0,11:1,12:3},names:{10:'c',11:'unu',12:'n'}}];
+let CPU;
+function cpuReset(){const P=PROGS[+$('#cpuProg').value];const M=Array(16).fill(0);P.code.forEach(([o,a],i)=>M[i]=(o<<12)|a);Object.entries(P.data).forEach(([a,v])=>M[a]=v);
+  CPU={M,P,PC:0,AR:0,IR:0,DR:0,AC:0,t:0,halt:false,log:[],act:[],flow:null,names:P.names,cnt:0};cpuDraw('Apasă „Micro-pas ▶”. Ciclul începe cu faza de extragere (fetch).')}
+function micro(){const c=CPU;if(c.halt)return;let msg;c.act=[];c.flow=null;const op=c.IR>>12,ad=c.IR&0xFFF;
+  switch(c.t){
+   case 0:c.AR=c.PC;c.act=['PC','AR'];c.flow=['PC','AR'];msg='FETCH T0: AR ← PC  (adresa instrucțiunii)';c.t=1;break;
+   case 1:c.IR=c.M[c.AR];c.PC=(c.PC+1)&0xFFF;c.act=['IR','PC','MEM'];c.flow=['MEM','IR'];msg=`FETCH T1: IR ← M[AR] = ${hx(c.IR)}, PC ← PC + 1`;c.t=2;break;
+   case 2:{const o=c.IR>>12;c.AR=c.IR&0xFFF;c.act=['IR','AR','UC'];c.flow=['IR','UC'];msg=`DECODE T2: cod operație ${o} = ${OPS[o]}, AR ← adresa ${c.IR&0xFFF}`;c.t=3;if(o===0){c.halt=true;msg+=' → HALT: programul se oprește.'}break}
+   case 3:if(op===1||op===2||op===3){c.DR=c.M[c.AR];c.act=['DR','MEM'];c.flow=['MEM','DR'];msg=`EXECUTE T3: DR ← M[${c.AR}] = ${c.DR}`;c.t=4}
+     else if(op===4){c.M[c.AR]=c.AC;c.act=['AC','MEM'];c.flow=['AC','MEM'];msg=`EXECUTE T3: M[${c.AR}] ← AC = ${c.AC}`;c.t=0;c.cnt++}
+     else if(op===5){if(c.AC!==0){c.PC=c.AR;msg=`EXECUTE T3: AC = ${c.AC} ≠ 0 ⇒ PC ← ${c.AR} (salt)`}else msg='EXECUTE T3: AC = 0 ⇒ nu se face saltul';c.act=['PC','AC'];c.flow=['UC','PC'];c.t=0;c.cnt++}break;
+   case 4:if(op===1){c.AC=c.DR;msg=`EXECUTE T4: AC ← DR = ${c.AC}`;c.flow=['DR','AC']}else{const a=c.AC;c.AC=op===2?(c.AC+c.DR)&0xFFFF:(c.AC-c.DR)&0xFFFF;msg=`EXECUTE T4: AC ← AC ${op===2?'+':'−'} DR = ${a} ${op===2?'+':'−'} ${c.DR} = ${c.AC} (ALU)`;c.flow=['DR','ALU']}c.act=['AC','ALU','DR'];c.t=0;c.cnt++;break}
+  c.log.unshift(msg);cpuDraw(msg)}
+const hx=v=>pad(v.toString(16).toUpperCase(),4);
+function cpuDraw(msg){const c=CPU,svg=$('#cpuSvg');svg.innerHTML='';const acc=css('--acc'),acc2=css('--acc2'),ink=css('--ink'),card=css('--card'),line=css('--line');
+  const R={PC:[40,40,'PC (12 biți)',c.PC],AR:[40,140,'AR (12 biți)',c.AR],IR:[230,40,'IR (16 biți)',hx(c.IR)],UC:[230,140,'Unitatea de Control',c.t===3||c.t===4||c.t===0?OPS[c.IR>>12]||'':''],DR:[420,40,'DR (16 biți)',c.DR],AC:[420,240,'AC (16 biți)',c.AC],ALU:[420,140,'ALU','+ − AND OR']};
+  const ctr=k=>k==='MEM'?[640,24+c.AR*18.5+8]:[R[k][0]+75,R[k][1]+30];
+  // magistrală
+  svg.append(S('rect',{x:20,y:105,width:600,height:14,rx:7,fill:line}));svg.append(S('text',{x:200,y:133,'font-size':11,fill:css('--muted')},'magistrala internă'));
+  Object.entries(R).forEach(([k,[x,y,t,v]])=>{const on=c.act.includes(k);svg.append(S('rect',{x,y,width:150,height:60,rx:9,fill:on?css('--acc-soft'):card,stroke:on?acc2:acc,'stroke-width':on?3.5:1.8}));
+    svg.append(S('text',{x:x+75,y:y+20,'text-anchor':'middle','font-size':11.5,fill:css('--muted')},t));svg.append(S('text',{x:x+75,y:y+45,'text-anchor':'middle','font-size':18,'font-weight':700,'font-family':'monospace',fill:ink},String(v)))});
+  // memorie
+  const mx=640,on=c.act.includes('MEM');svg.append(S('text',{x:mx,y:18,'font-size':12,'font-weight':700,fill:ink},'Memoria (16 cuvinte)'));
+  c.M.forEach((v,i)=>{const y=24+i*18.5;const cur=i===c.AR&&on,pcr=i===c.PC;svg.append(S('rect',{x:mx,y,width:225,height:17,fill:cur?acc2:pcr?css('--acc-soft'):card,stroke:line}));
+    const isCode=i<c.P.code.length;const dis=isCode?`${OPS[v>>12]}${(v>>12)&&(v>>12)!==0?' '+(c.names[v&0xFFF]||(v&0xFFF)):''}`:(c.names[i]?c.names[i]+' = '+v:'');
+    svg.append(S('text',{x:mx+4,y:y+13,'font-size':11,'font-family':'monospace',fill:cur?'#111':ink},`${pad(i,2)} ${hx(v)} ${dis}${pcr?'  ◀PC':''}`))});
+  if(c.flow){const[a,b]=c.flow.map(ctr);const ln=S('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:acc2,'stroke-width':3,'stroke-dasharray':'6 4'});svg.append(ln);const d=S('circle',{r:7,fill:acc2});svg.append(d);
+    const t0=performance.now();(function fr(t){const q=Math.min(1,(t-t0)/500);d.setAttribute('cx',a[0]+(b[0]-a[0])*q);d.setAttribute('cy',a[1]+(b[1]-a[1])*q);if(q<1)requestAnimationFrame(fr)})(t0)}
+  svg.append(S('text',{x:20,y:325,'font-size':12,fill:css('--muted')},`Următorul micro-pas: ${['FETCH T0','FETCH T1','DECODE T2','EXECUTE T3','EXECUTE T4'][c.t]} · instrucțiuni executate: ${c.cnt}${c.halt?' · OPRIT':''}`));
+  $('#cpuLog').innerHTML=`<b>${msg}</b>\n`+c.log.slice(1,7).join('\n')}
+let cpuT=null;$('#cpuStep').onclick=()=>micro();$('#cpuInstr').onclick=()=>{let g=0;do{micro();g++}while(CPU.t!==0&&!CPU.halt&&g<8)};
+$('#cpuRun').onclick=()=>{if(cpuT){clearInterval(cpuT);cpuT=null;$('#cpuRun').textContent='⏵ Rulează';return}$('#cpuRun').textContent='⏸ Pauză';cpuT=setInterval(()=>{if(CPU.halt){clearInterval(cpuT);cpuT=null;$('#cpuRun').textContent='⏵ Rulează';return}micro()},700)};
+$('#cpuReset').onclick=cpuReset;$('#cpuProg').onchange=cpuReset;cpuReset();
+
+/* ---------- 5. MIPS ---------- */
+let MIX=[['ALU (registre)',500,1],['load/store (memorie)',300,3],['salturi',150,2],['înmulțiri / împărțiri',50,10]];
+function mipsDraw(){$('#mipsTbl').innerHTML='<tr><th class="l">Tip instrucțiune</th><th>I<sub>i</sub> (milioane)</th><th>CPI<sub>i</sub></th></tr>'+MIX.map((r,i)=>`<tr><td class="l">${r[0]}</td><td><input data-i="${i}" data-j="1" type="number" value="${r[1]}" style="width:100px"></td><td><input data-i="${i}" data-j="2" type="number" value="${r[2]}" style="width:70px"></td></tr>`).join('');
+  $$('#mipsTbl input').forEach(e=>e.oninput=()=>{MIX[e.dataset.i][e.dataset.j]=num(e.value)||0;mipsCalc()});mipsCalc()}
+function mipsCalc(){const f=num($('#mipsF').value)*1e6;const IC=MIX.reduce((a,r)=>a+r[1],0)*1e6;const cyc=MIX.reduce((a,r)=>a+r[1]*r[2],0)*1e6;const CPI=cyc/IC,t=1/f,T=IC*CPI*t,M=f/(CPI*1e6);
+  $('#mipsOut').innerHTML=`<div class="out">t<sub>UCP</sub> = 1/f = ${f2(t*1e9,4)} ns
+I<sub>C</sub> = ${f2(IC/1e6,0)} milioane instrucțiuni
+CPI = Σ(CPI<sub>i</sub>·I<sub>i</sub>)/I<sub>C</sub> = ${f2(cyc/1e6,0)}/${f2(IC/1e6,0)} = <b>${f2(CPI,3)}</b>
+T = I<sub>C</sub>·CPI·t<sub>UCP</sub> = <b>${f2(T,4)} s</b>
+MIPS = f/(CPI·10<sup>6</sup>) = <b>${f2(M,1)}</b></div>`}
+$('#mipsF').oninput=mipsCalc;mipsDraw();
+
+/* ---------- 6. Amdahl ---------- */
+function am(){const F=+$('#amF').value,N=+$('#amN').value;$('#amFv').textContent=F.toFixed(2);$('#amNv').textContent=N;const s=1/((1-F)+F/N),lim=F<1?1/(1-F):Infinity;
+  $('#amBar').innerHTML=`<small>timp inițial</small><div style="display:flex;height:22px;border-radius:6px;overflow:hidden"><div style="width:${(1-F)*100}%;background:var(--muted)"></div><div style="width:${F*100}%;background:var(--acc)"></div></div>
+  <small>timp după îmbunătățire</small><div style="display:flex;height:22px;border-radius:6px;overflow:hidden;width:${(1/s)*100}%;transition:width .2s"><div style="flex:${1-F};background:var(--muted)"></div><div style="flex:${F/N};background:var(--acc2)"></div></div>`;
+  $('#amOut').innerHTML=`speedup = 1/((1 − ${F.toFixed(2)}) + ${F.toFixed(2)}/${N}) = <b>${s.toFixed(3)}</b>\nlimita pentru N → ∞: 1/(1 − F) = <b>${isFinite(lim)?lim.toFixed(3):'∞'}</b>`;
+  const c=$('#amC'),x=c.getContext('2d'),W=c.width,H=c.height,m=36;x.clearRect(0,0,W,H);const top=Math.min(isFinite(lim)?lim*1.15:20,20);const X=n=>m+(Math.log(n)/Math.log(100))*(W-2*m),Y=v=>H-m-(v-1)/(top-1||1)*(H-2*m);
+  x.strokeStyle=css('--line');x.beginPath();x.moveTo(m,H-m);x.lineTo(W-m,H-m);x.moveTo(m,H-m);x.lineTo(m,m-10);x.stroke();x.fillStyle=css('--muted');x.font='11px sans-serif';[1,2,5,10,20,50,100].forEach(n=>x.fillText(n,X(n)-5,H-m+14));x.fillText('N (scară log)',W-m-60,H-6);x.fillText('speedup',4,m-14);
+  if(isFinite(lim)&&lim<=top){x.setLineDash([5,5]);x.strokeStyle=css('--bad');x.beginPath();x.moveTo(m,Y(lim));x.lineTo(W-m,Y(lim));x.stroke();x.setLineDash([]);x.fillStyle=css('--bad');x.fillText('limita '+lim.toFixed(2),W-m-70,Y(lim)-5)}
+  x.strokeStyle=css('--acc');x.lineWidth=2.5;x.beginPath();for(let n=1;n<=100;n+=.5){const v=1/((1-F)+F/n);n===1?x.moveTo(X(n),Y(v)):x.lineTo(X(n),Y(Math.min(v,top)))}x.stroke();x.lineWidth=1;
+  x.fillStyle=css('--acc2');x.beginPath();x.arc(X(N),Y(Math.min(s,top)),6,0,7);x.fill()}
+$('#amF').oninput=am;$('#amN').oninput=am;am();
+
+/* ---------- 7. Metode de acces ---------- */
+let acRun=0;const REC=[...Array(20)].map((_,i)=>'K'+((i*7+3)%20));
+function acDraw(st){const c=$('#acC'),x=c.getContext('2d'),W=c.width;x.clearRect(0,0,W,c.height);const rows=['Secvențial (bandă)','Direct (disc)','Aleator (RAM)','Asociativ (cache)'];const cw=34,ox=170;
+  rows.forEach((r,ri)=>{const y=20+ri*70;x.fillStyle=css('--ink');x.font='bold 13px sans-serif';x.textAlign='left';x.fillText(r,6,y+22);
+    for(let i=0;i<20;i++){const X=ox+i*cw+(ri===1?Math.floor(i/5)*8:0);const s=st[ri];const hit=s&&s.cur===i,done=s&&s.found&&s.cur===i,scan=s&&s.scan&&s.scan.includes(i);
+      x.fillStyle=done?css('--ok'):hit?css('--acc2'):scan?css('--acc-soft'):css('--card');x.strokeStyle=css('--line');x.fillRect(X,y,cw-4,32);x.strokeRect(X,y,cw-4,32);
+      x.fillStyle=done?'#fff':css('--ink');x.font='11px monospace';x.textAlign='center';x.fillText(ri===3?REC[i]:i,X+(cw-4)/2,y+20)}
+    if(st[ri]){x.textAlign='left';x.fillStyle=css('--muted');x.font='12px sans-serif';x.fillText(st[ri].msg||'',ox,y+50)}})}
+async function acGo(){const my=++acRun,T=+$('#acT').value,K=$('#acK').value.trim();const st=[{cur:0,msg:''},{cur:0,msg:''},{cur:0,msg:''},{cur:0,msg:''}];
+  // RAM: instant
+  st[2]={cur:T,found:true,msg:'decodificarea adresei '+T+' → acces imediat: 1 unitate de timp (constant)'};
+  const ki=REC.indexOf(K);st[3]={scan:[...Array(20).keys()],cur:ki,found:ki>=0,msg:ki>=0?`toate celulele compară simultan conținutul cu „${K}” → găsit la poziția ${ki}: 1 unitate`:`„${K}” nu există în memorie`};
+  const blk=Math.floor(T/5);let tick=0;
+  for(let i=0;i<=T;i++){if(my!==acRun)return;st[0]={cur:i,found:i===T,scan:[...Array(i).keys()],msg:`parcurgere înregistrare cu înregistrare: ${i+1} unități`};
+    if(tick<=blk){st[1]={cur:tick*5,scan:[],msg:`salt direct la blocul ${tick}…`}}else{const j=blk*5+(tick-blk-1);if(j<=T)st[1]={cur:Math.min(j,T),found:j>=T,scan:[...Array(Math.max(0,j-blk*5)).keys()].map(k=>k+blk*5),msg:`salt la blocul ${blk} + căutare în bloc: ${blk+1+(Math.min(j,T)-blk*5)+1} unități`}}
+    tick++;acDraw(st);await sleep(220)}
+  for(let j=tick;j<=blk+6;j++){if(my!==acRun)return;const q=blk*5+(j-blk-1);if(q>=0&&q<=T){st[1]={cur:q,found:q===T,scan:[],msg:`salt la blocul ${blk} + căutare în bloc: ${blk+2+(q-blk*5)} unități`};acDraw(st);await sleep(220)}}}
+$('#acT').oninput=()=>$('#acTv').textContent=$('#acT').value;$('#acGo').onclick=acGo;acDraw([null,null,null,null]);
+
+/* ---------- 8. Unități ---------- */
+const UN=['B','KB','MB','GB','TB','PB'];$('#unU').innerHTML=UN.map((u,i)=>`<option value="${i}"${i===3?' selected':''}>${u}</option>`).join('');
+function un(){const v=num($('#unV').value)||0,u=+$('#unU').value;const bytes=v*Math.pow(1024,u);
+  $('#unOut').innerHTML=UN.map((n,i)=>`${n.padEnd(3)} = ${(bytes/Math.pow(1024,i)).toLocaleString('ro-RO',{maximumFractionDigits:6})}${i===u?'  ◀':''}`).join('\n')+`\nbiți = ${(bytes*8).toLocaleString('ro-RO')}\n<small>1 KB = 2¹⁰ B = 1024 B · 1 MB = 2¹⁰ KB · 1 GB = 2¹⁰ MB · 1 TB = 2¹⁰ GB · 1 PB = 2¹⁰ TB</small>`}
+$('#unV').oninput=un;$('#unU').onchange=un;un();
+function tn(){const A=num($('#tnA').value),n=num($('#tnN').value),R=num($('#tnR').value)*1e6;const tr=n/R*1000;$('#tnOut').innerHTML=`T<sub>n</sub> = T<sub>A</sub> + n/R = ${A} ms + ${n}/${R/1e6}·10⁶ s = ${A} + ${f2(tr,5)} ms = <b>${f2(A+tr,5)} ms</b>\nObservă cât de mult domină timpul de acces pentru blocuri mici.`}
+['#tnA','#tnN','#tnR'].forEach(s=>$(s).oninput=tn);tn();
+
+/* ---------- 9. Piramida ---------- */
+(function(){const svg=$('#pyr');const L=[['Regiștrii UCP','< 1 ns','sute de octeți','cel mai rapid, cel mai scump, cea mai mică capacitate; memoria locală a procesorului'],['Memorie cache','1–10 ns','KB – zeci de MB','copie a zonelor active din memoria principală; mai multe niveluri (L1, L2, L3)'],['Memorie principală','50–100 ns','GB','RAM (DRAM); fiecare locație are o adresă unică accesată direct de UCP'],['Memorie auxiliară','µs – ms','sute de GB – TB','hard-disc, SSD: stocare nevolatilă, pe termen lung'],['Stocare off-line','secunde','TB – PB','benzi magnetice, discuri optice: cea mai ieftină, cea mai lentă, capacitatea cea mai mare']];
+  const cols=['#7a3fc4','#9561d6','#b086e3','#c9abef','#e0d0f7'];
+  L.forEach((l,i)=>{const y=20+i*58,w1=60+i*75,w2=60+(i+1)*75;const p=S('polygon',{points:`${220-w1/2},${y} ${220+w1/2},${y} ${220+w2/2},${y+56} ${220-w2/2},${y+56}`,fill:cols[i],stroke:'#fff','stroke-width':2,style:'cursor:pointer;transition:all .2s'});
+    const t=S('text',{x:220,y:y+33,'text-anchor':'middle','font-size':i===0?11:13,'font-weight':700,fill:i<2?'#fff':'#2a1a45'},l[0]);const g=S('g',{});g.append(p,t);
+    g.onmouseenter=()=>{$$('#pyr polygon').forEach(q=>q.setAttribute('opacity',.5));p.setAttribute('opacity',1);$('#pyrInfo').innerHTML=`<h4>${l[0]}</h4><p>${l[3]}</p><table class="t"><tr><th>Latență tipică</th><th>Capacitate tipică</th></tr><tr><td>${l[1]}</td><td>${l[2]}</td></tr></table>`};
+    g.onmouseleave=()=>$$('#pyr polygon').forEach(q=>q.setAttribute('opacity',1));svg.append(g)});
+  svg.append(S('text',{x:4,y:30,'font-size':11,fill:css('--muted')},'↑ mai rapid, mai scump'));svg.append(S('text',{x:4,y:316,'font-size':11,fill:css('--muted')},'↓ mai ieftin, capacitate mai mare'))})();
+
+/* ---------- 10. Cache ---------- */
+let CH={},chTimer=null;
+function chInit(){const p=$('#chPat').value;let a=[];if(p==='seq')a=[...Array(48).keys()];else if(p==='loop'){for(let r=0;r<4;r++)a.push(...[...Array(12).keys()])}else if(p==='stride')a=[...Array(48)].map((_,i)=>(i*32)%256);else a=[...Array(48)].map(()=>rnd(0,255));
+  CH={addr:a,i:0,lines:[...Array(8)].map(()=>({v:0,tag:0})),hits:0,miss:0,hist:[]};chDraw()}
+function chStep(){if(CH.i>=CH.addr.length)return false;const ad=CH.addr[CH.i],blk=ad>>2,ln=blk%8,tag=blk>>3;const L=CH.lines[ln];const hit=L.v&&L.tag===tag;
+  if(hit)CH.hits++;else{CH.miss++;L.v=1;L.tag=tag}CH.hist.push({ad,hit,ln});CH.cur={ad,hit,ln,tag,blk};CH.i++;chDraw();return true}
+function chDraw(){const c=$('#chC'),x=c.getContext('2d'),W=c.width;x.clearRect(0,0,W,c.height);x.font='12px sans-serif';x.fillStyle=css('--ink');x.textAlign='left';
+  x.fillText('Șirul de adrese (cuvinte):',10,18);CH.addr.forEach((a,i)=>{const X=10+i*18.4,y=26;const h=CH.hist[i];x.fillStyle=h?(h.hit?css('--ok'):css('--bad')):css('--line');x.fillRect(X,y,16,22);x.fillStyle=h?'#fff':css('--muted');x.font='8px monospace';x.textAlign='center';x.fillText(a,X+8,y+14)});
+  x.textAlign='left';x.font='bold 12px sans-serif';x.fillStyle=css('--ink');x.fillText('Cache (mapare directă): linie = bloc mod 8, tag = bloc div 8, bloc = adresă div 4',10,76);
+  CH.lines.forEach((L,i)=>{const y=86+i*25;const cur=CH.cur&&CH.cur.ln===i;x.fillStyle=cur?(CH.cur.hit?css('--ok-soft'):css('--bad-soft')):css('--card');x.fillRect(10,y,560,22);x.strokeStyle=cur?(CH.cur.hit?css('--ok'):css('--bad')):css('--line');x.lineWidth=cur?2.5:1;x.strokeRect(10,y,560,22);x.lineWidth=1;
+    x.fillStyle=css('--ink');x.font='12px monospace';x.fillText(`linia ${i}  V=${L.v}  tag=${L.v?L.tag:'-'}  ${L.v?`bloc ${L.tag*8+i}: cuvintele ${(L.tag*8+i)*4}..${(L.tag*8+i)*4+3}`:'(goală)'}`,18,y+15)});
+  const n=CH.hits+CH.miss,ht=num($('#chHt').value),mp=num($('#chMp').value),mr=n?CH.miss/n:0;
+  x.font='bold 14px sans-serif';x.fillStyle=css('--ink');x.fillText(CH.cur?`adresa ${CH.cur.ad} → bloc ${CH.cur.blk} → linia ${CH.cur.ln}, tag ${CH.cur.tag}: ${CH.cur.hit?'HIT ✔':'MISS ✘ (blocul se aduce din memorie)'}`:'Apasă „Rulează” sau „Pas”.',600,110);
+  x.font='13px sans-serif';x.fillText(`Hit-uri: ${CH.hits}`,600,150);x.fillText(`Miss-uri: ${CH.miss}`,600,172);x.fillText(`Rata de hit: ${n?(CH.hits/n*100).toFixed(1):0}%`,600,194);
+  $('#chOut').innerHTML=`Timp mediu de acces = hit time + rata de miss × penalizare = ${ht} + ${mr.toFixed(3)} × ${mp} = <b>${(ht+mr*mp).toFixed(2)} ns</b> (fără cache: ${mp} ns)`}
+$('#chRun').onclick=()=>{if(chTimer){clearInterval(chTimer);chTimer=null;$('#chRun').textContent='⏵ Rulează';return}if(CH.i>=CH.addr.length)chInit();$('#chRun').textContent='⏸ Pauză';chTimer=setInterval(()=>{if(!chStep()){clearInterval(chTimer);chTimer=null;$('#chRun').textContent='⏵ Rulează'}},+$('#chSpd').value)};
+$('#chStep').onclick=()=>{if(CH.i>=CH.addr.length)chInit();chStep()};$('#chPat').onchange=()=>{clearInterval(chTimer);chTimer=null;$('#chRun').textContent='⏵ Rulează';chInit()};$('#chHt').oninput=$('#chMp').oninput=chDraw;chInit();
+
+/* ---------- 11. DRAM ---------- */
+let DR={bits:[],q:[],refresh:true,row:0};const drNew=()=>{DR.bits=[...Array(64)].map(()=>Math.random()<.5?1:0);DR.q=DR.bits.map(b=>b)};drNew();
+setInterval(()=>{if(document.hidden||!$('#curs').classList.contains('active'))return;DR.q=DR.q.map((q,i)=>DR.bits[i]?Math.max(0,q-0.012-Math.random()*.006):0);
+  if(DR.refresh){DR.row=(DR.row+1)%4;for(let i=DR.row*16;i<DR.row*16+16;i++)if(DR.q[i]>0.5)DR.q[i]=1;else if(DR.bits[i]&&DR.q[i]<=.5){DR.q[i]=0;DR.bits[i]=0}}
+  const c=$('#drC'),x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);for(let i=0;i<64;i++){const X=10+(i%16)*55,y=10+Math.floor(i/16)*38;const q=DR.q[i];
+    x.strokeStyle=DR.refresh&&Math.floor(i/16)===DR.row?css('--acc2'):css('--line');x.lineWidth=2;x.strokeRect(X,y,46,30);x.fillStyle=q>.5?css('--acc'):q>0?css('--bad'):css('--card');x.fillRect(X+2,y+30-28*q,42,28*q);
+    x.fillStyle=css('--ink');x.font='bold 11px monospace';x.fillText(q>.5?'1':'0',X+20,y+19)}x.lineWidth=1},120);
+$('#drTog').onclick=()=>{DR.refresh=!DR.refresh;$('#drTog').textContent=DR.refresh?'Oprește reîmprospătarea':'Pornește reîmprospătarea'};$('#drNew').onclick=drNew;
+
+/* ---------- 12. Hard-disc ---------- */
+const HD={rot:0,track:0,headR:0,busy:false,target:null,phase:'',last:performance.now(),hl:null};const NT=8,NS=16,cx=210,cy=210,R0=55,R1=195;
+const trR=t=>R0+(t+.5)*(R1-R0)/NT;
+function hdDraw(){const c=$('#hdC'),x=c.getContext('2d');x.clearRect(0,0,420,420);x.save();x.translate(cx,cy);
+  x.fillStyle='#3b3f4a';x.beginPath();x.arc(0,0,R1+6,0,7);x.fill();
+  for(let t=0;t<NT;t++)for(let s=0;s<NS;s++){const a0=HD.rot+s*2*Math.PI/NS+0.02,a1=HD.rot+(s+1)*2*Math.PI/NS-0.02;const r0=R0+t*(R1-R0)/NT+1,r1=R0+(t+1)*(R1-R0)/NT-1;
+    const tg=HD.target&&HD.target[0]===t&&HD.target[1]===s;x.fillStyle=tg?(HD.phase==='transfer'?'#1f8a5b':'#e8a33d'):((t+s)%2?'#7d8595':'#8d95a6');x.beginPath();x.arc(0,0,r1,a0,a1);x.arc(0,0,r0,a1,a0,true);x.closePath();x.fill()}
+  x.fillStyle='#ccd';x.beginPath();x.arc(0,0,R0-6,0,7);x.fill();x.fillStyle='#555';x.beginPath();x.arc(0,0,12,0,7);x.fill();
+  // sector 0 marker
+  x.strokeStyle='#fff';x.lineWidth=2;x.beginPath();x.moveTo(Math.cos(HD.rot)*R0,Math.sin(HD.rot)*R0);x.lineTo(Math.cos(HD.rot)*R1,Math.sin(HD.rot)*R1);x.stroke();x.restore();
+  // braț
+  const hr=HD.headR||trR(0);x.fillStyle='#c9ccd6';x.fillRect(cx+hr-4,cy-7,420-(cx+hr)+4,14);x.fillStyle='#e8a33d';x.beginPath();x.moveTo(cx+hr-10,cy);x.lineTo(cx+hr+6,cy-9);x.lineTo(cx+hr+6,cy+9);x.closePath();x.fill();
+  x.fillStyle=css('--ink');x.font='11px sans-serif';x.textAlign='right';x.fillText('cap de citire/scriere →',416,cy+30);x.textAlign='left'}
+function hdLoop(t){const dt=t-HD.last;HD.last=t;const rpm=+$('#hdRpm').value,slow=+$('#hdSlow').value;const omega=rpm/60*2*Math.PI/1000/slow;HD.rot=(HD.rot+omega*dt)%(2*Math.PI);
+  if(HD.phase==='seek'){const goal=trR(HD.target[0]);const sp=(R1-R0)/NT/(0.5*slow);const d=goal-HD.headR;if(Math.abs(d)<sp*dt){HD.headR=goal;HD.phase='rot';HD.t1=t;HD.pa=null}else HD.headR+=Math.sign(d)*sp*dt}
+  else if(HD.phase==='rot'||HD.phase==='transfer'){const s=HD.target[1];const a=((-HD.rot-(s+1)*2*Math.PI/NS)%(2*Math.PI)+2*Math.PI)%(2*Math.PI);// distanța unghiulară până când marginea sectorului ajunge sub cap
+    if(HD.phase==='rot'){if(HD.pa!=null&&a>HD.pa+Math.PI){HD.phase='transfer';HD.t2=t}HD.pa=a}
+    if(HD.phase==='transfer'&&t-HD.t2>(60000/rpm/NS)*slow){HD.phase='done';HD.t3=t;hdReport()}}
+  hdDraw();requestAnimationFrame(hdLoop)}
+function hdReport(){const slow=+$('#hdSlow').value,rpm=+$('#hdRpm').value;const seek=(HD.t1-HD.t0)/slow,rot=(HD.t2-HD.t1)/slow,tr=(HD.t3-HD.t2)/slow;
+  $('#hdOut').innerHTML=`Citirea pistei ${HD.target[0]}, sectorul ${HD.target[1]}:\n1) căutare (seek): ${HD.from} → ${HD.target[0]} piste = <b>${seek.toFixed(2)} ms</b>\n2) latența de rotație: <b>${rot.toFixed(2)} ms</b>\n   (medie teoretică la ${rpm} rpm: 0.5/(${rpm}/60) = ${(30000/rpm).toFixed(2)} ms)\n3) transfer (1 sector din ${NS}): <b>${tr.toFixed(2)} ms</b>\n────────────\nTotal: <b>${(seek+rot+tr).toFixed(2)} ms</b> (timpii sunt reali; animația e încetinită de ${slow}×)\n<small>Timpul de căutare este modelat ca 0.5 ms/pistă (ilustrativ).</small>`;HD.track=HD.target[0]}
+function hdGo(t,s){if(HD.phase==='seek'||HD.phase==='rot'||HD.phase==='transfer')return;HD.from=HD.track;HD.target=[t,s];HD.phase='seek';HD.t0=performance.now();$('#hdOut').textContent=`Se caută pista ${t}… apoi se așteaptă sectorul ${s}.`}
+$('#hdGo').onclick=()=>hdGo(Math.max(0,Math.min(7,+$('#hdTr').value)),Math.max(0,Math.min(15,+$('#hdSec').value)));
+$('#hdC').onclick=e=>{const r=e.target.getBoundingClientRect(),k=420/r.width;const X=(e.clientX-r.left)*k-cx,Y=(e.clientY-r.top)*k-cy;const d=Math.hypot(X,Y);if(d<R0||d>R1)return;const t=Math.floor((d-R0)/((R1-R0)/NT));let a=Math.atan2(Y,X)-HD.rot;a=((a%(2*Math.PI))+2*Math.PI)%(2*Math.PI);const s=Math.floor(a/(2*Math.PI/NS));$('#hdTr').value=t;$('#hdSec').value=s;hdGo(t,s)};
+HD.headR=trR(0);requestAnimationFrame(hdLoop);$('#hdOut').textContent='Apasă pe un sector sau pe „Citește”.';
+function da(){const S_=num($('#daS').value),rpm=num($('#daR').value),P=num($('#daP').value),T=num($('#daT').value),O=num($('#daO').value);const rps=rpm/60,rot=0.5/rps*1000,tr=S_/(T*1024)*1000;
+  $('#daOut').innerHTML=`<div class="out">întârzierea medie = 0.5 / (${rpm} rot/min) = 0.5 / ${f2(rps,2)} rot/s = <b>${f2(rot,2)} ms</b>
+timpul de transfer = ${S_} KB / ${T} MB/s = <b>${f2(tr,4)} ms</b>
+timpul mediu de acces = ${P} + ${f2(rot,2)} + ${f2(tr,4)} + ${O} = <b>${f2(P+rot+tr+O,2)} ms</b></div>`}
+['#daS','#daR','#daP','#daT','#daO'].forEach(s=>$(s).oninput=da);da();
+
+/* ---------- 13. Memorie virtuală ---------- */
+let VM;function vmReset(){VM={pt:[...Array(16)].map(()=>({v:0,f:null})),frames:[null,null,null,null],tlb:[],fifo:[],log:[],stats:{tlb:0,pt:0,pf:0}};
+  [[3,2],[0,0],[7,1]].forEach(([p,f])=>{VM.pt[p]={v:1,f};VM.frames[f]=p;VM.fifo.push(f)});VM.cur=null;vmDraw('Memoria fizică conține deja paginile 0, 7 și 3. Introdu o adresă virtuală.')}
+function vmDraw(msg,hl={}){const svg=$('#vmSvg');svg.innerHTML='';const acc=css('--acc'),acc2=css('--acc2'),ink=css('--ink'),card=css('--card'),line=css('--line'),ok=css('--ok'),bad=css('--bad');
+  const box=(x,y,w,hh,t,on,col)=>{svg.append(S('rect',{x,y,width:w,height:hh,rx:6,fill:on?(col||css('--acc-soft')):card,stroke:on?acc2:line,'stroke-width':on?2.5:1}));if(t!=null)svg.append(S('text',{x:x+w/2,y:y+hh/2+4,'text-anchor':'middle','font-size':11.5,'font-family':'monospace',fill:ink},t))};
+  const T=(x,y,t,o={})=>svg.append(S('text',Object.assign({x,y,'font-size':12,fill:ink},o),t));
+  T(10,18,'Adresă virtuală',{'font-weight':700});if(VM.cur){const b=pad(VM.cur.va.toString(2),16);box(10,26,92,30,b.slice(0,4),hl.page);box(102,26,150,30,b.slice(4),hl.off);T(30,72,'pagina '+VM.cur.p,{'font-size':11});T(130,72,'deplasament 0x'+pad(VM.cur.o.toString(16).toUpperCase(),3),{'font-size':11})}
+  T(10,108,'TLB (2 intrări)',{'font-weight':700});[0,1].forEach(i=>{const e=VM.tlb[i];box(10,116+i*28,240,26,e?`pagina ${e.p} → cadrul ${e.f}`:'—',hl.tlb===i,hl.tlbHit?css('--ok-soft'):null)});
+  T(300,18,'Tabelul de pagini',{'font-weight':700});VM.pt.forEach((e,i)=>{const y=26+i*18.5;box(300,y,170,17,`${pad(i,2)}: ${e.v?'V=1 cadru '+e.f:'V=0 (pe disc)'}`,hl.pt===i,hl.pf?css('--bad-soft'):css('--ok-soft'))});
+  T(520,18,'Memoria fizică (4 cadre × 4 KB)',{'font-weight':700});VM.frames.forEach((p,i)=>{box(520,26+i*52,170,46,p==null?`cadrul ${i}: liber`:`cadrul ${i}: pagina ${p}`,hl.frame===i,hl.pf?css('--warn-soft'):css('--ok-soft'))});
+  T(720,18,'Disc',{'font-weight':700});svg.append(S('ellipse',{cx:790,cy:120,rx:62,ry:22,fill:hl.disk?css('--warn-soft'):card,stroke:hl.disk?acc2:line,'stroke-width':2}));svg.append(S('rect',{x:728,y:120,width:124,height:70,fill:hl.disk?css('--warn-soft'):card,stroke:'none'}));svg.append(S('ellipse',{cx:790,cy:190,rx:62,ry:22,fill:hl.disk?css('--warn-soft'):card,stroke:hl.disk?acc2:line,'stroke-width':2}));T(752,160,'toate paginile',{'font-size':11});
+  if(hl.pa!=null){T(520,250,'Adresă fizică:',{'font-weight':700});box(520,258,330,32,`0x${pad(hl.pa.toString(16).toUpperCase(),4)} = cadru ${hl.frame} · deplasament 0x${pad(VM.cur.o.toString(16).toUpperCase(),3)}`,true,css('--ok-soft'))}
+  T(10,320,`TLB hit: ${VM.stats.tlb} · găsit în tabel: ${VM.stats.pt} · page fault: ${VM.stats.pf}`,{'font-size':12,fill:css('--muted')});
+  if(msg){VM.log.unshift(msg);$('#vmLog').innerHTML=VM.log.slice(0,8).map((l,i)=>i?l:'<b>'+l+'</b>').join('\n')}}
+let vmBusy=0;
+async function vmGo(){const my=++vmBusy;let va=parseInt($('#vmA').value,16);if(isNaN(va))return;va&=0xFFFF;$('#vmA').value=pad(va.toString(16).toUpperCase(),4);const p=va>>12,o=va&0xFFF;VM.cur={va,p,o};const W=()=>sleep(900);
+  vmDraw(`Adresa 0x${$('#vmA').value}: pagina = adresa >> 12 = ${p}, deplasament = adresa & 0xFFF = 0x${pad(o.toString(16).toUpperCase(),3)}`,{page:1,off:1});await W();if(my!==vmBusy)return;
+  const ti=VM.tlb.findIndex(e=>e.p===p);let f;
+  if(ti>=0){f=VM.tlb[ti].f;VM.stats.tlb++;vmDraw(`TLB HIT: pagina ${p} → cadrul ${f} (fără acces la tabelul de pagini)`,{page:1,tlb:ti,tlbHit:1});await W()}
+  else{vmDraw(`TLB miss: pagina ${p} nu e în TLB → se consultă tabelul de pagini`,{page:1,pt:p});await W();if(my!==vmBusy)return;
+    if(VM.pt[p].v){f=VM.pt[p].f;VM.stats.pt++;vmDraw(`Tabelul de pagini: pagina ${p} este în memorie, în cadrul ${f}`,{pt:p,frame:f});await W()}
+    else{VM.stats.pf++;vmDraw(`PAGE FAULT: pagina ${p} nu este în memorie (V=0) → SO o aduce de pe disc`,{pt:p,pf:1,disk:1});await W();if(my!==vmBusy)return;
+      f=VM.frames.indexOf(null);let ev='';if(f<0){f=VM.fifo.shift();const old=VM.frames[f];VM.pt[old]={v:0,f:null};VM.tlb=VM.tlb.filter(e=>e.p!==old);ev=` (cadrul ${f} era ocupat de pagina ${old}, evacuată pe disc – FIFO)`}
+      VM.frames[f]=p;VM.fifo.push(f);VM.pt[p]={v:1,f};vmDraw(`Pagina ${p} încărcată în cadrul ${f}${ev}; tabelul de pagini actualizat`,{pt:p,frame:f,pf:1,disk:1});await W()}
+    if(my!==vmBusy)return;VM.tlb.unshift({p,f});VM.tlb=VM.tlb.slice(0,2);vmDraw(`Intrarea (pagina ${p} → cadrul ${f}) se adaugă în TLB`,{tlb:0});await W()}
+  if(my!==vmBusy)return;const pa=(f<<12)|o;vmDraw(`Adresa fizică = cadru ${f} << 12 | deplasament = 0x${pad(pa.toString(16).toUpperCase(),4)}`,{frame:f,pa})}
+$('#vmGo').onclick=vmGo;$('#vmRnd').onclick=()=>{$('#vmA').value=pad(rnd(0,0xFFFF).toString(16).toUpperCase(),4);vmGo()};$('#vmReset').onclick=()=>{vmBusy++;vmReset()};vmReset();
+
+/* ================= SEMINAR ================= */
+const PROBS=[
+ {t:'Legea lui Amdahl: îmbunătățire de 10 ori, folosită 30% din timp',s:['F = 0.3, N = 10','speedup = 1 / ((1 − 0.3) + 0.3/10) = 1 / (0.7 + 0.03) = 1 / 0.73','speedup ≈ <b>1.37</b>','Pentru K → ∞: speedup<sub>max</sub> = 1 / (1 − 0.3) = 1/0.7 ≈ <b>1.43</b> — oricât de mult am accelera componenta, sistemul nu devine mai rapid de 1.43 ori.']},
+ {t:'Latența de rotație la 3600 rpm și 5200 rpm',s:['3600 rpm = 3600/60 = 60 rotații/s','Întârzierea medie = 0.5/60 = 0.00833 s = <b>8.33 ms</b>','5200 rpm = 86.66 rotații/s','Întârzierea medie = 0.5/86.66 = 0.00576 s = <b>5.76 ms</b>']},
+ {t:'Exemplul 1: timpul mediu de acces (512 B, 7200 rpm, 6 ms, 50 MB/s, 0.2 ms)',s:['Întârzierea medie = 0.5 / (7200/60) = 0.5/120 s = 0.00417 s ≈ <b>4.16 ms</b>','Timpul de transfer = 0.5 KB / 50 MB/s ≈ <b>0.01 ms</b>','Timpul mediu = 6 + 4.16 + 0.01 + 0.2 = <b>10.37 ms</b>','Observație: poziționarea și rotația (mecanice) domină; transferul e neglijabil.']},
+ {t:'Test 1: capacitatea unui disc (5 platane, 1024 piste, 512 sectoare, 512 B)',s:['Capacitatea unei piste = 512 sectoare × 512 B = 262 144 B = 256 KB = 0.25 MB','Capacitatea unui platan = 1024 × 0.25 MB = 256 MB = 0.25 GB','Capacitatea totală = 5 × 0.25 GB = <b>1.25 GB</b> (1 342 177 280 B)','<div class="note fix">suportul de curs calculează 0.2 MB/pistă și obține 1 GB. Corect: 512 × 512 B = 0.25 MB/pistă, deci capacitatea totală este 1.25 GB.</div>']},
+ {t:'Test 2: timpul de acces pentru 1025 B (7200 rpm, 5 ms, 50 MB/s, 0.2 ms)',s:['Întârzierea medie = 0.5/120 s ≈ 4.16 ms','1025 B ≈ 1 KB ⇒ timpul de transfer = 1 KB / 50 MB/s ≈ 0.02 ms','Timpul mediu = 5 + 4.16 + 0.02 + 0.2 = <b>9.38 ms</b>','(Cu rotunjire corectă 0.5/120 s = 4.17 ms, se obține 9.39 ms.)']},
+ {t:'CPI și MIPS pentru un amestec de instrucțiuni',s:['Program: 50% ALU (CPI 1), 30% load/store (CPI 3), 20% salturi (CPI 2); f = 2 GHz','CPI = 0.5·1 + 0.3·3 + 0.2·2 = 0.5 + 0.9 + 0.4 = <b>1.8</b>','MIPS = f / (CPI·10<sup>6</sup>) = 2·10<sup>9</sup> / (1.8·10<sup>6</sup>) ≈ <b>1111</b>','Pentru I<sub>C</sub> = 10<sup>9</sup> instrucțiuni: T = I<sub>C</sub>·CPI/f = 10<sup>9</sup>·1.8 / 2·10<sup>9</sup> = <b>0.9 s</b>']},
+ {t:'Timpul mediu de acces cu memorie cache',s:['Hit time 1 ns, rata de miss 10%, penalizare 100 ns','t<sub>mediu</sub> = 1 + 0.1·100 = <b>11 ns</b>','Cu rata de miss 2%: 1 + 0.02·100 = <b>3 ns</b>','Concluzie: localitatea bună a programelor (rată de hit mare) face ca memoria să pară aproape la fel de rapidă ca cache-ul.']},
+ {t:'Translatarea adresei virtuale 0x3A7C (pagini de 4 KB)',s:['4 KB = 2<sup>12</sup> ⇒ ultimii 12 biți sunt deplasamentul','0x3A7C = 0011 1010 0111 1100 ⇒ pagina = 0011 = <b>3</b>, deplasament = 0xA7C','Tabelul de pagini: pagina 3 → cadrul 2','Adresa fizică = 2·4096 + 0xA7C = 0x2000 + 0xA7C = <b>0x2A7C</b>']},
+];
+const prSel=$('#prSel');PROBS.forEach((p,i)=>prSel.append(h('option',{value:i},`Problema ${i+1}. ${p.t}`)));
+const prStep=new Stepper('#prSt',{title:'',steps:[]});const loadPr=()=>{const p=PROBS[+prSel.value];prStep.setSteps(p.s,p.t)};prSel.onchange=loadPr;loadPr();
+const rel=(v,x,t=0.01)=>Math.abs(num(v)-x)<=Math.max(Math.abs(x)*t,0.006);
+const EX=[
+ {title:'Latența de rotație',gen(){const r=[3600,4500,5200,5400,7200,10000,15000][rnd(0,6)];const v=30000/r;return{q:`Calculați întârzierea medie de rotație (ms) pentru un disc de <b>${r} rpm</b>.`,check:x=>rel(x,v),sol:`${r} rpm = ${f2(r/60,2)} rot/s ⇒ 0.5/${f2(r/60,2)} s = <b>${f2(v,2)} ms</b>`}}},
+ {title:'Timpul mediu de acces la disc',gen(){const r=[5400,7200,10000][rnd(0,2)],p=rnd(3,10),t=[50,100,150][rnd(0,2)],s=[0.5,1,4][rnd(0,2)],o=[0.1,0.2,0.5][rnd(0,2)];const rot=30000/r,tr=s/(t*1024)*1000,T=p+rot+tr+o;
+   return{q:`Disc: ${r} rpm, poziționare ${p} ms, rată ${t} MB/s, sector ${s} KB, overhead ${o} ms. Timpul mediu de acces (ms)?`,check:x=>rel(x,T),sol:`${p} + ${f2(rot,2)} + ${f2(tr,4)} + ${o} = <b>${f2(T,2)} ms</b>`}}},
+ {title:'Capacitatea discului',gen(){const pl=rnd(2,8),tr=[512,1024,2048][rnd(0,2)],se=[256,512,1024][rnd(0,2)],b=512;const G=pl*tr*se*b/2**30;
+   return{q:`${pl} platane, ${tr} piste/platan, ${se} sectoare/pistă, ${b} B/sector. Capacitatea în GB (1 GB = 2<sup>30</sup> B)?`,check:x=>rel(x,G),sol:`${pl}·${tr}·${se}·${b} = ${(pl*tr*se*b).toLocaleString('ro-RO')} B = <b>${f2(G,4)} GB</b>`}}},
+ {title:'Legea lui Amdahl',gen(){const F=rnd(2,9)/10,N=[2,4,5,8,10,20][rnd(0,5)];const s=1/((1-F)+F/N);return{q:`O componentă folosită <b>${F*100}%</b> din timp devine de <b>${N}</b> ori mai rapidă. Speedup-ul total?`,check:x=>rel(x,s),sol:`1/((1 − ${F}) + ${F}/${N}) = 1/${f2((1-F)+F/N,4)} = <b>${f2(s,3)}</b>; maximul posibil: ${f2(1/(1-F),3)}`}}},
+ {title:'CPI mediu',gen(){const a=rnd(3,6)*10,b=rnd(1,4)*10,c=100-a-b;const ca=1,cb=rnd(2,4),cc=rnd(2,6);const C=(a*ca+b*cb+c*cc)/100;return{q:`${a}% instrucțiuni cu CPI ${ca}, ${b}% cu CPI ${cb}, ${c}% cu CPI ${cc}. CPI mediu?`,check:x=>rel(x,C),sol:`${a/100}·${ca} + ${b/100}·${cb} + ${c/100}·${cc} = <b>${f2(C,3)}</b>`}}},
+ {title:'MIPS',gen(){const f=[1,1.5,2,2.5,3,4][rnd(0,5)],C=[1,1.2,1.5,2,2.5,4][rnd(0,5)];const M=f*1000/C;return{q:`Procesor de <b>${f} GHz</b>, CPI = <b>${C}</b>. Câți MIPS?`,check:x=>rel(x,M),sol:`MIPS = f/(CPI·10<sup>6</sup>) = ${f}·10<sup>9</sup>/(${C}·10<sup>6</sup>) = <b>${f2(M,1)}</b>`}}},
+ {title:'Conversie de unități',gen(){const u=rnd(1,3),v=rnd(2,64);const names=['B','KB','MB','GB'];return{q:`Câți ${names[u-1]} are <b>${v} ${names[u]}</b>?`,check:x=>rel(x,v*1024),sol:`${v} × 1024 = <b>${v*1024} ${names[u-1]}</b>`}}},
+ {title:'Pagină și deplasament',ph:'ex. 3 A7C',gen(){const va=rnd(0,0xFFFF),p=va>>12,o=va&0xFFF;const H=pad(va.toString(16).toUpperCase(),4);return{q:`Pagini de 4 KB. Pentru adresa virtuală <b>0x${H}</b> scrieți numărul paginii și deplasamentul (hex), separate prin spațiu.`,check:x=>{const m=x.trim().toUpperCase().replace(/0X/g,'').split(/[\s,;]+/);return m.length===2&&parseInt(m[0],16)===p&&parseInt(m[1],16)===o},sol:`pagina = 0x${H} >> 12 = <b>${p.toString(16).toUpperCase()}</b>; deplasament = 0x${H} & 0xFFF = <b>${pad(o.toString(16).toUpperCase(),3)}</b>`}}},
+];
+EX.forEach(e=>{const d=h('div');$('#exGrid').append(d);Exercise(d,e)});
+
+/* ================= LABORATOR ================= */
+$('#l1out').textContent=`char: 1 octet(i), adresa 0x7ffd3a1c2b4f
+short: 2, int: 4, long long: 8, double: 8
+pointer: 8 octeti -> spatiu de adrese de 64 biti
+&v[0] = 0x7ffd3a1c2b60
+&v[1] = 0x7ffd3a1c2b64
+&v[2] = 0x7ffd3a1c2b68
+&v[3] = 0x7ffd3a1c2b6c`;
+$('#l2run').onclick=()=>{const x=(parseInt($('#l2x').value,16)>>>0)||0;let o=`x (hex) = ${x.toString(16)}\n`;for(let k=0;k<4;k++)o+=`adresa+${k}: ${pad(((x>>>(8*k))&255).toString(16).toUpperCase(),2)}\n`;$('#l2out').textContent=o+'little-endian'};
+$('#l3run').onclick=()=>{const sim=(order)=>{const lines=[...Array(8)].map(()=>-1);let m=0;for(let a=0;a<16;a++)for(let b=0;b<16;b++){const i=order?b:a,j=order?a:b;const addr=(i*16+j)*4,blk=addr>>4,ln=blk%8;if(lines[ln]!==blk){m++;lines[ln]=blk}}return m};
+  const r=sim(0),c=sim(1);$('#l3out').textContent=`Matrice 16x16 de int (1024 octeti), cache 8 linii x 16 octeti (4 int/linie)\npe linii:   ${r} miss-uri din 256 accesari (rata de hit ${((256-r)/256*100).toFixed(1)}%)\npe coloane: ${c} miss-uri din 256 accesari (rata de hit ${((256-c)/256*100).toFixed(1)}%)\n=> parcurgerea pe linii foloseste fiecare bloc adus in cache de 4 ori (localitate spatiala).`};
+$('#l4run').onclick=()=>{const[s,r,p,t,o]=$('#l4in').value.trim().split(/\s+/).map(num);const rot=0.5/(r/60)*1000,tr=s/(t*1024)*1000;$('#l4out').textContent=`sector(KB) rpm pozitionare(ms) rata(MB/s) overhead(ms): ${$('#l4in').value}\nintarziere de rotatie = ${rot.toFixed(2)} ms\ntimp de transfer      = ${tr.toFixed(4)} ms\ntimp mediu de acces   = ${(p+rot+tr+o).toFixed(2)} ms`};
+$('#l5run').onclick=()=>{const F=num($('#l5f').value);const sp=N=>1/((1-F)+F/N);$('#l5out').textContent=`F = ${F}\n`+[1,2,4,8,16,100,1000].map(N=>`N = ${String(N).padStart(4)}  speedup = ${sp(N).toFixed(3)}`).join('\n')+`\nlimita (N -> infinit) = ${(1/(1-F)).toFixed(3)}`};
+$('#l6run').onclick=()=>{const va=(parseInt($('#l6a').value,16)>>>0)||0;const p=va>>>12,o=va&0xFFF;$('#l6out').textContent=`adresa virtuala (hex) = ${va.toString(16)}\npagina = ${p} (0x${p.toString(16).toUpperCase()}), deplasament = ${o} (0x${pad(o.toString(16).toUpperCase(),3)})\nadresa fizica = 0x${((7<<12)|o).toString(16).toUpperCase()}`};
+['#l2run','#l3run','#l4run','#l5run','#l6run'].forEach(s=>$(s).click());
+
+/* ================= TEST ================= */
+Quiz('#quiz',[
+ {open:true,t:'Un hard-disk cu 5 platane are 1024 de piste per platan, 512 sectoare per pistă și 512 bytes per sector. Care este capacitatea totală a discului?',expl:'5 × 1024 × 512 × 512 B = 1 342 177 280 B. O pistă are 512 × 512 B = 256 KB = 0.25 MB; un platan 1024 × 0.25 MB = 256 MB; total 5 × 256 MB = 1280 MB = <b>1.25 GB</b>.<div class="note fix">suportul de curs folosește 0.2 MB/pistă și obține 1 GB; valoarea corectă este 1.25 GB.</div>'},
+ {open:true,t:'Calculați timpul de citire/scriere pentru 1025 bytes pentru un hard-disk cu: 7200 rpm, timp mediu de poziționare 5 ms, rată de transfer 50 MB/s, overhead-ul controlerului 0.2 ms.',expl:'Întârzierea medie = 0.5/(7200 rot/min) = 0.5/120 rot/s ≈ 4.16 ms. Timpul de transfer ≈ 1 KB / 50 MB/s ≈ 0.02 ms. Timpul mediu de acces = 5 + 4.16 + 0.02 + 0.2 = <b>9.38 ms</b>.'},
+ {t:'Viteza cu care un disc poate găsi informațiile căutate se numește:',opts:['timp de acces','timp de poziționare','seek time','overhead'],a:0,expl:'Răspunsul din curs: <b>timpul de acces</b> – include poziționarea, latența de rotație, transferul și overhead-ul. Timpul de poziționare (seek time) este doar o componentă a sa.'},
+ {t:'<span class="pill">suplimentar</span> Care nivel din ierarhia Tanenbaum este primul programabil de utilizator?',opts:['nivelul logic','nivelul microarhitecturii','nivelul setului de instrucțiuni','nivelul sistemului de operare'],a:2,expl:'Nivelul ISA este interfața dintre software și hardware și primul nivel programabil de utilizator.'},
+ {t:'<span class="pill">suplimentar</span> Registrul care reține adresa următoarei instrucțiuni este:',opts:['AR','IR','PC','AC'],a:2,expl:'Contorul de program (PC) reține adresa următoarei instrucțiuni care va fi citită din memorie.'},
+ {t:'<span class="pill">suplimentar</span> O îmbunătățire accelerează de 10 ori 30% din timpul de execuție. Câștigul total este aproximativ:',opts:['3','1.37','10','1.43'],a:1,expl:'1/(0.7 + 0.03) ≈ 1.37 (maximul posibil, pentru N → ∞, este 1.43).'},
+ {t:'<span class="pill">suplimentar</span> Banda magnetică este un exemplu de memorie cu acces:',opts:['aleator','direct','secvențial','asociativ'],a:2,expl:'Pentru a ajunge la înregistrarea n trebuie parcurse primele n − 1.'},
+ {t:'<span class="pill">suplimentar</span> De ce trebuie reîmprospătată memoria DRAM?',opts:['pentru că e nevolatilă','pentru că condensatoarele se descarcă în timp','pentru a șterge datele vechi','pentru a crește frecvența de ceas'],a:1,expl:'Informația este stocată ca sarcină în condensatoare, care se descarcă; datele se citesc și se rescriu la fiecare câteva milisecunde.'},
+ {t:'<span class="pill">suplimentar</span> Ce reprezintă TLB?',opts:['un tip de memorie ROM','un cache pentru intrările recente din tabelul de pagini','tabelul de pagini al sistemului de operare','un registru al ALU'],a:1,expl:'Translation Look-aside Buffer: cache din MMU pentru translatările recente pagină → cadru.'},
+ {t:'<span class="pill">suplimentar</span> Executarea repetată a instrucțiunilor dintr-o buclă ilustrează:',opts:['localitatea temporală','localitatea spațială','fragmentarea memoriei','segmentarea'],a:0,expl:'Aceleași instrucțiuni sunt accesate din nou la scurt timp: localitate temporală.'},
+]);
+
+renderCode();initShell();
+$('#themeBtn').addEventListener('click',()=>setTimeout(()=>{am();chDraw();acDraw([null,null,null,null]);cpuDraw('Temă schimbată.');vmDraw()},30));
+
+</script>
+</body>
+</html>
