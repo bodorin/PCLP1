@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UI 9 · Instrucțiunile limbajului C/C++. Structuri algoritmice fundamentale — PCLP I</title>
+<style>
+:root{
+  --paper:#f6f4ee; --card:#ffffff; --ink:#1c2230; --muted:#5d6678; --line:#e2ddd2;
+  --acc:#2f5bd3; --acc2:#e8a33d; --acc-soft:#e7edfb; --ok:#1f8a5b; --ok-soft:#e3f4ec;
+  --bad:#c23a3a; --bad-soft:#fbe9e9; --warn:#a86a00; --warn-soft:#fff4dc;
+  --mono:"JetBrains Mono","Cascadia Code","Fira Code",Consolas,"DejaVu Sans Mono",monospace;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"DejaVu Serif",serif;
+  --sans:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+  --r:12px; --shadow:0 1px 2px rgba(20,25,40,.06),0 4px 14px rgba(20,25,40,.06);
+}
+body.dark{
+  --paper:#12151c; --card:#1b2029; --ink:#e6e9f0; --muted:#9aa3b5; --line:#2c3340;
+  --acc-soft:#1f2a44; --ok-soft:#14302a; --bad-soft:#3a1d1f; --warn-soft:#3a2e14;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);transition:background .3s,color .3s}
+h1,h2,h3,h4{font-family:var(--serif);line-height:1.25;margin:1.2em 0 .5em}
+h1{font-size:1.9rem;margin:0}
+h2{font-size:1.55rem;border-bottom:2px solid var(--line);padding-bottom:.3em}
+h3{font-size:1.2rem;color:var(--acc)}
+h4{font-size:1.05rem}
+a{color:var(--acc)}
+code,.mono{font-family:var(--mono);font-size:.92em}
+p{margin:.5em 0 .8em}
+small{color:var(--muted)}
+
+/* ===== Header ===== */
+header.top{position:sticky;top:0;z-index:50;background:var(--card);border-bottom:1px solid var(--line);box-shadow:var(--shadow)}
+.top-inner{max-width:1240px;margin:0 auto;padding:.8rem 1.2rem .3rem;display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
+.badge-ui{background:var(--acc);color:#fff;font-weight:700;border-radius:10px;padding:.35rem .7rem;font-family:var(--mono);letter-spacing:.03em}
+.top-title{flex:1;min-width:260px}
+.top-title .sub{color:var(--muted);font-size:.9rem}
+.top-title h1{font-size:1.25rem}
+.icon-btn{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:8px;padding:.35rem .6rem;cursor:pointer;font-size:.95rem}
+.icon-btn:hover{background:var(--acc-soft)}
+nav.tabs{max-width:1240px;margin:0 auto;padding:0 1.2rem;display:flex;gap:.25rem;overflow-x:auto}
+nav.tabs button{border:none;background:none;color:var(--muted);font:600 .98rem var(--sans);padding:.6rem 1rem;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+nav.tabs button:hover{color:var(--ink)}
+nav.tabs button.active{color:var(--acc);border-bottom-color:var(--acc)}
+.progress{height:3px;background:var(--line)}
+.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .15s}
+
+/* ===== Layout ===== */
+main{max-width:1240px;margin:0 auto;padding:1.2rem}
+.panel{display:none;animation:fadeUp .35s ease}
+.panel.active{display:block}
+.with-toc{display:grid;grid-template-columns:240px 1fr;gap:1.6rem;align-items:start}
+.toc{position:sticky;top:120px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:.8rem;font-size:.9rem;max-height:calc(100vh - 140px);overflow:auto}
+.toc b{display:block;font-family:var(--serif);margin-bottom:.4rem}
+.toc a{display:block;color:var(--muted);text-decoration:none;padding:.25rem .5rem;border-radius:6px;border-left:3px solid transparent}
+.toc a:hover{background:var(--acc-soft);color:var(--ink)}
+.toc a.on{border-left-color:var(--acc);color:var(--acc);background:var(--acc-soft);font-weight:600}
+@media(max-width:900px){.with-toc{grid-template-columns:1fr}.toc{position:static;max-height:none}}
+
+section.unit-sec{scroll-margin-top:120px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1.1rem 1.3rem;margin:1rem 0;box-shadow:var(--shadow)}
+.card>h3:first-child,.card>h4:first-child{margin-top:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+@media(max-width:800px){.grid2,.grid3{grid-template-columns:1fr}}
+.hero{background:linear-gradient(135deg,var(--acc) 0%,#20366f 100%);color:#fff;border-radius:16px;padding:1.6rem 1.8rem;margin-bottom:1.2rem;position:relative;overflow:hidden}
+.hero h2{border:none;color:#fff;margin:0 0 .4rem;font-size:1.7rem}
+.hero ul{margin:.3rem 0 0;padding-left:1.2rem}
+.hero .meta{opacity:.85;font-size:.9rem;margin-top:.8rem}
+.hero canvas{position:absolute;inset:0;opacity:.18;pointer-events:none}
+.hero>*{position:relative}
+
+.note{border-left:4px solid var(--acc);background:var(--acc-soft);padding:.6rem .9rem;border-radius:0 8px 8px 0;margin:.8rem 0}
+.note.obs{border-color:var(--acc2);background:var(--warn-soft)}
+.note.fix{border-color:var(--bad);background:var(--bad-soft)}
+.note.fix::before{content:"Notă de corectură · ";font-weight:700;color:var(--bad)}
+.note.obs::before{content:"Obs. · ";font-weight:700;color:var(--warn)}
+.def{border:1px dashed var(--acc);border-radius:10px;padding:.6rem .9rem;margin:.8rem 0}
+.def b:first-child{color:var(--acc)}
+.formula{font-family:var(--serif);font-size:1.15rem;text-align:center;padding:.7rem;margin:.6rem 0;background:var(--paper);border-radius:8px;overflow-x:auto}
+
+table.t{border-collapse:collapse;width:100%;margin:.6rem 0;font-size:.93rem}
+table.t th,table.t td{border:1px solid var(--line);padding:.35rem .55rem;text-align:center}
+table.t th{background:var(--acc-soft);font-weight:600}
+table.t tr:hover td{background:rgba(127,127,127,.06)}
+table.t td.l,table.t th.l{text-align:left}
+.scroll-x{overflow-x:auto}
+
+/* ===== Controls ===== */
+button.btn,.btn{border:1px solid var(--acc);background:var(--acc);color:#fff;border-radius:8px;padding:.42rem .9rem;font:600 .92rem var(--sans);cursor:pointer;transition:transform .1s,filter .15s}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;color:var(--acc)}
+.btn.small{padding:.25rem .6rem;font-size:.85rem}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+input[type=text],input[type=number],select,textarea{font:1rem var(--mono);padding:.4rem .55rem;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);min-width:0}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--acc);outline-offset:1px}
+input[type=range]{accent-color:var(--acc);width:100%}
+.row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin:.5rem 0}
+.row label{font-size:.9rem;color:var(--muted)}
+.out{font-family:var(--mono);background:var(--paper);border-radius:8px;padding:.6rem .8rem;margin:.5rem 0;white-space:pre-wrap;word-break:break-all;min-height:2.2em}
+.pill{display:inline-block;padding:.05rem .5rem;border-radius:999px;background:var(--acc-soft);color:var(--acc);font-size:.8rem;font-weight:600}
+.ok{color:var(--ok);font-weight:600}.bad{color:var(--bad);font-weight:600}
+.hl{background:var(--acc2);color:#111;border-radius:4px;padding:0 .2em;transition:background .3s}
+
+/* ===== Bits ===== */
+.bits{display:inline-flex;gap:3px;flex-wrap:wrap;font-family:var(--mono)}
+.bit{width:30px;height:36px;display:inline-flex;align-items:center;justify-content:center;border:1.5px solid var(--line);border-radius:6px;background:var(--card);font-weight:700;font-size:1.05rem;transition:all .35s;position:relative;user-select:none}
+.bit.one{background:var(--acc);border-color:var(--acc);color:#fff}
+.bit.click{cursor:pointer}.bit.click:hover{transform:translateY(-2px)}
+.bit.flip{animation:flip .45s}
+.bit.sign{box-shadow:0 0 0 2px var(--bad) inset}
+.bit.exp{border-color:var(--acc2)}
+.bit.exp.one{background:var(--acc2);border-color:var(--acc2);color:#111}
+.bit.err{background:var(--bad)!important;border-color:var(--bad)!important;color:#fff!important;animation:shake .4s}
+.bit.par{border-style:dashed}
+.bit.gap{margin-left:10px}
+.bit .w{position:absolute;top:-17px;font-size:.62rem;color:var(--muted);font-weight:500}
+.bitlbl{display:flex;gap:3px;font:600 .7rem var(--mono);color:var(--muted)}
+.bitlbl span{width:30px;text-align:center}
+
+/* ===== Stepper ===== */
+.stepper{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin:.8rem 0;background:var(--card)}
+.stepper .st-head{display:flex;align-items:center;gap:.4rem;padding:.5rem .7rem;background:var(--acc-soft);flex-wrap:wrap}
+.stepper .st-title{font-weight:700;flex:1;min-width:140px}
+.stepper .st-count{font:600 .85rem var(--mono);color:var(--muted)}
+.stepper .st-body{padding:.9rem 1rem;min-height:90px}
+.stepper .st-bar{height:3px;background:var(--line)}
+.stepper .st-bar>div{height:100%;background:var(--acc);transition:width .3s}
+.step-line{opacity:0;transform:translateX(-8px);animation:slideIn .4s forwards}
+
+/* ===== Quiz ===== */
+.q{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1rem 1.2rem;margin:.9rem 0}
+.q .qn{font:700 .8rem var(--mono);color:var(--acc)}
+.q .qt{font-weight:600;margin:.2rem 0 .6rem}
+.q .opts{display:grid;gap:.4rem}
+.q .opt{border:1.5px solid var(--line);border-radius:8px;padding:.45rem .7rem;cursor:pointer;transition:all .2s;font-family:var(--mono);background:var(--paper)}
+.q .opt:hover{border-color:var(--acc)}
+.q .opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.q .opt.wrong{border-color:var(--bad);background:var(--bad-soft);animation:shake .35s}
+.q .expl{display:none;margin-top:.6rem;padding:.6rem .8rem;border-radius:8px;background:var(--paper);border-left:3px solid var(--ok)}
+.q.done .expl{display:block;animation:fadeUp .3s}
+.score{position:sticky;bottom:12px;margin-left:auto;width:max-content;background:var(--ink);color:var(--paper);padding:.5rem 1rem;border-radius:999px;font-weight:700;box-shadow:var(--shadow)}
+
+/* ===== Exercise ===== */
+.ex{border:1px solid var(--line);border-radius:var(--r);padding:.9rem 1.1rem;background:var(--card);margin:.8rem 0}
+.ex .ex-q{font-weight:600}
+.ex .fb{margin-top:.4rem;min-height:1.4em}
+.ex details{margin-top:.5rem}
+.ex summary{cursor:pointer;color:var(--acc);font-weight:600}
+.streak{font:700 .85rem var(--mono);color:var(--acc2)}
+
+/* ===== Code ===== */
+pre.code{background:#0f1420;color:#d8dee9;border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:13.5px/1.55 var(--mono);margin:.6rem 0;position:relative}
+pre.code .k{color:#81a1c1}pre.code .s{color:#a3be8c}pre.code .c{color:#6b7891;font-style:italic}pre.code .n{color:#b48ead}pre.code .f{color:#88c0d0}pre.code .p{color:#ebcb8b}
+.copy{position:absolute;top:6px;right:6px;background:#2b3245;color:#cdd6e4;border:none;border-radius:6px;padding:.15rem .5rem;font-size:.75rem;cursor:pointer}
+.term{background:#0b0d12;color:#9ef0a8;font:13px/1.5 var(--mono);border-radius:10px;padding:.8rem 1rem;white-space:pre-wrap;min-height:3em}
+
+/* ===== SVG helpers ===== */
+svg text{font-family:var(--sans)}
+.svgbox{width:100%;overflow-x:auto;background:var(--paper);border-radius:10px;padding:.4rem}
+svg .node circle,svg .node rect{transition:all .4s}
+.fadein{animation:fadeUp .5s both}
+
+/* ===== Animations ===== */
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes slideIn{to{opacity:1;transform:none}}
+@keyframes flip{0%{transform:rotateX(0)}50%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(47,91,211,.45)}50%{box-shadow:0 0 0 8px rgba(47,91,211,0)}}
+.pulse{animation:pulse 1.2s infinite}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+footer{max-width:1240px;margin:2rem auto 1rem;padding:1rem 1.2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--line)}
+.biblio li{margin:.2rem 0}
+@media print{header.top,.toc,.btn,.stepper .st-head{display:none!important}.panel{display:block!important}.with-toc{display:block}}
+
+:root{--acc:#c4502a;--acc2:#2f7dd3;--acc-soft:#fbe9e2}
+body.dark{--acc-soft:color-mix(in srgb,#c4502a 22%,#1b2029)}
+.hero{background:linear-gradient(135deg,#c4502a 0%,#1b2340 100%)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <span class="badge-ui">UI 09</span>
+    <div class="top-title"><div class="sub">Programarea calculatoarelor și limbaje de programare I · Unitatea de învățare nr. 9</div><h1>Instrucțiunile limbajului C/C++. Structuri algoritmice fundamentale</h1></div>
+    <button class="icon-btn" id="themeBtn" title="Temă luminoasă / întunecată">◐ Temă</button>
+    <button class="icon-btn" onclick="window.print()" title="Tipărire">⎙</button>
+  </div>
+  <nav class="tabs">
+    <button data-tab="curs">📘 Curs</button>
+    <button data-tab="seminar">✏️ Seminar</button>
+    <button data-tab="laborator">💻 Laborator</button>
+    <button data-tab="test">✅ Autoevaluare</button>
+  </nav>
+  <div class="progress"><div></div></div>
+</header>
+<main>
+<!-- ===================== CURS ===================== -->
+<div class="panel" id="curs">
+<div class="hero">
+  <h2>Instrucțiunile limbajului C/C++. Structuri algoritmice fundamentale</h2>
+  <div>Obiectivele unității de învățare nr. 9:</div>
+  <ul>
+    <li>Familiarizarea cu conceptele de bază – structurile logice: secvența, selecția și repetiția</li>
+    <li>Înțelegerea rolului structurilor de control în rezolvarea problemelor</li>
+    <li>Scrierea unor programe C++ simple, utilizând structuri secvențiale, condiționale și de repetiție</li>
+  </ul>
+  <div class="meta">⏱ Timp mediu de studiu: 3–4 ore · Toate programele din pagină pot fi executate pas cu pas, direct în browser.</div>
+</div>
+<div class="with-toc">
+<aside class="toc" data-for="curs"></aside>
+<div>
+<div class="note obs">Exemplele din suport folosesc stilul Borland C++ vechi (<code>#include &lt;iostream.h&gt;</code>, <code>void main()</code>, <code>getch()</code>). Aici sunt scrise în C++ standard (<code>#include &lt;iostream&gt;</code>, <code>using namespace std;</code>, <code>int main()</code>), care compilează cu orice compilator actual. Simulatorul acceptă ambele forme.</div>
+
+<section class="unit-sec" id="c1" data-title="1. Structura secvențială">
+<h2>1. Structura secvențială</h2>
+<p>Orice program C/C++, indiferent de complexitate, poate fi scris folosind una, două sau toate cele trei <b>structuri de bază</b>: <b>secvența</b>, <b>selecția</b> și <b>repetiția</b>. Ele se numesc <b>structuri de control</b> (structuri logice), pentru că stabilesc ordinea în care calculatorul execută instrucțiunile.</p>
+<p><b>Structura secvențială</b> execută instrucțiunile una după alta, în ordinea scrierii, fără ramificări sau salturi. Este folosită în toate programele.</p>
+<div class="grid2">
+<div class="card"><h4>Figura 1 – structura secvențială (animată)</h4>
+<div class="row"><label>n1</label><input type="number" id="sqA" value="8" style="width:70px"><label>n2</label><input type="number" id="sqB" value="9.5" step="0.5" style="width:70px"><button class="btn small" id="sqGo">▶ Rulează schema</button></div>
+<svg id="flSeq"></svg><div class="out" id="sqOut"></div></div>
+<div><div id="labSeq"></div></div>
+</div>
+<h3>Instrucțiunea compusă (blocul)</h3>
+<p>Un grup de instrucțiuni separate prin <code>;</code> și cuprinse între acolade <code>{ }</code>. Blocul poate conține declarații locale, valabile doar în interiorul lui:</p>
+<div class="formula" style="text-align:left;font-family:var(--mono);font-size:1rem">{ declarații și definiții locale blocului; instrucțiuni }</div>
+<div id="labBlock"></div>
+<div class="note obs">După execuția ultimei instrucțiuni din bloc, variabila <code>aux</code> nu mai există. Urmărește panoul „Variabile”: <code>aux</code> apare la intrarea în bloc și dispare la ieșire.</div>
+</section>
+
+<section class="unit-sec" id="c2" data-title="2. Structura decizională">
+<h2>2. Structura decizională (de selecție)</h2>
+<p>Indică faptul că într-un punct al programului trebuie luată o <b>decizie</b> în funcție de anumite condiții, urmată de acțiunea corespunzătoare. În C/C++ există trei structuri decizionale: <code>if</code> (decizia simplă), <code>if/else</code> și <code>switch</code> (unitatea 10).</p>
+<h3>Structura if (decizia simplă)</h3>
+<div class="formula" style="font-family:var(--mono)">if (expresie) instrucțiune;</div>
+<p><b>Funcționare:</b> se evaluează expresia. Dacă are o valoare <b>diferită de 0</b> (adevărat), se execută instrucțiunea; altfel se trece la instrucțiunea următoare lui <code>if</code>. Pentru mai multe instrucțiuni pe ramura „adevărat” se folosește un bloc <code>{ … }</code>.</p>
+<div class="grid2">
+<div class="card"><h4>Figura 2 – structura if</h4>
+<div class="row"><label>a = <b id="ifAv">10</b></label><input type="range" id="ifA" min="0" max="12" value="10" style="max-width:200px"><button class="btn small" id="ifGo">▶ Rulează</button></div>
+<svg id="flIf"></svg><div class="out" id="ifOut"></div></div>
+<div id="labIf"></div>
+</div>
+<h3>Structura if/else</h3>
+<div class="formula" style="font-family:var(--mono)">if (expresie) instrucțiune1; else instrucțiune2;</div>
+<p><b>Funcționare:</b> dacă expresia e diferită de 0 se execută <i>instrucțiune1</i>, altfel <i>instrucțiune2</i>; apoi se trece la instrucțiunea următoare.</p>
+<div class="grid2">
+<div class="card"><h4>Figura 3 – structura if/else</h4>
+<div class="row"><label>expresie</label><select id="ieC"><option value="1">≠ 0 (adevărat)</option><option value="0">= 0 (fals)</option></select><button class="btn small" id="ieGo">▶ Rulează</button></div>
+<svg id="flIfElse"></svg></div>
+<div class="card"><h4>Observații</h4><ol style="font-size:.95rem">
+<li>Înainte de <code>else</code> se pune <code>;</code> dacă <i>instrucțiune1</i> este simplă; nu se pune dacă este un bloc <code>{ }</code>.</li>
+<li>Ramurile pot conține alte instrucțiuni <code>if</code> (<b>if-uri imbricate</b>).</li>
+<li>Ramurile pot conține instrucțiuni compuse.</li></ol>
+<p>Secvențe corecte sintactic:</p>
+<pre class="code" data-c>
+k=3; if (!0) k++; else k--;
+if (1) cout<<"da"; else cout<<"nu";
+k=3; if (!k); else;
+if (0); else cout<<"nu";</pre></div>
+</div>
+<h3>If-uri imbricate: calculul expresiei e</h3>
+<div class="formula">e = x + y, dacă z &gt; 0 &nbsp;·&nbsp; e = x · y, dacă z = 0 &nbsp;·&nbsp; e = x − y, dacă z &lt; 0</div>
+<div id="labNest"></div>
+<div class="note fix">în suport apare <code>if (z= =0)</code>; operatorul corect este <code>==</code>, fără spațiu.</div>
+<h3>Capcana „else atârnat” (dangling else)</h3>
+<p>Compilatorul asociază <code>else</code> cu <b>cel mai apropiat <code>if</code></b> care îl precede, indiferent de indentare. Compară cele două variante pentru a = 100:</p>
+<div id="tabDang"></div><div id="labDang"></div>
+</section>
+
+<section class="unit-sec" id="c3" data-title="3. Structura repetitivă while">
+<h2>3. Structura repetitivă: ciclul cu test inițial</h2>
+<p>Ciclul <code>while</code> are un număr necunoscut de pași și este condiționat anterior:</p>
+<div class="formula" style="font-family:var(--mono)">while (expresie) instrucțiune;</div>
+<p><b>Funcționare:</b> se evaluează expresia; dacă valoarea e diferită de 0, se execută instrucțiunea și se revine la evaluare; dacă e 0, se trece la instrucțiunea următoare.</p>
+<div class="grid2">
+<div class="card"><h4>Schema logică a ciclului while</h4>
+<div class="row"><label>a</label><input type="number" id="whA" value="50" style="width:70px"><label>b</label><input type="number" id="whB" value="10" style="width:70px"><button class="btn small" id="whGo">▶ Rulează</button></div>
+<svg id="flWhile"></svg><div class="out" id="whOut"></div></div>
+<div id="labWhile"></div>
+</div>
+<h3>Observații: cazuri speciale</h3>
+<p>Alege un caz și rulează-l. Pentru ciclurile infinite, simulatorul se oprește după un număr limitat de pași.</p>
+<div id="tabSpecial"></div><div id="labSpecial"></div>
+<h3>Secvențe echivalente: suma primelor n numere naturale</h3>
+<p>Trei variante corecte. Varianta 3 folosește <b>operatorul virgulă</b>: valoarea expresiei este dată de ultima expresie din șir.</p>
+<div id="tabSum"></div><div id="labSum"></div>
+<div class="note fix">în suport, varianta 2 inițializează <code>s=i=0</code> și scrie <code>s+=++i</code>; condiția <code>i&lt;=n</code> face ca ultimul termen adunat să fie n+1 (rezultat greșit). Varianta corectă folosește <code>while(i&lt;n)</code>.</div>
+<h3>Inversarea cifrelor unui număr</h3>
+<div id="tabInv"></div><div id="labInv"></div>
+</section>
+
+<section class="unit-sec" id="c4" data-title="4. Exemple și aplicații">
+<h2>4. Exemple și aplicații</h2>
+<p>Pentru fiecare secvență, scrie ce crezi că se afișează, apoi verifică și urmărește execuția pas cu pas.</p>
+<div id="predGrid"></div>
+</section>
+
+<section class="unit-sec" id="c5" data-title="Rezumat">
+<h2>Rezumat</h2>
+<div class="card"><ul>
+<li>Orice program C/C++ poate fi scris folosind secvența, selecția și repetiția.</li>
+<li>Structura secvențială execută instrucțiunile în ordine, fără ramificări sau salturi.</li>
+<li>Instrucțiunea compusă (blocul) grupează instrucțiuni între acolade <code>{ }</code>.</li>
+<li>Structurile decizionale: <code>if</code>, <code>if/else</code>, <code>switch</code>; <code>else</code> se asociază cu cel mai apropiat <code>if</code>.</li>
+<li><code>while</code> este ciclul cu test inițial: corpul poate să nu se execute niciodată (condiție inițial falsă) sau să se execute la infinit (condiție mereu adevărată).</li>
+</ul></div>
+<h3>Bibliografie</h3>
+<ol class="biblio"><li>Dinu, S., Pomazan, C. „Programarea calculatoarelor”, Ed. Nautica, 2013.</li><li>Kernighan, B. W., Ritchie, D. M. „Limbajul C”, Ed. Teora, 2003.</li><li>Dinu, S., Vulcu, V. „Programarea Calculatoarelor – culegere de probleme”, Ed. Nautica, 2019.</li></ol>
+</section>
+</div></div></div>
+
+<!-- ===================== SEMINAR ===================== -->
+<div class="panel" id="seminar">
+<div class="with-toc"><aside class="toc" data-for="seminar"></aside><div>
+<section class="unit-sec" id="s1" data-title="Exerciții generate">
+<h2>„Ce se afișează?” – exerciții generate aleator</h2>
+<p>Fiecare exercițiu se generează din nou la cerere. Răspunsul corect este calculat prin executarea codului.</p>
+<div class="grid2" id="exGrid"></div>
+</section>
+<section class="unit-sec" id="s2" data-title="Urmărirea execuției (trace)">
+<h2>Urmărirea execuției pe hârtie (tabel de trace)</h2>
+<p>Completează un tabel cu valorile variabilelor după fiecare iterație, apoi compară cu simulatorul. Exemplu pentru secvența din test (întrebarea 2):</p>
+<div id="labTrace"></div>
+<table class="t" style="max-width:520px"><tr><th>Iterația</th><th>b</th><th>(b − a) % 3</th><th>condiție</th><th>afișează</th></tr>
+<tr><td>1</td><td>85</td><td>65 % 3 = 2</td><td>adevărat</td><td>85</td></tr>
+<tr><td>2</td><td>75</td><td>55 % 3 = 1</td><td>adevărat</td><td>75</td></tr>
+<tr><td>3</td><td>65</td><td>45 % 3 = 0</td><td>fals → ieșire</td><td>–</td></tr></table>
+</section>
+<section class="unit-sec" id="s3" data-title="Teme de seminar">
+<h2>Teme propuse pentru seminar</h2>
+<div class="card"><ol>
+<li>Desenați schema logică și scrieți programul care citește trei numere și afișează cel mai mare dintre ele.</li>
+<li>Scrieți un program care rezolvă ecuația de gradul I, a·x + b = 0, tratând cazurile a = 0.</li>
+<li>Realizați tabelul de trace pentru inversarea cifrelor lui n = 2026.</li>
+<li>Rescrieți, folosind operatorul virgulă, secvența care calculează produsul primelor n numere naturale.</li>
+<li>Explicați de ce <code>if (a = 5)</code> este întotdeauna adevărată și de ce <code>while (a = 5)</code> produce un ciclu infinit.</li>
+<li>Indentați corect și explicați ce afișează secvența cu „else atârnat” pentru a = −3, a = 20 și a = 100.</li>
+</ol></div>
+</section>
+</div></div></div>
+
+<!-- ===================== LABORATOR ===================== -->
+<div class="panel" id="laborator">
+<div class="with-toc"><aside class="toc" data-for="laborator"></aside><div>
+<section class="unit-sec" id="l0" data-title="Laborator liber">
+<h2>Laborator liber</h2>
+<p>Scrie orice program C++ (subsetul din curs: tipuri numerice, <code>if</code>, <code>while</code>, <code>cin</code>/<code>cout</code>, <code>printf</code>/<code>scanf</code>…) și rulează-l pas cu pas. Alege un șablon pentru început:</p>
+<div id="tabFree"></div><div id="labFree"></div>
+<p style="font-size:.9rem;color:var(--muted)">Simulatorul acceptă un subset al limbajului C/C++, suficient pentru unitățile 9–13. Pentru programe mari folosește un compilator real (g++, Code::Blocks, Dev-C++).</p>
+</section>
+<section class="unit-sec" id="l1" data-title="Probleme cu verificare automată">
+<h2>Probleme cu verificare automată</h2>
+<p>Scrie soluția în editor (✎ Editează), apoi apasă „Verifică pe toate testele”. Verificarea compară ultimele numere afișate de program cu rezultatul așteptat.</p>
+<div id="tasks"></div>
+</section>
+</div></div></div>
+
+<!-- ===================== TEST ===================== -->
+<div class="panel" id="test">
+<h2>Test de autoevaluare – Unitatea de învățare nr. 9</h2>
+<div id="quiz"></div>
+<div class="card"><h3>Soluția problemei 6, executabilă</h3><div id="labQ6"></div></div>
+</div>
+
+</main>
+<footer>
+  Material interactiv realizat pe baza suportului de curs „Programarea calculatoarelor și limbaje de programare I – Curs și aplicații”, Unitatea de învățare nr. 9.
+  Funcționează offline, fără dependențe externe.
+</footer>
+<script>
+/* ===== Utilitare comune ===== */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+function h(tag,attrs={},...kids){const e=document.createElement(tag);for(const[k,v]of Object.entries(attrs||{})){if(k==='class')e.className=v;else if(k==='html')e.innerHTML=v;else if(k.startsWith('on'))e.addEventListener(k.slice(2),v);else e.setAttribute(k,v)}for(const c of kids.flat()){if(c==null)continue;e.append(c.nodeType?c:document.createTextNode(c))}return e}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pad=(s,n,c='0')=>String(s).padStart(n,c);
+const fmt=(x,d=4)=>{const r=Number(x.toFixed(d));return String(r).replace('.',',')};
+const fmtDot=(x,d=4)=>String(Number(x.toFixed(d)));
+const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+function bitsHTML(str,o={}){
+  // o: {click, cls:(i,ch)=>string, weights:true, gapEvery:n, id}
+  let s='<span class="bits"'+(o.id?` id="${o.id}"`:'')+'>';
+  const n=str.length;
+  for(let i=0;i<n;i++){const ch=str[i];
+    if(ch===' '||ch==='.'||ch===','){s+=`<span style="align-self:center;font-weight:700;padding:0 2px">${ch===' '?'':ch}</span>`;continue}
+    let c='bit'+(ch==='1'?' one':'')+(o.click?' click':'');
+    if(o.cls)c+=' '+o.cls(i,ch);
+    if(o.gapEvery&&i>0&&(n-i)%o.gapEvery===0)c+=' gap';
+    const w=o.weights?`<span class="w">${o.weights===true?(n-1-i):o.weights[i]}</span>`:'';
+    s+=`<span class="${c}" data-i="${i}">${w}${ch}</span>`}
+  return s+'</span>'}
+
+/* ===== Tab-uri, cuprins, progres, temă ===== */
+function initShell(){
+  const btns=$$('nav.tabs button');
+  function show(id,push=true){btns.forEach(b=>b.classList.toggle('active',b.dataset.tab===id));$$('.panel').forEach(p=>p.classList.toggle('active',p.id===id));if(push)try{history.replaceState(null,'','#'+id)}catch(e){}window.scrollTo({top:0});setTimeout(spy,50)}
+  btns.forEach(b=>b.onclick=()=>show(b.dataset.tab));
+  const hsh=(location.hash||'').slice(1); show(btns.some(b=>b.dataset.tab===hsh)?hsh:btns[0].dataset.tab,false);
+  // cuprinsuri
+  $$('.toc[data-for]').forEach(toc=>{const p=document.getElementById(toc.dataset.for);toc.innerHTML='<b>Cuprins</b>';$$('section.unit-sec',p).forEach(s=>{const t=s.dataset.title||$('h2',s).textContent;toc.append(h('a',{href:'#'+s.id,onclick:e=>{e.preventDefault();s.scrollIntoView({behavior:'smooth'})}},t))})});
+  const bar=$('.progress>div');
+  function spy(){const st=document.documentElement;const pr=st.scrollTop/(st.scrollHeight-st.clientHeight||1);if(bar)bar.style.width=(pr*100)+'%';
+    const p=$('.panel.active');if(!p)return;const secs=$$('section.unit-sec',p);let cur=null;for(const s of secs){if(s.getBoundingClientRect().top<160)cur=s.id}
+    $$('.toc a',p).forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+cur))}
+  addEventListener('scroll',spy,{passive:true});
+  // temă
+  const tb=$('#themeBtn');if(store.get('dark',false))document.body.classList.add('dark');
+  if(tb)tb.onclick=()=>{document.body.classList.toggle('dark');store.set('dark',document.body.classList.contains('dark'))};
+  // copiere cod
+  $$('pre.code').forEach(p=>{const b=h('button',{class:'copy'},'copiază');b.onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(p.dataset.raw||p.innerText.replace(/copiază$/,''));b.textContent='copiat ✓';setTimeout(()=>b.textContent='copiază',1200)};p.append(b)});
+  heroRain();
+}
+
+/* fundal animat în banner: cifre binare care cad */
+function heroRain(){const hero=$('.hero');if(!hero)return;const c=h('canvas');hero.prepend(c);const x=c.getContext('2d');let W,H,cols,drops;
+  function rs(){W=c.width=hero.clientWidth;H=c.height=hero.clientHeight;cols=Math.floor(W/16);drops=Array.from({length:cols},()=>Math.random()*H/16)}
+  rs();addEventListener('resize',rs);
+  let last=0;function fr(t){requestAnimationFrame(fr);if(t-last<70)return;last=t;x.fillStyle='rgba(0,0,0,0.08)';x.globalCompositeOperation='destination-out';x.fillRect(0,0,W,H);x.globalCompositeOperation='source-over';x.fillStyle='#fff';x.font='14px monospace';
+    for(let i=0;i<cols;i++){x.fillText(Math.random()<.5?'0':'1',i*16,drops[i]*16);if(drops[i]*16>H&&Math.random()>.97)drops[i]=0;drops[i]+=.5}}
+  if(!matchMedia('(prefers-reduced-motion: reduce)').matches)requestAnimationFrame(fr)}
+
+/* ===== Stepper: animație pas cu pas ===== */
+class Stepper{
+  /* opts: {title, steps:[html|fn], cumulative:true|false, render:(i)=>html, n, delay, onShow:(i,body)=>{}} */
+  constructor(host,opts){this.o=Object.assign({delay:1400,cumulative:true},opts);this.i=-1;this.timer=null;
+    const el=typeof host==='string'?$(host):host;el.classList.add('stepper');el.innerHTML='';
+    this.n=this.o.n??this.o.steps.length;
+    const hd=h('div',{class:'st-head'});this.tt=h('span',{class:'st-title'},this.o.title||'Animație pas cu pas');
+    this.bR=h('button',{class:'btn small ghost',title:'De la început'},'⏮');this.bP=h('button',{class:'btn small ghost',title:'Pasul anterior'},'◀');
+    this.bN=h('button',{class:'btn small',title:'Pasul următor'},'Pas ▶');this.bA=h('button',{class:'btn small ghost',title:'Redare automată'},'⏵ Auto');
+    this.ct=h('span',{class:'st-count'});
+    hd.append(this.tt,this.ct,this.bR,this.bP,this.bN,this.bA);
+    this.bar=h('div',{class:'st-bar'},h('div'));this.body=h('div',{class:'st-body'});el.append(hd,this.bar,this.body);
+    this.bR.onclick=()=>{this.stop();this.go(-1)};this.bP.onclick=()=>{this.stop();this.go(this.i-1)};this.bN.onclick=()=>{this.stop();this.go(this.i+1)};
+    this.bA.onclick=()=>this.timer?this.stop():this.play();this.el=el;this.go(-1)}
+  setSteps(steps,title){this.stop();this.o.steps=steps;this.n=steps.length;if(title)this.tt.textContent=title;this.go(-1)}
+  go(i){i=Math.max(-1,Math.min(this.n-1,i));this.i=i;const o=this.o;
+    if(o.render){this.body.innerHTML=o.render(i)}
+    else if(o.cumulative){if(i<0)this.body.innerHTML=o.intro||'<small>Apasă „Pas ▶” sau „⏵ Auto” pentru a porni animația.</small>';else{this.body.innerHTML=(o.intro||'');for(let k=0;k<=i;k++){const s=o.steps[k];const d=h('div',{class:k===i?'step-line':''});d.innerHTML=typeof s==='function'?s():s;this.body.append(d)}}}
+    else{this.body.innerHTML=i<0?(o.intro||'<small>Apasă „Pas ▶”.</small>'):(typeof o.steps[i]==='function'?o.steps[i]():o.steps[i])}
+    if(o.onShow)o.onShow(i,this.body);
+    this.ct.textContent=`${i+1}/${this.n}`;this.bar.firstChild.style.width=((i+1)/this.n*100)+'%';this.bP.disabled=i<0;this.bN.disabled=i>=this.n-1}
+  play(){if(this.i>=this.n-1)this.go(-1);this.bA.textContent='⏸ Pauză';this.timer=setInterval(()=>{if(this.i>=this.n-1){this.stop();return}this.go(this.i+1)},this.o.delay)}
+  stop(){clearInterval(this.timer);this.timer=null;this.bA.textContent='⏵ Auto'}
+}
+
+/* ===== Test grilă ===== */
+function Quiz(host,qs,key){const el=typeof host==='string'?$(host):host;let score=0,ans=0;const sc=h('div',{class:'score'});
+  const upd=()=>sc.textContent=`Scor: ${score} / ${qs.filter(q=>!q.open).length}  ·  răspunse: ${ans}/${qs.length}`;
+  qs.forEach((q,qi)=>{const box=h('div',{class:'q'});box.append(h('div',{class:'qn'},`Întrebarea ${qi+1}`),h('div',{class:'qt',html:q.t}));
+    if(q.open){const ta=h('textarea',{rows:2,style:'width:100%',placeholder:'Scrie răspunsul tău aici (opțional), apoi verifică soluția…'});const b=h('button',{class:'btn small'},'Arată soluția');b.onclick=()=>{if(!box.classList.contains('done')){box.classList.add('done');ans++;upd()}};box.append(ta,h('div',{class:'row'},b))}
+    else{const opts=h('div',{class:'opts'});q.opts.forEach((o,oi)=>{const d=h('div',{class:'opt',html:String.fromCharCode(97+oi)+') '+o});d.onclick=()=>{if(box.classList.contains('done'))return;box.classList.add('done');ans++;if(oi===q.a){d.classList.add('right');score++}else{d.classList.add('wrong');opts.children[q.a].classList.add('right')}upd()};opts.append(d)});box.append(opts)}
+    box.append(h('div',{class:'expl',html:q.expl||''}));el.append(box)});
+  const rb=h('button',{class:'btn ghost',style:'margin-top:.5rem'},'↺ Reia testul');rb.onclick=()=>{el.innerHTML='';Quiz(el,qs,key)};el.append(rb,sc);upd()}
+
+/* ===== Exerciții generate ===== */
+function Exercise(host,o){const el=typeof host==='string'?$(host):host;el.classList.add('ex');let cur,streak=0;
+  const qd=h('div',{class:'ex-q'}),inp=h('input',{type:'text',placeholder:o.ph||'răspuns',style:'flex:1;min-width:160px'}),fb=h('div',{class:'fb'}),sol=h('div'),st=h('span',{class:'streak'});
+  const chk=h('button',{class:'btn small'},'Verifică'),nw=h('button',{class:'btn small ghost'},'↻ Exercițiu nou');
+  const det=h('details',{},h('summary',{},'Vezi rezolvarea pas cu pas'),sol);
+  el.append(h('div',{class:'row',style:'justify-content:space-between'},h('b',{},o.title||'Exercițiu'),st),qd,h('div',{class:'row'},inp,chk,nw),fb,det);
+  function gen(){cur=o.gen();qd.innerHTML=cur.q;inp.value='';fb.innerHTML='';sol.innerHTML=cur.sol;det.open=false}
+  function check(){const v=inp.value.trim();if(!v)return;const r=cur.check?cur.check(v):norm(v)===norm(cur.ans);
+    if(r){streak++;fb.innerHTML=`<span class="ok">✔ Corect!</span> ${streak>1?'Serie: '+streak+' 🔥':''}`}else{streak=0;fb.innerHTML=`<span class="bad">✘ Nu este corect.</span> Încearcă din nou sau vezi rezolvarea.`}st.textContent=streak?('serie '+streak):''}
+  const norm=s=>String(s).toUpperCase().replace(/\s|_/g,'').replace(',','.').replace(/^0+(?=.)/,'');
+  chk.onclick=check;inp.onkeydown=e=>{if(e.key==='Enter')check()};nw.onclick=gen;gen()}
+
+/* ===== Evidențiere sintaxă C ===== */
+function hlC(src){const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const re=/(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|(#\w+)|\b(int|unsigned|char|float|double|long|short|void|return|for|while|if|else|struct|union|const|sizeof|signed|do|break|uint8_t|uint16_t|uint32_t|int8_t|size_t|bool|switch|case|default|continue|goto|true|false|using|namespace|static|extern)\b|\b(0x[0-9a-fA-F]+|\d+\.?\d*[fFuU]?)\b|\b(printf|scanf|main|putchar|memcpy|strlen)\b/g;
+  let out='',last=0,m;while((m=re.exec(src))){out+=esc(src.slice(last,m.index));const t=esc(m[0]);
+    out+=m[1]?`<span class="c">${t}</span>`:m[2]?`<span class="s">${t}</span>`:m[3]?`<span class="p">${t}</span>`:m[4]?`<span class="k">${t}</span>`:m[5]?`<span class="n">${t}</span>`:`<span class="f">${t}</span>`;last=re.lastIndex}
+  return out+esc(src.slice(last))}
+function renderCode(){$$('pre.code[data-c]').forEach(p=>{const raw=p.textContent.replace(/^\n/,'');p.dataset.raw=raw;p.innerHTML=hlC(raw)})}
+
+/* ===== SVG ===== */
+const SVGNS='http://www.w3.org/2000/svg';
+function S(tag,attrs={},txt){const e=document.createElementNS(SVGNS,tag);for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);if(txt!=null)e.textContent=txt;return e}
+
+</script>
+<script>
+/* =====================================================================
+   Mini-interpretor C/C++ pentru predare (subset): pas cu pas, variabile,
+   stivă de apeluri, cout/cin, printf/scanf, funcții, referințe, tablouri.
+   ===================================================================== */
+const CVM=(function(){
+const TYPES=new Set(['int','char','float','double','bool','void','long','short','unsigned','signed','const','static','auto','register']);
+const KW=new Set(['if','else','while','do','for','switch','case','default','break','continue','return','using','namespace','struct','true','false','sizeof']);
+class CErr extends Error{constructor(msg,line){super(msg);this.line=line}}
+
+/* ---------- tokenizer ---------- */
+function lex(src){
+  src=src.replace(/[“”„]/g,'"').replace(/[‘’]/g,"'").replace(/\r/g,'');
+  const T=[];let i=0,line=1;const n=src.length;
+  const OPS=['<<=','>>=','...','->','++','--','<<','>>','<=','>=','==','!=','&&','||','+=','-=','*=','/=','%=','&=','|=','^=','::'];
+  while(i<n){const c=src[i];
+    if(c==='\n'){line++;i++;continue}
+    if(/\s/.test(c)){i++;continue}
+    if(c==='/'&&src[i+1]==='/'){while(i<n&&src[i]!=='\n')i++;continue}
+    if(c==='/'&&src[i+1]==='*'){i+=2;while(i<n&&!(src[i]==='*'&&src[i+1]==='/')){if(src[i]==='\n')line++;i++}i+=2;continue}
+    if(c==='#'){while(i<n&&src[i]!=='\n')i++;continue}
+    if(/[0-9]/.test(c)||(c==='.'&&/[0-9]/.test(src[i+1]))){let j=i;let isF=false;
+      if(c==='0'&&/[xX]/.test(src[i+1])){j+=2;while(/[0-9a-fA-F]/.test(src[j]))j++;T.push({k:'num',v:parseInt(src.slice(i,j),16),f:false,line});while(/[uUlL]/.test(src[j]))j++;i=j;continue}
+      while(/[0-9]/.test(src[j]))j++;if(src[j]==='.'){isF=true;j++;while(/[0-9]/.test(src[j]))j++}
+      if(/[eE]/.test(src[j])&&/[0-9+-]/.test(src[j+1])){isF=true;j++;if(/[+-]/.test(src[j]))j++;while(/[0-9]/.test(src[j]))j++}
+      const txt=src.slice(i,j);let fl=false;while(/[fFuUlL]/.test(src[j])){if(/[fF]/.test(src[j]))fl=true;j++}
+      T.push({k:'num',v:Number(txt),f:isF,fl,line});i=j;continue}
+    if(c==='"'||c==="'"){let j=i+1,s='';while(j<n&&src[j]!==c){if(src[j]==='\\'){const e=src[j+1];s+=({n:'\n',t:'\t',r:'\r','0':'\0','\\':'\\','"':'"',"'":"'",a:'\x07',b:'\b'})[e]??e;j+=2}else{if(src[j]==='\n')line++;s+=src[j++]}}
+      T.push(c==='"'?{k:'str',v:s,line}:{k:'chr',v:s.charCodeAt(0)||0,line});i=j+1;continue}
+    if(/[A-Za-z_]/.test(c)){let j=i;while(/[A-Za-z0-9_]/.test(src[j]))j++;const w=src.slice(i,j);T.push({k:TYPES.has(w)?'type':KW.has(w)?'kw':'id',v:w,line});i=j;continue}
+    const op=OPS.find(o=>src.startsWith(o,i));if(op){T.push({k:'op',v:op,line});i+=op.length;continue}
+    T.push({k:'op',v:c,line});i++}
+  T.push({k:'eof',v:'',line});return T}
+
+/* ---------- parser ---------- */
+function parse(src){const T=lex(src);let p=0;
+  const pk=(o=0)=>T[p+o],nx=()=>T[p++],is=(v,o=0)=>T[p+o].v===v&&T[p+o].k!=='str'&&T[p+o].k!=='chr';
+  const eat=v=>{if(!is(v))throw new CErr(`Se aștepta „${v}” dar s-a găsit „${pk().v||'sfârșitul fișierului'}”`,pk().line);return nx()};
+  const isTypeStart=()=>pk().k==='type'||(pk().v==='std'&&is('::',1));
+  function baseType(){const words=[];while(pk().k==='type'){const w=nx().v;if(!['const','static','auto','register','signed'].includes(w))words.push(w)}
+    let t=words.includes('double')?'double':words.includes('float')?'float':words.includes('char')?'char':words.includes('bool')?'bool':words.includes('void')?'void':words.includes('long')?'long':words.includes('short')?'short':words.includes('unsigned')?'unsigned':'int';
+    if(words.includes('unsigned')&&t==='char')t='uchar';if(words.length===0)t='int';return t}
+  function declarator(bt){let ref=false;while(is('*')){nx()}if(is('&')){nx();ref=true}
+    let name=null,line=pk().line;if(pk().k==='id')name=nx().v;const dims=[];
+    while(is('[')){nx();if(is(']')){nx();dims.push(null)}else{dims.push(expr());eat(']')}}
+    return{name,dims,ref,type:bt,line}}
+  function program(){const items=[];
+    while(pk().k!=='eof'){
+      if(is('using')){while(!is(';'))nx();nx();continue}
+      if(is(';')){nx();continue}
+      let line=pk().line;let bt;
+      if(pk().k==='id'&&pk().v==='main'&&is('(',1))bt='int';else bt=baseType();
+      const d=declarator(bt);
+      if(is('(')){nx();const params=[];
+        if(!is(')')){if(is('void')&&is(')',1))nx();else do{const pt=baseType();const pd=declarator(pt);params.push(pd)}while(is(',')&&nx())}
+        eat(')');
+        if(is(';')){nx();items.push({k:'proto',name:d.name,line});continue}
+        const body=block();items.push({k:'func',name:d.name,ret:bt,params,body,line});if(is(';'))nx();continue}
+      p--; // re-parse declarators via declStmt helper
+      while(T[p].line===line&&!(T[p].k==='type'||T[p].k==='id'))p--;
+      // simpler: rewind to start of declaration
+      items.push(declRest(bt,d,line));}
+    return items}
+  function declRest(bt,first,line){// first declarator already parsed; p points right after it
+    p++;const ds=[];let d=first;
+    for(;;){if(is('=')){nx();if(is('{')){d.init=initList()}else d.init=assign()}ds.push(d);if(is(',')){nx();d=declarator(bt);continue}break}
+    eat(';');return{k:'decl',ds,line}}
+  function initList(){eat('{');const L=[];if(!is('}'))do{if(is('}'))break;L.push(is('{')?initList():assign())}while(is(',')&&nx());eat('}');return{k:'list',items:L}}
+  function declStmt(){const line=pk().line;const bt=baseType();const ds=[];
+    do{const d=declarator(bt);if(!d.name)throw new CErr('Lipsește numele variabilei',line);if(is('=')){nx();d.init=is('{')?initList():assign()}else if(is('(')&&!d.dims.length){nx();d.init=expr();eat(')')}ds.push(d)}while(is(',')&&nx());
+    return{k:'decl',ds,line}}
+  function block(){const line=eat('{').line;const body=[];while(!is('}')){if(pk().k==='eof')throw new CErr('Lipsește „}”',line);body.push(stmt())}const end=nx().line;return{k:'block',body,line,end}}
+  function stmt(){const t=pk(),line=t.line;
+    if(is('{'))return block();
+    if(is(';')){nx();return{k:'empty',line}}
+    if(isTypeStart()&&!(pk().k==='type'&&is('(',1))){const d=declStmt();eat(';');return d}
+    if(t.k==='kw'||t.k==='id'){switch(t.v){
+      case'if':{nx();eat('(');const c=expr();eat(')');const th=stmt();let el=null;if(is('else')){nx();el=stmt()}return{k:'if',c,th,el,line}}
+      case'while':{nx();eat('(');const c=expr();eat(')');const b=stmt();return{k:'while',c,b,line}}
+      case'do':{nx();const b=stmt();const wl=eat('while').line;eat('(');const c=expr();eat(')');eat(';');return{k:'do',b,c,line,wl}}
+      case'for':{nx();eat('(');let init=null;if(!is(';')){init=isTypeStart()?declStmt():{k:'expr',e:expr(),line}}eat(';');const c=is(';')?null:expr();eat(';');const inc=is(')')?null:expr();eat(')');const b=stmt();return{k:'for',init,c,inc,b,line}}
+      case'switch':{nx();eat('(');const c=expr();eat(')');eat('{');const cases=[];let cur=null;
+        while(!is('}')){if(is('case')){const l=nx().line;const v=cond();eat(':');cur={v,body:[],line:l};cases.push(cur)}else if(is('default')){const l=nx().line;eat(':');cur={def:true,body:[],line:l};cases.push(cur)}else{if(!cur)throw new CErr('Instrucțiune în afara unui „case”',pk().line);cur.body.push(stmt())}}
+        nx();return{k:'switch',c,cases,line}}
+      case'break':nx();eat(';');return{k:'break',line};
+      case'continue':nx();eat(';');return{k:'continue',line};
+      case'return':{nx();const e=is(';')?null:expr();eat(';');return{k:'return',e,line}}
+    }}
+    const e=expr();eat(';');return{k:'expr',e,line}}
+  // expresii
+  function expr(){let e=assign();while(is(',')){const l=nx().line;e={k:'comma',a:e,b:assign(),line:l}}return e}
+  const AOPS=['=','+=','-=','*=','/=','%=','<<=','>>=','&=','|=','^='];
+  function assign(){const l=cond();if(pk().k==='op'&&AOPS.includes(pk().v)){const op=nx().v;return{k:'assign',op,l,r:assign(),line:l.line}}return l}
+  function cond(){const c=bin(0);if(is('?')){nx();const a=expr();eat(':');const b=cond();return{k:'tern',c,a,b,line:c.line}}return c}
+  const LV=[['||'],['&&'],['|'],['^'],['&'],['==','!='],['<','<=','>','>='],['<<','>>'],['+','-'],['*','/','%']];
+  function bin(lv){if(lv>=LV.length)return unary();let a=bin(lv+1);while(pk().k==='op'&&LV[lv].includes(pk().v)){const op=nx().v;a={k:'bin',op,a,b:bin(lv+1),line:a.line}}return a}
+  function unary(){const t=pk();
+    if(t.k==='op'&&['!','~','-','+','++','--','&','*'].includes(t.v)){nx();return{k:'un',op:t.v,e:unary(),line:t.line}}
+    if(is('(')&&pk(1).k==='type'){let q=p+1;while(T[q].k==='type'||T[q].v==='*')q++;if(T[q].v===')'){nx();const ty=baseType();while(is('*'))nx();eat(')');return{k:'cast',ty,e:unary(),line:t.line}}}
+    if(is('sizeof')){nx();if(is('(')&&pk(1).k==='type'){nx();const ty=baseType();eat(')');return{k:'num',v:{int:4,char:1,uchar:1,float:4,double:8,long:8,short:2,unsigned:4,bool:1}[ty]||4,f:false,line:t.line}}return{k:'sizeof',e:unary(),line:t.line}}
+    return postfix()}
+  function postfix(){let e=primary();for(;;){
+    if(is('[')){nx();const i=expr();eat(']');e={k:'idx',a:e,i,line:e.line}}
+    else if(is('(')&&e.k==='id'){nx();const args=[];if(!is(')'))do{args.push(assign())}while(is(',')&&nx());eat(')');e={k:'call',name:e.v,args,line:e.line}}
+    else if(is('++')||is('--')){e={k:'post',op:nx().v,e,line:e.line}}
+    else if(is('.')){nx();const m=nx().v;e={k:'member',e,m,line:e.line};if(is('(')){nx();const args=[];if(!is(')'))do{args.push(assign())}while(is(',')&&nx());eat(')');e={k:'mcall',obj:e.e,m,args,line:e.line}}}
+    else break}return e}
+  function primary(){const t=nx();
+    if(t.k==='num')return{k:'num',v:t.v,f:t.f,fl:t.fl,line:t.line};
+    if(t.k==='str'){let s=t.v;while(pk().k==='str')s+=nx().v;return{k:'str',v:s,line:t.line}}
+    if(t.k==='chr')return{k:'chr',v:t.v,line:t.line};
+    if(t.v==='true'||t.v==='false')return{k:'num',v:t.v==='true'?1:0,f:false,b:true,line:t.line};
+    if(t.v==='std'&&is('::')){nx();return primary()}
+    if(t.k==='type'&&is('(')){p--;const ty=baseType();eat('(');const e=expr();eat(')');return{k:'cast',ty,e,line:t.line}}
+    if(t.k==='id')return{k:'id',v:t.v,line:t.line};
+    if(t.v==='('){const e=expr();eat(')');return e}
+    throw new CErr(`Simbol neașteptat „${t.v||'sfârșitul fișierului'}”`,t.line)}
+  return program()}
+
+/* ---------- valori ---------- */
+const isInt=t=>['int','long','short','char','uchar','bool','unsigned'].includes(t);
+function conv(v,t){if(v==null||Number.isNaN(v))return v;switch(t){
+  case'int':return Math.trunc(v)|0;case'short':return(Math.trunc(v)<<16)>>16;case'char':return(Math.trunc(v)<<24)>>24;case'uchar':return Math.trunc(v)&255;
+  case'unsigned':return Math.trunc(v)>>>0;case'long':return Math.trunc(v);case'bool':return v?1:0;case'float':return Math.fround(v);default:return v}}
+function fmtG(x,prec=6){if(!isFinite(x))return Number.isNaN(x)?'nan':(x<0?'-inf':'inf');if(x===0)return Object.is(x,-0)?'-0':'0';
+  const ex=Math.floor(Math.log10(Math.abs(x)));if(ex<-5||ex>=prec){let s=x.toExponential(prec-1);let[m,e]=s.split('e');if(m.includes('.'))m=m.replace(/0+$/,'').replace(/\.$/,'');const sg=e[0]==='-'?'-':'+';e=e.replace(/^[+-]/,'');return m+'e'+sg+e.padStart(2,'0')}
+  let s=x.toFixed(Math.max(0,prec-1-ex));if(s.includes('.'))s=s.replace(/0+$/,'').replace(/\.$/,'');return s}
+function sprintf(fmt,args){let ai=0,out='';for(let i=0;i<fmt.length;i++){const c=fmt[i];if(c!=='%'){out+=c;continue}
+  const m=/^%([-+ 0#]*)(\*|\d+)?(?:\.(\*|\d+))?(hh|h|ll|l|L)?([diouxXcsfeEgG%])/.exec(fmt.slice(i));if(!m){out+=c;continue}i+=m[0].length-1;
+  const[,fl,w0,p0,,cv]=m;if(cv==='%'){out+='%';continue}let w=w0==='*'?args[ai++].v:w0?+w0:0,pr=p0==='*'?args[ai++].v:p0!=null?+p0:null;const a=args[ai++]||{v:0,t:'int'};let s;
+  switch(cv){case'd':case'i':s=String(Math.trunc(a.v));if(fl.includes('+')&&a.v>=0)s='+'+s;break;case'u':s=String(Math.trunc(a.v)>>>0);break;case'o':s=(Math.trunc(a.v)>>>0).toString(8);break;
+    case'x':s=(Math.trunc(a.v)>>>0).toString(16);break;case'X':s=(Math.trunc(a.v)>>>0).toString(16).toUpperCase();break;case'c':s=String.fromCharCode(a.v);break;
+    case's':s=a.t==='arr'?arrStr(a.v):String(a.v);if(pr!=null)s=s.slice(0,pr);break;case'f':s=Number(a.v).toFixed(pr??6);if(fl.includes('+')&&a.v>=0)s='+'+s;break;
+    case'e':case'E':{s=Number(a.v).toExponential(pr??6).replace(/e([+-])(\d)$/,'e$10$2');if(cv==='E')s=s.toUpperCase();break}case'g':case'G':s=fmtG(a.v,pr||6);break}
+  if(s.length<w){if(fl.includes('-'))s=s.padEnd(w);else if(fl.includes('0')&&'diuoxXfeE'.includes(cv)){const neg=s[0]==='-'||s[0]==='+';s=neg?s[0]+s.slice(1).padStart(w-1,'0'):s.padStart(w,'0')}else s=s.padStart(w)}out+=s}return out}
+function arrStr(arr){let s='';for(const b of arr){if(!b.v)break;s+=String.fromCharCode(b.v)}return s}
+
+/* ---------- mașina ---------- */
+class Machine{
+  constructor(src,input){this.ast=parse(src);this.inp=input||'';this.ip=0;this.out=[];this.funcs={};this.globals=new Map();this.stack=[];this.steps=0;this.msg='';this.line=0;this.seed=1;this.changed=new Set();
+    for(const it of this.ast)if(it.k==='func')this.funcs[it.name]=it;if(!this.funcs.main)throw new CErr('Programul nu conține funcția main()',1)}
+  emit(s,cls){if(!s)return;const L=this.out;if(L.length&&L[L.length-1].c===cls)L[L.length-1].s+=s;else L.push({s,c:cls})}
+  get output(){return this.out.map(o=>o.s).join('')}
+  scopes(){const f=this.stack[this.stack.length-1];return f?f.scopes:[]}
+  lookup(name,line){const sc=this.scopes();for(let i=sc.length-1;i>=0;i--)if(sc[i].has(name))return sc[i].get(name);if(this.globals.has(name))return this.globals.get(name);throw new CErr(`Variabila „${name}” nu este declarată`,line)}
+  *declare(d,scope){const t=d.type;let v;
+    if(d.dims.length){let dims=[];for(const e of d.dims){if(e===null){dims.push(null);continue}const r=yield*this.ev(e);dims.push(r.v)}
+      if(dims[0]===null){if(d.init&&d.init.k==='list')dims[0]=d.init.items.length;else if(d.init&&d.init.k==='str')dims[0]=d.init.v.length+1;else dims[0]=1}
+      const mk=k=>Array.from({length:dims[k]},()=>k===dims.length-1?{v:0,t}:mk(k+1));v={name:d.name,t,arr:mk(0),dims};
+      if(d.init){if(d.init.k==='list'){const fill=function*(a,L){for(let i=0;i<L.items.length&&i<a.length;i++){if(L.items[i].k==='list')yield*fill(a[i],L.items[i]);else{const r=yield*this.ev(L.items[i]);a[i].v=conv(r.v,t)}}}.bind(this);yield*fill(v.arr,d.init)}
+        else if(d.init.k==='str'){[...d.init.v].forEach((ch,i)=>{if(i<v.arr.length)v.arr[i].v=ch.charCodeAt(0)})}}}
+    else{v={name:d.name,t,box:{v:d.init?undefined:(scope===this.globals?0:undefined),t}};if(d.init){const r=yield*this.ev(d.init);v.box.v=conv(r.v,t)}}
+    if(scope.has(d.name)&&scope!==this.globals)throw new CErr(`Redeclararea variabilei „${d.name}”`,d.line);scope.set(d.name,v);this.changed.add(d.name)}
+  *run(){for(const it of this.ast)if(it.k==='decl'){for(const d of it.ds)yield*this.declare(d,this.globals)}
+    const r=yield*this.call(this.funcs.main,[],0);this.line=0;this.msg=`Programul s-a terminat${r&&r.v!==undefined?` (main a returnat ${r.v})`:''}.`;return r}
+  *call(f,args,line){if(this.stack.length>200)throw new CErr('Prea multe apeluri imbricate (recursivitate infinită?)',line);const sc=new Map();
+    f.params.forEach((pd,i)=>{const a=args[i];if(!pd.name)return;if(!a)throw new CErr(`Funcția ${f.name} primește prea puțini parametri`,line);
+      if(pd.dims.length){sc.set(pd.name,{name:pd.name,t:pd.type,arr:a.arr,dims:a.dims,alias:true})}
+      else if(pd.ref){if(!a.box)throw new CErr(`Parametrul prin referință „${pd.name}” cere o variabilă, nu o expresie`,line);sc.set(pd.name,{name:pd.name,t:pd.type,box:a.box,ref:true})}
+      else sc.set(pd.name,{name:pd.name,t:pd.type,box:{v:conv(a.v,pd.type),t:pd.type}})});
+    if(args.length>f.params.filter(p=>p.name||true).length)throw new CErr(`Funcția ${f.name} primește prea mulți parametri`,line);
+    this.stack.push({name:f.name,scopes:[sc],ret:f.ret,callLine:line});this.changed=new Set(f.params.map(p=>p.name));
+    if(f.name!=='main'){this.msg=`Apel ${f.name}(${args.map(a=>a.arr?'tablou':show(a)).join(', ')})`}
+    let rv;try{yield*this.exec(f.body,true)}catch(e){if(e&&e.ret)rv=e.v;else throw e}
+    this.stack.pop();if(f.ret!=='void'&&rv===undefined&&f.name!=='main')rv={v:undefined,t:f.ret};
+    if(rv)rv={v:conv(rv.v,f.ret),t:f.ret==='float'?'double':f.ret};
+    if(this.stack.length){this.line=line;this.msg=`Revenire din ${f.name}${rv&&f.ret!=='void'?` cu valoarea ${show(rv)}`:''}`;yield{k:'ret'}}
+    return rv||{v:undefined,t:'void'}}
+  *step(line,msg){this.line=line;if(msg!=null)this.msg=msg;this.steps++;if(this.steps>this.maxSteps)throw new CErr(`S-a depășit limita de ${this.maxSteps} pași (ciclu infinit?)`,line);yield{k:'step'}}
+  *exec(s,fnBody){switch(s.k){
+    case'block':{if(!fnBody)this.scopes().push(new Map());try{for(const x of s.body)yield*this.exec(x)}finally{if(!fnBody)this.scopes().pop()}if(fnBody){yield*this.step(s.end,'Sfârșitul funcției')}return}
+    case'decl':yield*this.step(s.line,'');for(const d of s.ds)yield*this.declare(d,this.scopes()[this.scopes().length-1]);this.msg='Declarare: '+s.ds.map(d=>d.name).join(', ');return;
+    case'expr':yield*this.step(s.line,'');this.changed=new Set();yield*this.ev(s.e);return;
+    case'empty':yield*this.step(s.line,'Instrucțiune vidă');return;
+    case'if':{yield*this.step(s.line,'');const c=yield*this.ev(s.c);const t=!!c.v;this.msg=`Condiția are valoarea ${show(c)} → ${t?'adevărat: se execută ramura if':s.el?'fals: se execută ramura else':'fals: se trece peste'}`;yield*this.step(s.line);
+      if(t)yield*this.exec(s.th);else if(s.el)yield*this.exec(s.el);return}
+    case'while':for(;;){yield*this.step(s.line,'');const c=yield*this.ev(s.c);this.msg=`while: condiția = ${show(c)} → ${c.v?'adevărat, se execută corpul':'fals, se iese din ciclu'}`;yield*this.step(s.line);if(!c.v)return;
+      try{yield*this.exec(s.b)}catch(e){if(e==='break')return;if(e!=='continue')throw e}}
+    case'do':for(;;){try{yield*this.exec(s.b)}catch(e){if(e==='break')return;if(e!=='continue')throw e}
+      yield*this.step(s.wl,'');const c=yield*this.ev(s.c);this.msg=`do-while: condiția = ${show(c)} → ${c.v?'adevărat, se reia corpul':'fals, se iese din ciclu'}`;yield*this.step(s.wl);if(!c.v)return}
+    case'for':{this.scopes().push(new Map());try{if(s.init){yield*this.step(s.line,'for: inițializare');if(s.init.k==='decl'){for(const d of s.init.ds)yield*this.declare(d,this.scopes()[this.scopes().length-1])}else yield*this.ev(s.init.e)}
+      for(;;){let ok=true;if(s.c){yield*this.step(s.line,'');const c=yield*this.ev(s.c);ok=!!c.v;this.msg=`for: condiția = ${show(c)} → ${ok?'adevărat, se execută corpul':'fals, se iese din ciclu'}`;yield*this.step(s.line)}if(!ok)break;
+        try{yield*this.exec(s.b)}catch(e){if(e==='break')break;if(e!=='continue')throw e}
+        if(s.inc){yield*this.step(s.line,'for: reinițializare (pasul 3)');this.changed=new Set();yield*this.ev(s.inc)}}}finally{this.scopes().pop()}return}
+    case'switch':{yield*this.step(s.line,'');const c=yield*this.ev(s.c);let start=-1;for(let i=0;i<s.cases.length;i++){const cs=s.cases[i];if(cs.def)continue;const v=yield*this.ev(cs.v);if(v.v===c.v){start=i;break}}
+      if(start<0)start=s.cases.findIndex(x=>x.def);this.msg=`switch: expresia = ${show(c)} → ${start<0?'nicio alternativă potrivită, switch nu are efect':s.cases[start].def?'se execută default':'se sare la case '+show(c)}`;yield*this.step(s.line);if(start<0)return;
+      this.scopes().push(new Map());try{for(let i=start;i<s.cases.length;i++){yield*this.step(s.cases[i].line,i===start?'':'Fără break: execuția continuă în alternativa următoare');for(const x of s.cases[i].body)yield*this.exec(x)}}catch(e){if(e!=='break')throw e}finally{this.scopes().pop()}return}
+    case'break':yield*this.step(s.line,'break: ieșire din structură');throw'break';
+    case'continue':yield*this.step(s.line,'continue: se trece la iterația următoare');throw'continue';
+    case'return':{yield*this.step(s.line,'');const v=s.e?yield*this.ev(s.e):undefined;this.msg=`return${v?' '+show(v):''}`;yield*this.step(s.line);throw{ret:true,v}}}}
+  readTok(){const s=this.inp;while(this.ip<s.length&&/\s/.test(s[this.ip]))this.ip++;if(this.ip>=s.length)return null;let j=this.ip;while(j<s.length&&!/\s/.test(s[j]))j++;const t=s.slice(this.ip,j);this.ip=j;return t}
+  readNum(t,isInt_){const s=this.inp;while(this.ip<s.length&&/\s/.test(s[this.ip]))this.ip++;const m=(isInt_?/^[+-]?\d+/:/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?/).exec(s.slice(this.ip));if(!m)return null;this.ip+=m[0].length;return m[0]}
+  readChar(skipWs){const s=this.inp;if(skipWs)while(this.ip<s.length&&/\s/.test(s[this.ip]))this.ip++;if(this.ip>=s.length)return null;return s[this.ip++]}
+  storeInput(ref,line){// ref: lvalue
+    if(ref.arr&&(ref.t==='char'||ref.t==='uchar')){const w=this.readTok();if(w==null){this.emit('⟂','warn');return false}[...w,'\0'].forEach((c,i)=>{if(i<ref.arr.length)ref.arr[i].v=c.charCodeAt(0)});this.emit(w+'\n','in');return true}
+    if(!ref.box)throw new CErr('cin >> cere o variabilă',line);const t=ref.box.t;
+    if(t==='char'||t==='uchar'){const c=this.readChar(true);if(c==null){this.emit('[intrare epuizată]\n','warn');return false}ref.box.v=c.charCodeAt(0);this.emit(c+'\n','in');return true}
+    const tok=this.readNum(t,isInt(t));if(tok==null){this.emit('[intrare epuizată sau invalidă]\n','warn');ref.box.v=conv(0,t);return false}ref.box.v=conv(Number(tok),t);this.emit(tok+'\n','in');return true}
+  *ev(e){switch(e.k){
+    case'num':return{v:e.fl?Math.fround(e.v):e.v,t:e.f?(e.fl?'double':'double'):e.b?'bool':'int'};
+    case'chr':return{v:e.v,t:'char'};case'str':return{v:e.v,t:'str'};
+    case'id':{if(e.v==='endl')return{v:'\n',t:'endl'};if(e.v==='cout'||e.v==='cerr')return{v:0,t:'cout'};if(e.v==='cin')return{v:0,t:'cin'};if(e.v==='NULL'||e.v==='EOF')return{v:e.v==='EOF'?-1:0,t:'int'};if(e.v==='M_PI')return{v:Math.PI,t:'double'};if(e.v==='RAND_MAX')return{v:32767,t:'int'};
+      const vr=this.lookup(e.v,e.line);if(vr.arr)return{v:vr.arr,t:'arr',arr:vr.arr,dims:vr.dims,et:vr.t,name:e.v};if(vr.box.v===undefined)throw new CErr(`Variabila „${e.v}” este folosită fără să fi primit o valoare`,e.line);return{v:vr.box.v,t:vr.box.t,box:vr.box,name:e.v}}
+    case'idx':{const a=yield*this.ev(e.a);const i=yield*this.ev(e.i);if(!a.arr)throw new CErr('Indexare a unei variabile care nu este tablou',e.line);const k=Math.trunc(i.v);
+      if(k<0||k>=a.arr.length)throw new CErr(`Index în afara tabloului: ${a.name||''}[${k}] (dimensiune ${a.arr.length})`,e.line);const c=a.arr[k];
+      if(Array.isArray(c))return{v:c,t:'arr',arr:c,dims:a.dims.slice(1),et:a.et,name:(a.name||'')+`[${k}]`};
+      if(c.v===undefined)throw new CErr(`Elementul ${a.name}[${k}] nu are valoare`,e.line);return{v:c.v,t:c.t,box:c,name:(a.name||'')+`[${k}]`}}
+    case'assign':{const L=yield*this.lv(e.l);const r=yield*this.ev(e.r);let v;
+      if(e.op==='=')v=r.v;else{if(L.box.v===undefined)throw new CErr(`Variabila „${L.name}” nu are valoare`,e.line);v=arith(e.op.slice(0,-1),{v:L.box.v,t:L.box.t},r,e.line).v}
+      L.box.v=conv(v,L.box.t);this.changed.add(rootName(L.name));return{v:L.box.v,t:L.box.t,box:L.box}}
+    case'comma':{yield*this.ev(e.a);return yield*this.ev(e.b)}
+    case'tern':{const c=yield*this.ev(e.c);return c.v?yield*this.ev(e.a):yield*this.ev(e.b)}
+    case'bin':{if(e.op==='&&'){const a=yield*this.ev(e.a);if(!a.v)return{v:0,t:'bool'};const b=yield*this.ev(e.b);return{v:b.v?1:0,t:'bool'}}
+      if(e.op==='||'){const a=yield*this.ev(e.a);if(a.v)return{v:1,t:'bool'};const b=yield*this.ev(e.b);return{v:b.v?1:0,t:'bool'}}
+      const a=yield*this.ev(e.a);
+      if(a.t==='cout'&&e.op==='<<'){const b=yield*this.ev(e.b);this.emit(outStr(b));return a}
+      if(a.t==='cin'&&e.op==='>>'){const r=yield*this.lv(e.b);this.storeInput(r,e.line);this.changed.add(rootName(r.name));return a}
+      const b=yield*this.ev(e.b);return arith(e.op,a,b,e.line)}
+    case'un':{if(e.op==='++'||e.op==='--'){const L=yield*this.lv(e.e);if(L.box.v===undefined)throw new CErr(`Variabila „${L.name}” nu are valoare`,e.line);L.box.v=conv(L.box.v+(e.op==='++'?1:-1),L.box.t);this.changed.add(rootName(L.name));return{v:L.box.v,t:L.box.t}}
+      if(e.op==='&'){const L=yield*this.lv(e.e);return{v:0,t:'ptr',ref:L}}
+      if(e.op==='*'){const a=yield*this.ev(e.e);if(a.arr){const c=a.arr[0];return{v:c.v,t:c.t,box:c}}return a}
+      const a=yield*this.ev(e.e);switch(e.op){case'!':return{v:a.v?0:1,t:'bool'};case'~':return{v:~a.v,t:'int'};case'-':return{v:isInt(a.t)?conv(-a.v,'int'):-a.v,t:isInt(a.t)?'int':a.t};default:return{v:a.v,t:isInt(a.t)?'int':a.t}}}
+    case'post':{const L=yield*this.lv(e.e);if(L.box.v===undefined)throw new CErr(`Variabila „${L.name}” nu are valoare`,e.line);const old=L.box.v;L.box.v=conv(old+(e.op==='++'?1:-1),L.box.t);this.changed.add(rootName(L.name));return{v:old,t:L.box.t}}
+    case'cast':{const a=yield*this.ev(e.e);const t=e.ty;return{v:conv(a.v,t),t:t==='float'?'double':t}}
+    case'sizeof':{const a=yield*this.ev(e.e);if(a.arr){const cnt=x=>Array.isArray(x)?x.length*cnt(x[0]):1;const sz={char:1,uchar:1,double:8,long:8,short:2}[a.et]||4;return{v:cnt(a.arr)*sz,t:'int'}}return{v:{char:1,double:8,long:8,short:2}[a.t]||4,t:'int'}}
+    case'call':return yield*this.callExpr(e);
+    case'mcall':{if(e.m==='get'){const c=this.readChar(false);return{v:c==null?-1:c.charCodeAt(0),t:'int'}}if(e.m==='ignore'||e.m==='clear')return{v:0,t:'void'};if(e.m==='getline'){const L=yield*this.lv(e.args[0]);const s=this.inp.slice(this.ip).split('\n')[0];this.ip+=s.length+1;[...s,'\0'].forEach((c,i)=>{if(L.arr&&i<L.arr.length)L.arr[i].v=c.charCodeAt(0)});this.emit(s+'\n','in');return{v:0,t:'void'}}
+      if(e.m==='precision'||e.m==='width'||e.m==='setf')return{v:0,t:'int'};throw new CErr(`Metoda .${e.m}() nu este suportată`,e.line)}
+    default:throw new CErr('Expresie nesuportată: '+e.k,e.line)}}
+  *lv(e){switch(e.k){
+    case'id':{const vr=this.lookup(e.v,e.line);if(vr.arr)return{arr:vr.arr,t:vr.t,dims:vr.dims,name:e.v};return{box:vr.box,name:e.v}}
+    case'idx':{const a=yield*this.ev(e.a);const i=yield*this.ev(e.i);const k=Math.trunc(i.v);if(!a.arr)throw new CErr('Indexare a unei variabile care nu este tablou',e.line);if(k<0||k>=a.arr.length)throw new CErr(`Index în afara tabloului: ${a.name||''}[${k}] (dimensiune ${a.arr.length})`,e.line);
+      const c=a.arr[k];if(Array.isArray(c))return{arr:c,t:a.et,name:a.name+`[${k}]`};return{box:c,name:a.name+`[${k}]`}}
+    case'un':if(e.op==='*')return yield*this.lv(e.e);if(e.op==='++'||e.op==='--'){const L=yield*this.lv(e.e);L.box.v=conv(L.box.v+(e.op==='++'?1:-1),L.box.t);return L}break;
+    case'assign':{yield*this.ev(e);return yield*this.lv(e.l)}}
+    throw new CErr('Se aștepta o variabilă (lvalue) în stânga atribuirii',e.line)}
+  *callExpr(e){const n=e.name,A=[];const f=this.funcs[n];
+    if(f){for(let i=0;i<e.args.length;i++){const pd=f.params[i];if(pd&&pd.ref&&!pd.dims.length){const L=yield*this.lv(e.args[i]);A.push(L)}else{const r=yield*this.ev(e.args[i]);A.push(r)}}
+      const r=yield*this.call(f,A,e.line);return r}
+    const ev=[];const M=Math;const num=async=>0;
+    const args=function*(){for(const a of e.args)ev.push(yield*this.ev(a))}.bind(this);
+    const D=v=>({v,t:'double'}),I=v=>({v:conv(v,'int'),t:'int'});
+    switch(n){
+      case'printf':{yield*args();const s=sprintf(ev[0].v,ev.slice(1));this.emit(s);return I(s.length)}
+      case'scanf':{const fmt=(yield*this.ev(e.args[0])).v;const specs=fmt.match(/%\*?\d*l?[dfcsuoxXegi]/g)||[];let cnt=0;
+        for(let i=0;i<specs.length;i++){const sp=specs[i];if(sp[1]==='*'){this.readTok();continue}const pe=e.args[1+cnt];if(!pe)break;const r=yield*this.ev(pe);const L=r.ref||(r.arr?{arr:r.arr,t:r.et}:null);if(!L)throw new CErr('scanf cere adresa variabilei (&x)',e.line);
+          const cv=sp.slice(-1);let ok;if(cv==='c'){const c=this.readChar(false);ok=c!=null;if(ok){L.box.v=c.charCodeAt(0);this.emit(c==='\n'?'':c,'in')}}
+          else if(cv==='s'){ok=this.storeInput(L,e.line)}else{const w=+(/\d+/.exec(sp)||[0])[0];let tok=this.readNum(L.box.t,'dux'.includes(cv)||cv==='i');if(tok!=null&&w&&tok.length>w){this.ip-=tok.length-w;tok=tok.slice(0,w)}ok=tok!=null;if(ok){L.box.v=conv(Number(tok),L.box.t);this.emit(tok+'\n','in')}else this.emit('[intrare epuizată]\n','warn')}
+          if(ok)this.changed.add(rootName(L.name||''));cnt++}return I(cnt)}
+      case'getch':case'getche':case'_getch':{const c=this.readChar(false);if(n==='getche'&&c)this.emit(c,'in');return I(c==null?13:c.charCodeAt(0))}
+      case'getchar':{const c=this.readChar(false);if(c&&c!=='\n')this.emit(c,'in');return I(c==null?-1:c.charCodeAt(0))}
+      case'putch':case'putchar':{yield*args();this.emit(String.fromCharCode(ev[0].v));return I(ev[0].v)}
+      case'puts':{yield*args();this.emit((ev[0].arr?arrStr(ev[0].arr):ev[0].v)+'\n');return I(1)}
+      case'gets':{const r=yield*this.lv(e.args[0]);const rest=this.inp.slice(this.ip);if(!rest.length)return I(0);const s=rest.split('\n')[0];this.ip+=s.length+1;[...s,'\0'].forEach((c,i)=>{if(i<r.arr.length)r.arr[i].v=c.charCodeAt(0)});this.emit(s+'\n','in');this.changed.add(rootName(r.name));return I(1)}
+      case'strlen':{yield*args();return I(ev[0].arr?arrStr(ev[0].arr).length:String(ev[0].v).length)}
+      case'clrscr':case'system':case'randomize':case'fflush':{yield*args();if(n==='randomize')this.seed=Date.now()%32768;return{v:0,t:'void'}}
+      case'srand':{yield*args();this.seed=ev[0].v>>>0;return{v:0,t:'void'}}
+      case'rand':{this.seed=(this.seed*1103515245+12345)>>>0;return I((this.seed>>>16)&32767)}
+      case'time':{yield*args();return I(Math.floor(Date.now()/1000))}
+      case'abs':yield*args();return I(Math.abs(ev[0].v));case'labs':yield*args();return{v:Math.abs(Math.trunc(ev[0].v)),t:'long'};
+      case'max':yield*args();return isInt(ev[0].t)&&isInt(ev[1].t)?I(Math.max(ev[0].v,ev[1].v)):D(Math.max(ev[0].v,ev[1].v));
+      case'min':yield*args();return isInt(ev[0].t)&&isInt(ev[1].t)?I(Math.min(ev[0].v,ev[1].v)):D(Math.min(ev[0].v,ev[1].v));
+      case'exit':yield*args();throw{exit:true,v:ev[0]?ev[0].v:0};
+    }
+    const MF={sqrt:M.sqrt,pow:M.pow,fabs:M.abs,sin:M.sin,cos:M.cos,tan:M.tan,asin:M.asin,acos:M.acos,atan:M.atan,atan2:M.atan2,sinh:M.sinh,cosh:M.cosh,tanh:M.tanh,floor:M.floor,ceil:M.ceil,exp:M.exp,log:M.log,log10:M.log10,round:M.round,cbrt:M.cbrt,hypot:M.hypot,trunc:M.trunc,fmod:(a,b)=>a%b};
+    if(MF[n]){yield*args();return D(MF[n](...ev.map(x=>x.v)))}
+    throw new CErr(`Funcția „${n}” nu este definită`,e.line)}
+}
+function rootName(n){return String(n||'').split('[')[0]}
+function arith(op,a,b,line){const ints=isInt(a.t)&&isInt(b.t);const x=a.v,y=b.v;if(x===undefined||y===undefined)throw new CErr('Operand fără valoare',line);
+  if(a.t==='str'||b.t==='str'||a.arr||b.arr)throw new CErr(`Operatorul ${op} nu se poate aplica șirurilor sau tablourilor`,line);
+  const R=v=>ints?{v:conv(v,(a.t==='long'||b.t==='long')?'long':'int'),t:(a.t==='long'||b.t==='long')?'long':'int'}:{v,t:'double'};const B=v=>({v:v?1:0,t:'bool'});
+  switch(op){case'+':return R(x+y);case'-':return R(x-y);case'*':return R(ints?Math.imul?(Number.isSafeInteger(x*y)?x*y:Math.imul(x,y)):x*y:x*y);
+    case'/':if(ints){if(y===0)throw new CErr('Împărțire la zero',line);return R(Math.trunc(x/y))}return R(x/y);
+    case'%':if(!ints)throw new CErr('Operatorul % se aplică doar întregilor',line);if(y===0)throw new CErr('Împărțire la zero (%)',line);return R(x%y);
+    case'<':return B(x<y);case'<=':return B(x<=y);case'>':return B(x>y);case'>=':return B(x>=y);case'==':return B(x===y);case'!=':return B(x!==y);
+    case'&':return{v:x&y,t:'int'};case'|':return{v:x|y,t:'int'};case'^':return{v:x^y,t:'int'};case'<<':return{v:x<<y,t:'int'};case'>>':return{v:x>>y,t:'int'}}
+  throw new CErr('Operator necunoscut '+op,line)}
+function outStr(b){if(b.t==='endl')return'\n';if(b.t==='str')return b.v;if(b.arr)return(b.et==='char'||b.et==='uchar')?arrStr(b.arr):'0x7ffe'+((b.arr.length*977)%65536).toString(16);if(b.t==='char'||b.t==='uchar')return String.fromCharCode(b.v);if(b.t==='bool')return String(b.v?1:0);if(isInt(b.t))return String(b.v);if(b.t==='void'||b.v===undefined)return'';return fmtG(b.v)}
+function show(r){if(!r)return'';if(r.t==='char'||r.t==='uchar')return `'${r.v>=32&&r.v<127?String.fromCharCode(r.v):'\\'+r.v}' (${r.v})`;if(r.t==='str')return JSON.stringify(r.v);if(r.v===undefined)return'?';if(isInt(r.t)||r.t==='bool')return String(r.v);return fmtG(r.v)}
+
+return{Machine,CErr,parse,lex,fmtG,sprintf,show,isInt}})();
+
+/* =====================================================================
+   CodeLab: componenta vizuală (editor, pas cu pas, variabile, consolă)
+   ===================================================================== */
+function CodeLab(host,o){const el=typeof host==='string'?$(host):host;o=Object.assign({code:'',input:'',title:'',speed:500,height:null},o);el.classList.add('codelab');
+  el.innerHTML=`<div class="cl-head"><b>${o.title||'Laborator C/C++'}</b><span class="cl-btns">
+   <button class="btn small" data-a="step" title="Execută următorul pas">Pas ▶</button><button class="btn small ghost" data-a="auto">⏵ Auto</button><button class="btn small ghost" data-a="run" title="Rulează până la final">⏭ Rulează tot</button><button class="btn small ghost" data-a="reset">↺</button><button class="btn small ghost" data-a="edit">✎ Editează</button></span>
+   <label class="cl-spd">viteză <input type="range" min="60" max="1500" value="${1560-o.speed}" data-a="spd"></label></div>
+   <div class="cl-grid"><div class="cl-code"><div class="cl-view"></div><textarea class="cl-edit" spellcheck="false" style="display:none"></textarea></div>
+   <div class="cl-side"><div class="cl-msg">Apasă „Pas ▶” pentru a porni execuția.</div><div class="cl-lbl">Variabile <small>(stiva de apeluri)</small></div><div class="cl-vars"></div>
+   <div class="cl-lbl">Intrare (tastatură) <small>– valorile citite de cin/scanf</small></div><input class="cl-in" type="text" value="">
+   <div class="cl-lbl">Ecran (ieșire)</div><div class="cl-out term"></div></div></div>`;
+  const view=$('.cl-view',el),ed=$('.cl-edit',el),vars=$('.cl-vars',el),outE=$('.cl-out',el),msg=$('.cl-msg',el),inE=$('.cl-in',el);
+  let code=o.code.replace(/^\n/,'').replace(/\s+$/,''),M=null,G=null,timer=null,done=false,prevVals={};
+  ed.value=code;inE.value=o.input;if(o.height)$('.cl-code',el).style.maxHeight=o.height+'px';
+  function render(){const lines=code.split('\n');view.innerHTML=lines.map((l,i)=>`<div class="cl-ln${M&&M.line===i+1?' cur':''}${M&&M.err===i+1?' errl':''}" data-l="${i+1}"><span class="cl-no">${i+1}</span><span class="cl-src">${hlC(l)||' '}</span></div>`).join('');
+    const cur=$('.cl-ln.cur',view)||$('.cl-ln.errl',view);if(cur&&timer==null){const r=cur.offsetTop-view.parentElement.clientHeight/2;view.parentElement.scrollTo({top:Math.max(0,r),behavior:'smooth'})}else if(cur){const pe=view.parentElement;if(cur.offsetTop<pe.scrollTop||cur.offsetTop>pe.scrollTop+pe.clientHeight-30)pe.scrollTop=cur.offsetTop-pe.clientHeight/2}}
+  function valStr(b){if(b.v===undefined)return'<span class="cl-und">?</span>';return CVM.show({v:b.v,t:b.t})}
+  function renderVars(){if(!M){vars.innerHTML='<small>—</small>';return}const now={};let h='';
+    const varRow=(name,vr,path)=>{if(vr.arr){const flat=(a,p)=>Array.isArray(a)&&Array.isArray(a[0])?a.map((r,i)=>`<div class="cl-arr"><span class="cl-ai">[${i}]</span>${flat(r,p+'['+i+']')}</div>`).join(''):a.map((c,i)=>{const k=p+'['+i+']';const s=c.v===undefined?'?':CVM.show({v:c.v,t:c.t});now[k]=s;const ch=prevVals[k]!==undefined&&prevVals[k]!==s;return `<span class="cl-cell${ch?' chg':''}" title="${k}"><i>${i}</i>${s.length>6&&!(c.t==='char')?s.slice(0,6):s}</span>`}).join('');
+        const lim=vr.arr.length>40?vr.arr.slice(0,40):vr.arr;return `<tr><td class="cl-vn">${name}${vr.alias?' <span class="pill">tablou transmis</span>':''}</td><td><div class="cl-arrw">${flat(lim,path)}${vr.arr.length>40?'…':''}</div></td></tr>`}
+      const s=valStr(vr.box);now[path]=s;const ch=prevVals[path]!==undefined&&prevVals[path]!==s;return `<tr class="${ch?'chg':''}"><td class="cl-vn">${name}${vr.ref?' <span class="pill">&amp; ref</span>':''}</td><td class="cl-vv">${s}</td><td class="cl-vt">${vr.t==='uchar'?'unsigned char':vr.t}</td></tr>`};
+    if(M.globals.size){h+=`<div class="cl-frame"><div class="cl-fn">variabile globale</div><table>${[...M.globals].map(([n,v])=>varRow(n,v,'g.'+n)).join('')}</table></div>`}
+    M.stack.forEach((f,fi)=>{const all=[];f.scopes.forEach((sc,si)=>sc.forEach((v,n)=>all.push([n,v,si])));
+      h+=`<div class="cl-frame${fi===M.stack.length-1?' top':''}"><div class="cl-fn">${f.name}()${fi?` <small>apelată de la linia ${f.callLine}</small>`:''}</div><table>${all.map(([n,v,si])=>varRow(n+(f.scopes.length>1&&si>0?`<sub>bloc ${si}</sub>`:''),v,fi+'.'+si+'.'+n)).join('')||'<tr><td><small>(nicio variabilă)</small></td></tr>'}</table></div>`});
+    vars.innerHTML=h;prevVals=now}
+  function renderOut(){outE.innerHTML=M?M.out.map(x=>`<span class="${x.c==='in'?'cl-inp':x.c==='warn'?'cl-warn':''}">${x.s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span>`).join(''):''}
+  function start(){stop();done=false;prevVals={};try{M=new CVM.Machine(code,inE.value);M.maxSteps=o.maxSteps||20000;G=M.run();msg.innerHTML='Program încărcat. Execuția începe cu funcția <b>main()</b>.';return true}
+    catch(e){M={line:0,err:e.line,globals:new Map(),stack:[],out:[]};G=null;msg.innerHTML=`<span class="bad">Eroare de sintaxă (linia ${e.line||'?'}):</span> ${e.message}`;render();renderVars();renderOut();return false}}
+  function stepOnce(){if(!G&&!start())return false;if(done)return false;try{const r=G.next();if(r.done){done=true;msg.innerHTML=`<span class="ok">✔ ${M.msg}</span> Pași executați: ${M.steps}.`;M.line=0}else msg.innerHTML=`<b>Linia ${M.line}</b>${M.msg?': '+M.msg:''}`}
+    catch(e){done=true;if(e&&e.exit){msg.innerHTML=`<span class="ok">Program oprit cu exit(${e.v}).</span>`}else{M.err=e.line||M.line;msg.innerHTML=`<span class="bad">Eroare la execuție (linia ${e.line||M.line}):</span> ${e.message||e}`;if(!(e instanceof CVM.CErr))console.error(e)}}
+    return !done}
+  function refresh(){render();renderVars();renderOut()}
+  function stop(){clearInterval(timer);timer=null;$('[data-a=auto]',el).textContent='⏵ Auto'}
+  const spd=()=>1560-+$('[data-a=spd]',el).value;
+  el.addEventListener('click',ev=>{const a=ev.target.dataset&&ev.target.dataset.a;if(!a)return;
+    if(a==='edit'){stop();const on=ed.style.display==='none';ed.style.display=on?'block':'none';view.style.display=on?'none':'block';ev.target.textContent=on?'✔ Gata':'✎ Editează';if(!on){code=ed.value;G=null;M=null;refresh();msg.textContent='Cod actualizat. Apasă „Pas ▶”.'}else{ed.style.height=Math.max(260,view.clientHeight)+'px';ed.focus()}return}
+    if(ed.style.display!=='none'){code=ed.value;ed.style.display='none';view.style.display='block';$('[data-a=edit]',el).textContent='✎ Editează';G=null}
+    if(a==='step'){stop();if(done)start();stepOnce();refresh()}
+    if(a==='run'){stop();if(done||!G)start();let g=0;while(stepOnce()&&g++<200000);refresh()}
+    if(a==='reset'){stop();G=null;M=null;done=false;prevVals={};refresh();msg.textContent='Resetat. Apasă „Pas ▶”.'}
+    if(a==='auto'){if(timer){stop();return}if(done||!G)start();ev.target.textContent='⏸ Pauză';timer=setInterval(()=>{const c=stepOnce();refresh();if(!c)stop()},spd())}});
+  $('[data-a=spd]',el).oninput=()=>{if(timer){clearInterval(timer);timer=setInterval(()=>{const c=stepOnce();refresh();if(!c)stop()},spd())}};
+  inE.onchange=()=>{G=null;done=false};
+  ed.onkeydown=e=>{if(e.key==='Tab'){e.preventDefault();const s=ed.selectionStart;ed.value=ed.value.slice(0,s)+'    '+ed.value.slice(ed.selectionEnd);ed.selectionStart=ed.selectionEnd=s+4}};
+  refresh();
+  return{setCode(c,inp){stop();code=c.replace(/^\n/,'').replace(/\s+$/,'');ed.value=code;if(inp!=null)inE.value=inp;G=null;M=null;done=false;refresh();msg.textContent='Apasă „Pas ▶” pentru a porni execuția.'},
+    runAll(){start();let g=0;while(stepOnce()&&g++<200000);refresh();return M?M.output:''},get output(){return M?M.output:''}}}
+
+/* Rulare „ascunsă” (pentru verificarea exercițiilor) */
+function runC(code,input,maxSteps=200000){try{const M=new CVM.Machine(code,input||'');M.maxSteps=maxSteps;const G=M.run();let r;do{r=G.next()}while(!r.done);return{ok:true,out:M.output}}catch(e){return{ok:false,out:'',err:(e.message||String(e))+(e.line?` (linia ${e.line})`:'')}}}
+
+/* ===== Componente comune pentru unitățile de programare C/C++ ===== */
+(function(){const st=document.createElement('style');st.textContent=`
+.codelab{container-type:inline-size;border:1px solid var(--line);border-radius:var(--r);background:var(--card);margin:1rem 0;box-shadow:var(--shadow);overflow:hidden}
+.cl-head{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;padding:.5rem .8rem;background:var(--acc-soft)}
+.cl-head b{flex:1;min-width:160px}.cl-btns{display:flex;gap:.3rem;flex-wrap:wrap}.cl-spd{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:.3rem}.cl-spd input{width:90px}
+.cl-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+@container (max-width:760px){.cl-grid{grid-template-columns:1fr}.cl-code{max-height:360px}}
+.cl-code{background:#0f1420;color:#d8dee9;max-height:480px;overflow:auto;font:13.5px/1.6 var(--mono);position:relative}
+.cl-view{padding:.4rem 0}
+.cl-ln{display:flex;white-space:pre;padding-right:.6rem;border-left:3px solid transparent;transition:background .25s}
+.cl-ln.cur{background:rgba(232,163,61,.22);border-left-color:#e8a33d}
+.cl-ln.errl{background:rgba(194,58,58,.35);border-left-color:#ff6b6b}
+.cl-no{width:2.6em;flex:none;text-align:right;padding-right:.8em;color:#56607a;user-select:none}
+.cl-src .k{color:#81a1c1}.cl-src .s{color:#a3be8c}.cl-src .c{color:#6b7891;font-style:italic}.cl-src .n{color:#b48ead}.cl-src .f{color:#88c0d0}.cl-src .p{color:#ebcb8b}
+.cl-edit{width:100%;min-height:260px;background:#0f1420;color:#e6e9f0;border:none;font:13.5px/1.6 var(--mono);padding:.5rem .8rem;resize:vertical;outline:none;tab-size:4}
+.cl-side{padding:.6rem .8rem;display:flex;flex-direction:column;gap:.35rem;min-width:0}
+.cl-msg{background:var(--paper);border-radius:8px;padding:.45rem .6rem;font-size:.9rem;min-height:2.4em;border-left:3px solid var(--acc)}
+.cl-lbl{font:600 .78rem var(--sans);color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin-top:.2rem}
+.cl-lbl small{text-transform:none;font-weight:400}
+.cl-vars{max-height:260px;overflow:auto}
+.cl-frame{border:1px solid var(--line);border-radius:8px;margin-bottom:.35rem;overflow:hidden;opacity:.7}
+.cl-frame.top{opacity:1;border-color:var(--acc)}
+.cl-fn{background:var(--acc-soft);font:600 .82rem var(--mono);padding:.2rem .5rem}
+.cl-frame table{width:100%;border-collapse:collapse;font:12.5px var(--mono)}
+.cl-frame td{padding:.15rem .5rem;border-top:1px solid var(--line);vertical-align:top}
+.cl-vn{font-weight:700;white-space:nowrap}.cl-vt{color:var(--muted);font-size:.75rem;text-align:right}.cl-und{color:var(--muted)}
+tr.chg td,.cl-cell.chg{animation:clflash 1s}
+@keyframes clflash{0%{background:var(--acc2)}100%{background:transparent}}
+.cl-arrw{display:flex;flex-direction:column;gap:2px}.cl-arr{display:flex;gap:2px;align-items:center}.cl-ai{font-size:.7rem;color:var(--muted);width:2.2em}
+.cl-cell{display:inline-flex;flex-direction:column;align-items:center;min-width:2.2em;border:1px solid var(--line);border-radius:4px;padding:0 .2rem;font-size:.78rem;margin:1px}
+.cl-cell i{font-size:.6rem;color:var(--muted);font-style:normal}
+.cl-arrw>.cl-cell{display:inline-flex}.cl-arrw{flex-direction:row;flex-wrap:wrap}.cl-arrw:has(.cl-arr){flex-direction:column}
+.cl-in{width:100%}
+.cl-out{min-height:70px;max-height:200px;overflow:auto}
+.cl-inp{color:#ffd479;text-decoration:underline dotted}.cl-warn{color:#ff8a8a}
+.flow text{font-family:var(--sans)}
+.pred{border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:.8rem 1rem;margin:.8rem 0}
+.pred .row textarea{flex:1;min-width:200px}
+.task{border:1px solid var(--line);border-left:5px solid var(--acc);border-radius:var(--r);background:var(--card);padding:.8rem 1rem;margin:1rem 0}
+.task .tres{font:13px var(--mono);margin-top:.4rem}
+.tabs2{display:flex;gap:.3rem;flex-wrap:wrap;margin:.5rem 0}
+.tabs2 button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:.25rem .75rem;cursor:pointer;font-size:.88rem}
+.tabs2 button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+`;document.head.append(st)})();
+
+/* Taburi care încarcă variante de cod într-un CodeLab */
+function CodeTabs(host,lab,variants){const el=typeof host==='string'?$(host):host;el.classList.add('tabs2');
+  variants.forEach((v,i)=>{const b=h('button',{},v.name);b.onclick=()=>{$$('button',el).forEach(x=>x.classList.remove('on'));b.classList.add('on');lab.setCode(v.code,v.input||'')};el.append(b);if(i===0)b.classList.add('on')})}
+
+/* „Ce se afișează?”: predicție + execuție */
+function Predict(host,o){const el=typeof host==='string'?$(host):host;el.classList.add('pred');const code=o.code.replace(/^\n/,'');
+  const pre=h('pre',{class:'code'});pre.innerHTML=hlC(code);const ta=h('input',{type:'text',placeholder:'Ce se afișează? Scrie predicția ta…',style:'flex:1;min-width:200px'});
+  const b=h('button',{class:'btn small'},'Verifică'),b2=h('button',{class:'btn small ghost'},'▶ Execută pas cu pas'),fb=h('div',{class:'fb'}),box=h('div');
+  el.append(h('div',{class:'ex-q',html:o.q||'Ce se va afișa la terminarea execuției?'}),pre,h('div',{class:'row'},ta,b,b2),fb,box);
+  const full=o.wrap===false?code:wrapMain(code,o.pre||'');const exp=o.answer!=null?o.answer:runC(full,o.input||'').out;
+  const norm=s=>String(s).replace(/\s+/g,' ').trim();
+  b.onclick=()=>{const ok=(norm(exp)===''&&/nimic|nu se afi/i.test(ta.value))||(o.infinite?/infinit|∞|4 4 4/.test(ta.value.toLowerCase()):norm(ta.value)===norm(exp));fb.innerHTML=ok?`<span class="ok">✔ Corect!</span> ${o.expl||''}`:`<span class="bad">✘ Nu.</span> Răspunsul corect: <code>${(o.infinite?'ciclu infinit: '+norm(exp).slice(0,40)+'…':norm(exp))||'(nimic)'}</code>. ${o.expl||''}`};
+  ta.onkeydown=e=>{if(e.key==='Enter')b.click()};
+  b2.onclick=()=>{if(!box.firstChild){const d=h('div');box.append(d);CodeLab(d,{code:full,input:o.input||'',title:'Execuție pas cu pas',maxSteps:o.infinite?400:20000})}else box.innerHTML=''}}
+function wrapMain(code,pre){if(/\bmain\s*\(/.test(code))return code;return `#include <iostream>\nusing namespace std;\n${pre}\nint main()\n{\n${code.split('\n').map(l=>'    '+l).join('\n')}\n    return 0;\n}`}
+
+/* Problemă de laborator cu teste automate */
+function AutoTask(host,o){const el=typeof host==='string'?$(host):host;el.classList.add('task');
+  el.append(h('h4',{style:'margin:.2rem 0'},o.title),h('div',{html:o.text}));const labD=h('div');el.append(labD);
+  const lab=CodeLab(labD,{code:o.starter,input:o.tests[0].in,title:'Soluția ta'});
+  const bt=h('button',{class:'btn small'},'✓ Verifică pe toate testele'),res=h('div',{class:'tres'});const sol=h('details',{},h('summary',{},'Vezi o soluție posibilă'));
+  if(o.solution){const lb=h('button',{class:'btn small ghost',style:'margin:.4rem 0'},'Încarcă soluția în editor');lb.onclick=()=>lab.setCode(o.solution,o.tests[0].in);const pc=h('pre',{class:'code'});pc.innerHTML=hlC(o.solution);sol.append(pc,lb)}
+  el.append(h('div',{class:'row'},bt),res,sol);
+  const nums=s=>(String(s).match(/-?\d+(?:\.\d+)?/g)||[]).map(Number);
+  bt.onclick=()=>{const code=$('.cl-edit',labD).style.display!=='none'?$('.cl-edit',labD).value:$('.cl-edit',labD).value;let pass=0;
+    res.innerHTML=o.tests.map((t,i)=>{const r=runC(code,t.in);let ok=false,got=r.ok?r.out.trim():'eroare: '+r.err;
+      if(r.ok){if(t.check)ok=t.check(r.out);else{const want=nums(t.out),have=nums(r.out);const tail=have.slice(-want.length);ok=want.length?want.every((w,k)=>Math.abs(w-tail[k])<1e-3):r.out.trim()===String(t.out).trim()}}
+      if(ok)pass++;return `<div>${ok?'<span class="ok">✔</span>':'<span class="bad">✘</span>'} Test ${i+1}: intrare <b>${t.in.replace(/\n/g,' ')||'—'}</b> → așteptat <b>${t.out}</b>${ok?'':` · obținut: ${got.replace(/</g,'&lt;').slice(-80)}`}</div>`}).join('')+
+      `<div style="margin-top:.3rem"><b>${pass}/${o.tests.length} teste trecute</b>${pass===o.tests.length?' 🎉':''}</div>`}}
+
+/* Schemă logică animată */
+function Flow(host,spec){const svg=typeof host==='string'?$(host):host;svg.classList.add('flow');svg.innerHTML='';const W=spec.w||520,H=spec.h||420;svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.setAttribute('width','100%');svg.style.maxWidth=W+'px';
+  const N={};const ink=css2('--ink'),card=css2('--card'),acc=css2('--acc'),line=css2('--muted');
+  const defs=S('defs');defs.innerHTML=`<marker id="ar${spec.id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="${line}"/></marker>`;svg.append(defs);
+  const eg=S('g'),ng=S('g');svg.append(eg,ng);
+  spec.nodes.forEach(n=>{const g=S('g');let sh;const w=n.w||150,hh=n.h||40;
+    if(n.t==='term')sh=S('rect',{x:n.x-w/2,y:n.y-hh/2,width:w,height:hh,rx:hh/2});
+    else if(n.t==='dec')sh=S('polygon',{points:`${n.x},${n.y-hh/2-8} ${n.x+w/2+10},${n.y} ${n.x},${n.y+hh/2+8} ${n.x-w/2-10},${n.y}`});
+    else if(n.t==='io')sh=S('polygon',{points:`${n.x-w/2+12},${n.y-hh/2} ${n.x+w/2+12},${n.y-hh/2} ${n.x+w/2-12},${n.y+hh/2} ${n.x-w/2-12},${n.y+hh/2}`});
+    else sh=S('rect',{x:n.x-w/2,y:n.y-hh/2,width:w,height:hh,rx:5});
+    sh.setAttribute('fill',card);sh.setAttribute('stroke',acc);sh.setAttribute('stroke-width',2);g.append(sh);
+    String(n.text).split('\n').forEach((t,i,a)=>g.append(S('text',{x:n.x,y:n.y+4+(i-(a.length-1)/2)*14,'text-anchor':'middle','font-size':12.5,fill:ink,'font-family':'var(--mono)'},t)));
+    ng.append(g);N[n.id]={n,sh}});
+  const E={};spec.edges.forEach(e=>{const a=N[e.f].n,b=N[e.t].n;const pts=e.p||[[a.x,a.y+(a.h||40)/2+(a.t==='dec'?8:0)],[b.x,b.y-(b.h||40)/2-(b.t==='dec'?8:0)]];
+    const d='M'+pts.map(p=>p.join(' ')).join(' L');const pa=S('path',{d,fill:'none',stroke:line,'stroke-width':1.6,'marker-end':`url(#ar${spec.id})`});eg.append(pa);
+    if(e.l)eg.append(S('text',{x:(e.lx??pts[0][0]+6),y:(e.ly??pts[0][1]+14),'font-size':11.5,'font-weight':700,fill:e.l==='Da'?css2('--ok'):css2('--bad')},e.l));E[e.f+'>'+e.t+(e.k||'')]=pa});
+  const dot=S('circle',{r:7,fill:css2('--acc2'),opacity:0});svg.append(dot);let run=0;
+  const hl=id=>Object.values(N).forEach(x=>{x.sh.setAttribute('fill',x.n.id===id?css2('--acc-soft'):card);x.sh.setAttribute('stroke-width',x.n.id===id?3.5:2)});
+  async function move(pa,my){const L=pa.getTotalLength();dot.setAttribute('opacity',1);const t0=performance.now();const dur=Math.min(900,180+L*2.2)/(spec.speed||1);
+    await new Promise(r=>{(function fr(t){if(my!==run)return r();const q=Math.min(1,(t-t0)/dur);const p=pa.getPointAtLength(q*L);dot.setAttribute('cx',p.x);dot.setAttribute('cy',p.y);q<1?requestAnimationFrame(fr):r()})(t0)})}
+  return{async play(seq,onStep){const my=++run;for(let i=0;i<seq.length;i++){if(my!==run)return;const s=seq[i];hl(s.n);onStep&&onStep(s,i);await sleep(s.wait||550);if(i<seq.length-1){const nx=seq[i+1];const pa=E[s.n+'>'+nx.n+(nx.k||'')]||E[s.n+'>'+nx.n];if(pa)await move(pa,my)}}dot.setAttribute('opacity',0)},stop(){run++;dot.setAttribute('opacity',0);hl(null)}}}
+function css2(v){return getComputedStyle(document.body).getPropertyValue(v).trim()||'#888'}
+
+/* ================= UI 9 ================= */
+const HDR='#include <iostream>\nusing namespace std;\n\n';
+const M=(body,pre='')=>`${HDR}${pre}int main()\n{\n${body.replace(/^\n/,'').split('\n').map(l=>'    '+l).join('\n')}\n    return 0;\n}`;
+
+/* ---------- scheme logice ---------- */
+const fSeq=Flow('#flSeq',{id:'sq',w:420,h:360,nodes:[{id:'s',t:'term',x:210,y:30,text:'început',w:110},{id:'r',t:'io',x:210,y:105,text:'citește n1, n2'},{id:'c',t:'proc',x:210,y:180,text:'medie = (n1+n2)/2',w:170},{id:'w',t:'io',x:210,y:255,text:'afișează medie'},{id:'e',t:'term',x:210,y:330,text:'sfârșit',w:110}],
+  edges:[{f:'s',t:'r'},{f:'r',t:'c'},{f:'c',t:'w'},{f:'w',t:'e'}]});
+$('#sqGo').onclick=()=>{const a=+$('#sqA').value,b=+$('#sqB').value;const m=(a+b)/2;$('#sqOut').textContent='';
+  fSeq.play([{n:'s'},{n:'r'},{n:'c'},{n:'w'},{n:'e'}],(s)=>{$('#sqOut').textContent={s:'Începutul programului',r:`n1 = ${a}, n2 = ${b}`,c:`medie = (${a} + ${b}) / 2 = ${m}`,w:`Ecran: medie examen = ${m}`,e:'Sfârșit'}[s.n]})};
+const fIf=Flow('#flIf',{id:'if',w:460,h:380,nodes:[{id:'s',t:'term',x:200,y:30,text:'început',w:110},{id:'d',t:'dec',x:200,y:115,text:'a > 5 ?',w:110},{id:'p',t:'proc',x:360,y:205,text:'a++\ncout << a',w:120,h:46},{id:'n',t:'proc',x:200,y:290,text:'instrucțiunea următoare',w:190},{id:'e',t:'term',x:200,y:355,text:'sfârșit',w:110}],
+  edges:[{f:'s',t:'d'},{f:'d',t:'p',p:[[265,115],[360,115],[360,182]],l:'Da',lx:300,ly:108},{f:'d',t:'n',p:[[200,148],[200,270]],l:'Nu',lx:206,ly:170},{f:'p',t:'n',p:[[360,228],[360,248],[200,248],[200,270]]},{f:'n',t:'e'}]});
+$('#ifA').oninput=()=>$('#ifAv').textContent=$('#ifA').value;
+$('#ifGo').onclick=()=>{const a=+$('#ifA').value;const t=a>5;fIf.play([{n:'s'},{n:'d'},...(t?[{n:'p'}]:[]),{n:'n'},{n:'e'}],s=>{$('#ifOut').textContent={s:`a = ${a}`,d:`${a} > 5 ? → ${t?'adevărat (Da)':'fals (Nu)'}`,p:`a devine ${a+1}; se afișează ${a+1}`,n:'Se continuă cu instrucțiunea de după if',e:t?`Ecran: ${a+1}`:'Ecran: (nimic)'}[s.n]})};
+const fIE=Flow('#flIfElse',{id:'ie',w:460,h:350,nodes:[{id:'s',t:'term',x:230,y:30,text:'început',w:110},{id:'d',t:'dec',x:230,y:115,text:'expresie ≠ 0 ?',w:140},{id:'a',t:'proc',x:380,y:210,text:'instrucțiune1',w:120},{id:'b',t:'proc',x:80,y:210,text:'instrucțiune2',w:120},{id:'n',t:'proc',x:230,y:310,text:'instrucțiunea următoare',w:190}],
+  edges:[{f:'s',t:'d'},{f:'d',t:'a',p:[[310,115],[380,115],[380,190]],l:'Da',lx:330,ly:108},{f:'d',t:'b',p:[[150,115],[80,115],[80,190]],l:'Nu',lx:110,ly:108},{f:'a',t:'n',p:[[380,230],[380,262],[230,262],[230,290]]},{f:'b',t:'n',p:[[80,230],[80,262],[230,262],[230,290]]}]});
+$('#ieGo').onclick=()=>{const t=$('#ieC').value==='1';fIE.play([{n:'s'},{n:'d'},{n:t?'a':'b'},{n:'n'}])};
+const fWh=Flow('#flWhile',{id:'wh',w:470,h:420,nodes:[{id:'s',t:'term',x:220,y:28,text:'început',w:110},{id:'i',t:'proc',x:220,y:95,text:'a = 50; b = 10',w:150},{id:'d',t:'dec',x:220,y:180,text:'a > b ?',w:110},{id:'p',t:'proc',x:220,y:280,text:'a -= 5\nb += 5',w:120,h:48},{id:'o',t:'io',x:390,y:280,text:'cout << a',w:110},{id:'e',t:'term',x:390,y:380,text:'sfârșit',w:110}],
+  edges:[{f:'s',t:'i'},{f:'i',t:'d'},{f:'d',t:'p',p:[[220,213],[220,256]],l:'Da',lx:226,ly:236},{f:'p',t:'d',p:[[220,304],[220,330],[70,330],[70,180],[155,180]]},{f:'d',t:'o',p:[[285,180],[390,180],[390,260]],l:'Nu',lx:310,ly:172},{f:'o',t:'e',p:[[390,300],[390,360]]}]});
+$('#whGo').onclick=()=>{let a=+$('#whA').value,b=+$('#whB').value;$$('#flWhile text').forEach(t=>{if(t.textContent.startsWith('a = '))t.textContent=`a = ${a}; b = ${b}`});const seq=[{n:'s',m:'Început'},{n:'i',m:`a = ${a}, b = ${b}`}];let g=0;
+  while(g++<40){const c=a>b;seq.push({n:'d',m:`a = ${a}, b = ${b}: ${a} > ${b} ? → ${c?'Da':'Nu'}`});if(!c)break;a-=5;b+=5;seq.push({n:'p',m:`a = ${a}, b = ${b}`})}
+  seq.push({n:'o',m:`Ecran: ${a}`},{n:'e',m:`Sfârșit – s-au executat ${seq.filter(x=>x.n==='p').length} iterații`});fWh.play(seq.map(s=>({...s,wait:420})),s=>$('#whOut').textContent=s.m)};
+
+/* ---------- laboratoare din curs ---------- */
+CodeLab('#labSeq',{title:'Exemplul din curs: media a două note',input:'8 9.5',code:M(`float nota_proba1, nota_proba2, medie;
+cout << "nota 1 = "; cin >> nota_proba1;
+cout << "nota 2 = "; cin >> nota_proba2;
+medie = (nota_proba1 + nota_proba2) / 2;
+cout << "medie examen = " << medie;`)});
+CodeLab('#labBlock',{title:'Permutarea valorilor lui a și b printr-un bloc',code:M(`int a = 3, b = 7;
+{
+    int aux;          // variabila locala blocului
+    aux = a; a = b; b = aux;
+}
+// aici aux nu mai este definita
+cout << "a = " << a << ", b = " << b;`)});
+CodeLab('#labIf',{title:'Ex. 1 și Ex. 2 din curs',code:M(`int a = 10;
+if (a > 5)
+{
+    a++;
+    cout << a << " ";
+}
+int x = 10, y = 0;
+if (x)
+    cout << 4;
+cout << 5;
+if (y)
+{
+    cout << 6;
+    cout << 7;
+}`)});
+CodeLab('#labNest',{title:'if în corpul altui if',input:'3 4 0',code:M(`double x, y, z, e;
+cout << "x="; cin >> x;
+cout << "y="; cin >> y;
+cout << "z="; cin >> z;
+if (z > 0) e = x + y;
+else if (z == 0) e = x * y;   // se poate scrie si if (!z)
+     else e = x - y;
+cout << "e = " << e;`)});
+const dLab=CodeLab('#labDang',{title:'Else atârnat',input:'100',code:''});
+CodeTabs('#tabDang',dLab,[
+ {name:'i) fără acolade',input:'100',code:M(`int a;
+cin >> a;
+if (a >= 0)
+    if (a < 50)
+        cout << "valoarea lui a este mica" << endl;
+else   // indentarea induce in eroare: else apartine lui if (a < 50)
+    cout << "valoarea lui a este negativa" << endl;`)},
+ {name:'ii) cu acolade',input:'100',code:M(`int a;
+cin >> a;
+if (a >= 0)
+{
+    if (a < 50)
+        cout << "valoarea lui a este mica" << endl;
+}
+else
+    cout << "valoarea lui a este negativa" << endl;`)}]);
+dLab.setCode(M(`int a;
+cin >> a;
+if (a >= 0)
+    if (a < 50)
+        cout << "valoarea lui a este mica" << endl;
+else   // indentarea induce in eroare: else apartine lui if (a < 50)
+    cout << "valoarea lui a este negativa" << endl;`),'100');
+CodeLab('#labWhile',{title:'Exemplul 3: a = 50, b = 10',code:M(`int a = 50, b = 10;
+while (a > b)
+{
+    a -= 5;
+    b += 5;
+}
+cout << a << endl;`)});
+const spLab=CodeLab('#labSpecial',{title:'Cazuri speciale ale ciclului while',code:''});
+const SPEC=[
+ {name:'1) nu se execută niciodată',code:M(`int a = 1, b = a + 1;
+while (a >= 2)       // conditia e falsa de la inceput
+{
+    a += b;
+    b++;
+}
+cout << "a = " << a << ", b = " << b;`)},
+ {name:'2) ciclu infinit',code:M(`int a = 1, b = 1;
+while (a <= 2)       // a nu se modifica: conditia ramane adevarata
+{
+    b += a;
+    b++;
+}
+cout << "nu se ajunge aici";`)},
+ {name:'3) „;” după while, condiție adevărată',code:M(`int a = 1, b = 1;
+while (a <= 2);      // corpul ciclului este instructiunea vida
+{
+    a--;
+    b++;
+}`)},
+ {name:'4) „;” după while, condiție falsă',code:M(`int a = 1, b = 1;
+while (a >= 2);      // conditia e falsa: se trece mai departe
+{
+    a--; b++;        // blocul se executa o singura data, separat de while
+}
+cout << "a = " << a << ", b = " << b;`)}];
+CodeTabs('#tabSpecial',spLab,SPEC);spLab.setCode(SPEC[0].code);
+const sumLab=CodeLab('#labSum',{title:'Suma primelor n numere naturale',input:'5',code:''});
+const SUMV=[
+ {name:'varianta 1',input:'5',code:M(`int n, i, s;
+cout << "n="; cin >> n;
+s = 0; i = 1;
+while (i <= n)
+{
+    s += i;
+    i++;
+}
+cout << "varianta 1 " << s;`)},
+ {name:'varianta 2',input:'5',code:M(`int n, i, s;
+cout << "n="; cin >> n;
+s = i = 0;
+while (i < n)        // in suport: i <= n (aduna si n+1)
+    s += ++i;
+cout << "varianta 2 " << s;`)},
+ {name:'varianta 3 (operatorul virgulă)',input:'5',code:M(`int n, i, s;
+cout << "n="; cin >> n;
+s = 0; i = 1;
+while (s += i++, i <= n);
+cout << "varianta 3 " << s;`)}];
+CodeTabs('#tabSum',sumLab,SUMV);sumLab.setCode(SUMV[0].code,'5');
+const invLab=CodeLab('#labInv',{title:'Numărul inversat',input:'1234',code:''});
+const INV=[{name:'cu bloc',input:'1234',code:M(`int n, ninv = 0;
+cout << "n="; cin >> n;
+while (n)
+{
+    ninv = ninv * 10 + n % 10;
+    n = n / 10;
+}
+cout << "numarul inversat " << ninv;`)},{name:'cu operatorul virgulă',input:'1234',code:M(`int n, ninv = 0;
+cout << "n="; cin >> n;
+while (ninv = ninv * 10 + n % 10, n /= 10);
+cout << "numarul inversat " << ninv;`)}];
+CodeTabs('#tabInv',invLab,INV);invLab.setCode(INV[0].code,'1234');
+
+/* ---------- predicții (secțiunea 4) ---------- */
+const PRED=[
+ {q:'1 i) Pentru a = 100, ce se afișează?',pre:'',code:`int a = 100;
+if (a >= 0)
+      if (a < 50)
+         cout << "valoarea lui a este mica" << endl;
+else
+       cout << "valoarea lui a este negativa" << endl;`,expl:'else se asociază cu cel mai apropiat if, adică <code>if (a &lt; 50)</code>.'},
+ {q:'1 ii) Aceeași secvență, cu acolade, pentru a = 100:',code:`int a = 100;
+if (a >= 0)
+{
+    if (a < 50)
+        cout << "valoarea lui a este mica" << endl;
+}
+else
+    cout << "valoarea lui a este negativa" << endl;`,expl:'Acum else aparține lui <code>if (a &gt;= 0)</code>, care este adevărat; nu se afișează nimic.'},
+ {q:'2) Care este valoarea lui i la final? (se afișează i)',code:`int i = 0;
+while (i <= 50)
+    i += 5;
+cout << i;`,expl:'Ciclul se oprește prima dată când i > 50, adică la 55.'},
+ {q:'3) Ce se afișează?',code:`int a = 10;
+if (a = 5)
+    a++;
+cout << a;`,expl:'<code>a = 5</code> este o atribuire (nu o comparație), cu valoarea 5 ≠ 0, deci adevărat; a devine 6.'},
+ {q:'4) Ce se afișează?',code:`int num = 0;
+while (num < 10)
+{
+    cout << num << " ";
+    num = num + 1;
+}`,expl:'Se afișează numerele de la 0 la 9.'},
+ {q:'5) Ce se afișează?',code:`int a = 15, b = 10, c = 5;
+if (c >= b && a) b--;
+else if (b <= c)
+{
+    a--;
+    if (a < b)
+        c--;
+}
+cout << a * b * c << endl;`,expl:'Ambele condiții sunt false, deci nicio variabilă nu se modifică: 15·10·5 = 750.'}];
+PRED.forEach(p=>{const d=h('div');$('#predGrid').append(d);Predict(d,p)});
+
+/* ================= SEMINAR ================= */
+const run=(c,i)=>runC(c,i||'').out.trim();
+const EX=[
+ {title:'Ciclul while cu două variabile',gen(){const a=rnd(30,80),b=rnd(0,20),s1=rnd(2,6),s2=rnd(2,6);const c=`int a = ${a}, b = ${b};\nwhile (a > b)\n{\n    a -= ${s1};\n    b += ${s2};\n}\ncout << a;`;const r=run(M(c));return{q:`Ce se afișează?<pre class="code">${hlC(c)}</pre>`,ans:r,sol:`Executând pas cu pas se obține <b>${r}</b>.<br>${traceAB(a,b,s1,s2)}`}}},
+ {title:'Valoarea finală a contorului',gen(){const lim=rnd(20,90),k=rnd(3,9),st=rnd(0,4);const c=`int i = ${st};\nwhile (i <= ${lim})\n    i += ${k};\ncout << i;`;const r=run(M(c));return{q:`Ce se afișează?<pre class="code">${hlC(c)}</pre>`,ans:r,sol:`i ia valorile ${st}, ${st+k}, ${st+2*k}, … ; prima valoare mai mare decât ${lim} este <b>${r}</b>.`}}},
+ {title:'If-uri imbricate',gen(){const a=rnd(-20,120);const c=`int a = ${a};\nif (a >= 0)\n    if (a < 50)\n        cout << "mic";\n    else\n        cout << "mare";\nelse\n    cout << "negativ";`;const r=run(M(c));return{q:`Ce se afișează?<pre class="code">${hlC(c)}</pre>`,ans:r,check:v=>v.trim().toLowerCase().replace(/"/g,'')===r,sol:`a = ${a}: ${a>=0?`a ≥ 0, apoi ${a<50?'a < 50 → „mic”':'a ≥ 50 → „mare”'}`:'a < 0 → „negativ”'}.`}}},
+ {title:'Suma cifrelor',gen(){const n=rnd(100,99999);const c=`int n = ${n}, s = 0;\nwhile (n > 0)\n{\n    s += n % 10;\n    n /= 10;\n}\ncout << s;`;const r=run(M(c));return{q:`Ce se afișează?<pre class="code">${hlC(c)}</pre>`,ans:r,sol:`${[...String(n)].join(' + ')} = <b>${r}</b>`}}},
+ {title:'Condiția cu restul împărțirii',gen(){const a=rnd(10,30),b=rnd(60,99),k=[4,5,7,10][rnd(0,3)],m=[3,4][rnd(0,1)];const c=`int a = ${a}, b = ${b};\nwhile ((b - a) % ${m})\n{\n    cout << b << " ";\n    b -= ${k};\n}`;const r=run(M(c),'');if(r.split(' ').length>8)return this.gen();return{q:`Ce se afișează? (separă numerele prin spațiu)<pre class="code">${hlC(c)}</pre>`,ans:r,check:v=>v.trim().replace(/\s+/g,' ')===r,sol:`Ciclul continuă cât timp (b − ${a}) nu se divide cu ${m}: <b>${r||'(nimic)'}</b>`}}},
+ {title:'Atribuire în condiție',gen(){const a=rnd(1,20),v=rnd(0,9),inc=rnd(1,5);const c=`int a = ${a};\nif (a = ${v})\n    a += ${inc};\ncout << a;`;const r=run(M(c));return{q:`Ce se afișează?<pre class="code">${hlC(c)}</pre>`,ans:r,sol:`<code>a = ${v}</code> este atribuire; valoarea ei, ${v}, este ${v?'≠ 0 → adevărat, a devine '+(v+inc):'0 → fals, a rămâne 0'}. Se afișează <b>${r}</b>.`}}},
+];
+function traceAB(a,b,s1,s2){let t='<table class="t" style="max-width:300px"><tr><th>a</th><th>b</th><th>a &gt; b</th></tr>';let g=0;while(g++<30){t+=`<tr><td>${a}</td><td>${b}</td><td>${a>b?'da':'nu'}</td></tr>`;if(!(a>b))break;a-=s1;b+=s2}return t+'</table>'}
+EX.forEach(e=>{const d=h('div');$('#exGrid').append(d);Exercise(d,e)});
+CodeLab('#labTrace',{title:'Întrebarea 2 din test, pas cu pas',code:M(`int a = 20, b = 85;
+while ((b - a) % 3)
+{
+    cout << b << " ";
+    b -= 10;
+}`)});
+
+/* ================= LABORATOR ================= */
+const freeLab=CodeLab('#labFree',{title:'Editor',code:''});
+const TPL=[
+ {name:'Salut',code:M(`cout << "Salut, PCLP!" << endl;`)},
+ {name:'Maximul a 3 numere',input:'7 12 5',code:M(`int a, b, c, max;
+cout << "a b c = "; cin >> a >> b >> c;
+max = a;
+if (b > max) max = b;
+if (c > max) max = c;
+cout << "maximul este " << max;`)},
+ {name:'Par / impar',input:'17',code:M(`int n;
+cout << "n = "; cin >> n;
+if (n % 2 == 0) cout << n << " este par";
+else cout << n << " este impar";`)},
+ {name:'Cmmdc (scăderi repetate)',input:'84 36',code:M(`int a, b;
+cout << "a b = "; cin >> a >> b;
+while (a != b)
+    if (a > b) a = a - b;
+    else b = b - a;
+cout << "cmmdc = " << a;`)},
+ {name:'Numărul de cifre',input:'90210',code:M(`int n, k = 0;
+cin >> n;
+do { k++; n /= 10; } while (n);
+cout << "numar de cifre: " << k;`)},
+ {name:'printf / scanf',input:'3 4.5',code:`#include <stdio.h>
+
+int main()
+{
+    int a; float b;
+    printf("a = "); scanf("%d", &a);
+    printf("b = "); scanf("%f", &b);
+    printf("a + b = %.2f\\n", a + b);
+    return 0;
+}`}];
+CodeTabs('#tabFree',freeLab,TPL);freeLab.setCode(TPL[1].code,TPL[1].input);
+const TASKS=[
+ {title:'P1. Suma cifrelor unui număr (întrebarea 6 din test)',text:'Citește un număr natural n și afișează suma cifrelor lui.',starter:M(`unsigned long n;
+unsigned int suma = 0;
+cout << "Introduceti numarul n: "; cin >> n;
+// completeaza aici
+
+cout << "Suma cifrelor numarului este " << suma << endl;`),tests:[{in:'1234',out:'10'},{in:'0',out:'0'},{in:'99999',out:'45'},{in:'1000001',out:'2'}],
+  solution:M(`unsigned long n;
+unsigned int suma = 0;
+cout << "Introduceti numarul n: "; cin >> n;
+while (n > 0)
+{
+    suma += n % 10;
+    n /= 10;
+}
+cout << "Suma cifrelor numarului este " << suma << endl;`)},
+ {title:'P2. Ecuația de gradul I',text:'Citește a și b și rezolvă a·x + b = 0. Afișează valoarea lui x, sau mesajele „orice x este solutie” (a = b = 0) și „nu are solutie” (a = 0, b ≠ 0).',starter:M(`double a, b;
+cin >> a >> b;
+// completeaza aici
+`),tests:[{in:'2 -6',out:'3'},{in:'4 2',out:'-0.5'},{in:'0 0',out:'orice x',check:o=>/orice/i.test(o)},{in:'0 5',out:'nu are solutie',check:o=>/nu are/i.test(o)}],
+  solution:M(`double a, b;
+cin >> a >> b;
+if (a != 0)
+    cout << "x = " << -b / a;
+else if (b == 0)
+    cout << "orice x este solutie";
+else
+    cout << "nu are solutie";`)},
+ {title:'P3. Oglinditul unui număr',text:'Citește n și afișează numărul format din cifrele lui în ordine inversă.',starter:M(`int n, inv = 0;
+cin >> n;
+// completeaza aici
+
+cout << inv;`),tests:[{in:'1234',out:'4321'},{in:'7',out:'7'},{in:'1200',out:'21'},{in:'90817',out:'71809'}],
+  solution:M(`int n, inv = 0;
+cin >> n;
+while (n)
+{
+    inv = inv * 10 + n % 10;
+    n /= 10;
+}
+cout << inv;`)},
+ {title:'P4. Cel mai mare divizor comun',text:'Citește a și b (naturale nenule) și afișează cmmdc(a, b) folosind algoritmul lui Euclid cu while.',starter:M(`int a, b;
+cin >> a >> b;
+// completeaza aici
+`),tests:[{in:'84 36',out:'12'},{in:'17 5',out:'1'},{in:'100 75',out:'25'},{in:'9 27',out:'9'}],
+  solution:M(`int a, b, r;
+cin >> a >> b;
+while (b != 0)
+{
+    r = a % b;
+    a = b;
+    b = r;
+}
+cout << a;`)},
+ {title:'P5. Câte numere pare?',text:'Se citesc numere întregi până la întâlnirea lui 0. Afișează câte dintre ele sunt pare (fără 0).',starter:M(`int x, k = 0;
+cin >> x;
+// completeaza aici
+
+cout << k;`),tests:[{in:'3 8 10 7 2 0',out:'3'},{in:'0',out:'0'},{in:'1 3 5 0',out:'0'},{in:'-4 6 0',out:'2'}],
+  solution:M(`int x, k = 0;
+cin >> x;
+while (x != 0)
+{
+    if (x % 2 == 0) k++;
+    cin >> x;
+}
+cout << k;`)}];
+TASKS.forEach(t=>{const d=h('div');$('#tasks').append(d);AutoTask(d,t)});
+
+/* ================= TEST ================= */
+Quiz('#quiz',[
+ {t:'Care dintre următoarele concepte nu reprezintă o structură de control într-un program C/C++?',opts:['repetiția','selecția','secvența','sortarea'],a:3,expl:'Structurile de control sunt secvența, selecția și repetiția. Sortarea este un algoritm.'},
+ {t:'Ce se va afișa?<pre class="code">int a = 20, b = 85;\nwhile ((b - a) % 3)\n{\n    cout &lt;&lt; b &lt;&lt; " ";\n    b -= 10;\n}</pre>',opts:['85 75','85 75 65 55','80 70 60','80 70 60 50'],a:0,expl:'(85−20)%3 = 2 → afișează 85; (75−20)%3 = 1 → afișează 75; (65−20)%3 = 0 → ieșire.'},
+ {t:'Ce se va afișa?<pre class="code">int x = 10;\nif (x = 5)\n  if (x == 10) cout &lt;&lt; x;\nelse\n  cout &lt;&lt; " ";\ncout &lt;&lt; 55;</pre>',opts:['10 55','55','5','10'],a:1,expl:'x = 5 este adevărat; x == 10 este fals, iar else aparține acestui if interior și afișează un spațiu; apoi 55.'},
+ {t:'Ce se va afișa?<pre class="code">int a = 10, b = 20, c = 30;\nif (a &lt; 5)\n  if (b &lt; 10) cout &lt;&lt; "unu";\n  else cout &lt;&lt; "doi";\nelse if (c &gt; 20)\n  cout &lt;&lt; "trei";\nelse\n  cout &lt;&lt; "patru";</pre>',opts:['unu','trei','doi','patru'],a:1,expl:'a &lt; 5 este fals → ramura else exterioară; c &gt; 20 → „trei”.'},
+ {t:'Ce se va afișa?<pre class="code">int a = 10;\nwhile (a = 5)\n{\n  a--; cout &lt;&lt; a &lt;&lt; " ";\n}</pre>',opts:['10','4 4 4 … (la infinit)','20','1'],a:1,expl:'La fiecare evaluare a condiției, a primește 5 (adevărat); în corp devine 4 și se afișează 4 – ciclu infinit.'},
+ {open:true,t:'Să se scrie un program simplu care citește de la consolă un număr natural n și afișează suma cifrelor acestui număr.',expl:'Se extrage ultima cifră cu <code>n % 10</code>, se adună la sumă și se elimină cu <code>n /= 10</code>, cât timp n &gt; 0. Programul complet poate fi executat mai jos (și verificat în Laborator, problema P1).'},
+]);
+CodeLab('#labQ6',{title:'Suma cifrelor',input:'2026',code:TASKS[0].solution});
+
+renderCode();initShell();
+
+</script>
+</body>
+</html>
