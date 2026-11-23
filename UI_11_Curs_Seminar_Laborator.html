@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UI 11 · Instrucțiuni specifice limbajelor de asamblare: transfer cu memoria, deplasări și rotații — PCLP I</title>
+<style>
+:root{
+  --paper:#f6f4ee; --card:#ffffff; --ink:#1c2230; --muted:#5d6678; --line:#e2ddd2;
+  --acc:#2f5bd3; --acc2:#e8a33d; --acc-soft:#e7edfb; --ok:#1f8a5b; --ok-soft:#e3f4ec;
+  --bad:#c23a3a; --bad-soft:#fbe9e9; --warn:#a86a00; --warn-soft:#fff4dc;
+  --mono:"JetBrains Mono","Cascadia Code","Fira Code",Consolas,"DejaVu Sans Mono",monospace;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"DejaVu Serif",serif;
+  --sans:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+  --r:12px; --shadow:0 1px 2px rgba(20,25,40,.06),0 4px 14px rgba(20,25,40,.06);
+}
+body.dark{
+  --paper:#12151c; --card:#1b2029; --ink:#e6e9f0; --muted:#9aa3b5; --line:#2c3340;
+  --acc-soft:#1f2a44; --ok-soft:#14302a; --bad-soft:#3a1d1f; --warn-soft:#3a2e14;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);transition:background .3s,color .3s}
+h1,h2,h3,h4{font-family:var(--serif);line-height:1.25;margin:1.2em 0 .5em}
+h1{font-size:1.9rem;margin:0}
+h2{font-size:1.55rem;border-bottom:2px solid var(--line);padding-bottom:.3em}
+h3{font-size:1.2rem;color:var(--acc)}
+h4{font-size:1.05rem}
+a{color:var(--acc)}
+code,.mono{font-family:var(--mono);font-size:.92em}
+p{margin:.5em 0 .8em}
+small{color:var(--muted)}
+
+/* ===== Header ===== */
+header.top{position:sticky;top:0;z-index:50;background:var(--card);border-bottom:1px solid var(--line);box-shadow:var(--shadow)}
+.top-inner{max-width:1240px;margin:0 auto;padding:.8rem 1.2rem .3rem;display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
+.badge-ui{background:var(--acc);color:#fff;font-weight:700;border-radius:10px;padding:.35rem .7rem;font-family:var(--mono);letter-spacing:.03em}
+.top-title{flex:1;min-width:260px}
+.top-title .sub{color:var(--muted);font-size:.9rem}
+.top-title h1{font-size:1.25rem}
+.icon-btn{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:8px;padding:.35rem .6rem;cursor:pointer;font-size:.95rem}
+.icon-btn:hover{background:var(--acc-soft)}
+nav.tabs{max-width:1240px;margin:0 auto;padding:0 1.2rem;display:flex;gap:.25rem;overflow-x:auto}
+nav.tabs button{border:none;background:none;color:var(--muted);font:600 .98rem var(--sans);padding:.6rem 1rem;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+nav.tabs button:hover{color:var(--ink)}
+nav.tabs button.active{color:var(--acc);border-bottom-color:var(--acc)}
+.progress{height:3px;background:var(--line)}
+.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .15s}
+
+/* ===== Layout ===== */
+main{max-width:1240px;margin:0 auto;padding:1.2rem}
+.panel{display:none;animation:fadeUp .35s ease}
+.panel.active{display:block}
+.with-toc{display:grid;grid-template-columns:240px 1fr;gap:1.6rem;align-items:start}
+.toc{position:sticky;top:120px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:.8rem;font-size:.9rem;max-height:calc(100vh - 140px);overflow:auto}
+.toc b{display:block;font-family:var(--serif);margin-bottom:.4rem}
+.toc a{display:block;color:var(--muted);text-decoration:none;padding:.25rem .5rem;border-radius:6px;border-left:3px solid transparent}
+.toc a:hover{background:var(--acc-soft);color:var(--ink)}
+.toc a.on{border-left-color:var(--acc);color:var(--acc);background:var(--acc-soft);font-weight:600}
+@media(max-width:900px){.with-toc{grid-template-columns:1fr}.toc{position:static;max-height:none}}
+
+section.unit-sec{scroll-margin-top:120px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1.1rem 1.3rem;margin:1rem 0;box-shadow:var(--shadow)}
+.card>h3:first-child,.card>h4:first-child{margin-top:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+@media(max-width:800px){.grid2,.grid3{grid-template-columns:1fr}}
+.hero{background:linear-gradient(135deg,var(--acc) 0%,#20366f 100%);color:#fff;border-radius:16px;padding:1.6rem 1.8rem;margin-bottom:1.2rem;position:relative;overflow:hidden}
+.hero h2{border:none;color:#fff;margin:0 0 .4rem;font-size:1.7rem}
+.hero ul{margin:.3rem 0 0;padding-left:1.2rem}
+.hero .meta{opacity:.85;font-size:.9rem;margin-top:.8rem}
+.hero canvas{position:absolute;inset:0;opacity:.18;pointer-events:none}
+.hero>*{position:relative}
+
+.note{border-left:4px solid var(--acc);background:var(--acc-soft);padding:.6rem .9rem;border-radius:0 8px 8px 0;margin:.8rem 0}
+.note.obs{border-color:var(--acc2);background:var(--warn-soft)}
+.note.fix{border-color:var(--bad);background:var(--bad-soft)}
+.note.fix::before{content:"Notă de corectură · ";font-weight:700;color:var(--bad)}
+.note.obs::before{content:"Obs. · ";font-weight:700;color:var(--warn)}
+.def{border:1px dashed var(--acc);border-radius:10px;padding:.6rem .9rem;margin:.8rem 0}
+.def b:first-child{color:var(--acc)}
+.formula{font-family:var(--serif);font-size:1.15rem;text-align:center;padding:.7rem;margin:.6rem 0;background:var(--paper);border-radius:8px;overflow-x:auto}
+
+table.t{border-collapse:collapse;width:100%;margin:.6rem 0;font-size:.93rem}
+table.t th,table.t td{border:1px solid var(--line);padding:.35rem .55rem;text-align:center}
+table.t th{background:var(--acc-soft);font-weight:600}
+table.t tr:hover td{background:rgba(127,127,127,.06)}
+table.t td.l,table.t th.l{text-align:left}
+.scroll-x{overflow-x:auto}
+
+/* ===== Controls ===== */
+button.btn,.btn{border:1px solid var(--acc);background:var(--acc);color:#fff;border-radius:8px;padding:.42rem .9rem;font:600 .92rem var(--sans);cursor:pointer;transition:transform .1s,filter .15s}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;color:var(--acc)}
+.btn.small{padding:.25rem .6rem;font-size:.85rem}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+input[type=text],input[type=number],select,textarea{font:1rem var(--mono);padding:.4rem .55rem;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);min-width:0}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--acc);outline-offset:1px}
+input[type=range]{accent-color:var(--acc);width:100%}
+.row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin:.5rem 0}
+.row label{font-size:.9rem;color:var(--muted)}
+.out{font-family:var(--mono);background:var(--paper);border-radius:8px;padding:.6rem .8rem;margin:.5rem 0;white-space:pre-wrap;word-break:break-all;min-height:2.2em}
+.pill{display:inline-block;padding:.05rem .5rem;border-radius:999px;background:var(--acc-soft);color:var(--acc);font-size:.8rem;font-weight:600}
+.ok{color:var(--ok);font-weight:600}.bad{color:var(--bad);font-weight:600}
+.hl{background:var(--acc2);color:#111;border-radius:4px;padding:0 .2em;transition:background .3s}
+
+/* ===== Bits ===== */
+.bits{display:inline-flex;gap:3px;flex-wrap:wrap;font-family:var(--mono)}
+.bit{width:30px;height:36px;display:inline-flex;align-items:center;justify-content:center;border:1.5px solid var(--line);border-radius:6px;background:var(--card);font-weight:700;font-size:1.05rem;transition:all .35s;position:relative;user-select:none}
+.bit.one{background:var(--acc);border-color:var(--acc);color:#fff}
+.bit.click{cursor:pointer}.bit.click:hover{transform:translateY(-2px)}
+.bit.flip{animation:flip .45s}
+.bit.sign{box-shadow:0 0 0 2px var(--bad) inset}
+.bit.exp{border-color:var(--acc2)}
+.bit.exp.one{background:var(--acc2);border-color:var(--acc2);color:#111}
+.bit.err{background:var(--bad)!important;border-color:var(--bad)!important;color:#fff!important;animation:shake .4s}
+.bit.par{border-style:dashed}
+.bit.gap{margin-left:10px}
+.bit .w{position:absolute;top:-17px;font-size:.62rem;color:var(--muted);font-weight:500}
+.bitlbl{display:flex;gap:3px;font:600 .7rem var(--mono);color:var(--muted)}
+.bitlbl span{width:30px;text-align:center}
+
+/* ===== Stepper ===== */
+.stepper{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin:.8rem 0;background:var(--card)}
+.stepper .st-head{display:flex;align-items:center;gap:.4rem;padding:.5rem .7rem;background:var(--acc-soft);flex-wrap:wrap}
+.stepper .st-title{font-weight:700;flex:1;min-width:140px}
+.stepper .st-count{font:600 .85rem var(--mono);color:var(--muted)}
+.stepper .st-body{padding:.9rem 1rem;min-height:90px}
+.stepper .st-bar{height:3px;background:var(--line)}
+.stepper .st-bar>div{height:100%;background:var(--acc);transition:width .3s}
+.step-line{opacity:0;transform:translateX(-8px);animation:slideIn .4s forwards}
+
+/* ===== Quiz ===== */
+.q{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1rem 1.2rem;margin:.9rem 0}
+.q .qn{font:700 .8rem var(--mono);color:var(--acc)}
+.q .qt{font-weight:600;margin:.2rem 0 .6rem}
+.q .opts{display:grid;gap:.4rem}
+.q .opt{border:1.5px solid var(--line);border-radius:8px;padding:.45rem .7rem;cursor:pointer;transition:all .2s;font-family:var(--mono);background:var(--paper)}
+.q .opt:hover{border-color:var(--acc)}
+.q .opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.q .opt.wrong{border-color:var(--bad);background:var(--bad-soft);animation:shake .35s}
+.q .expl{display:none;margin-top:.6rem;padding:.6rem .8rem;border-radius:8px;background:var(--paper);border-left:3px solid var(--ok)}
+.q.done .expl{display:block;animation:fadeUp .3s}
+.score{position:sticky;bottom:12px;margin-left:auto;width:max-content;background:var(--ink);color:var(--paper);padding:.5rem 1rem;border-radius:999px;font-weight:700;box-shadow:var(--shadow)}
+
+/* ===== Exercise ===== */
+.ex{border:1px solid var(--line);border-radius:var(--r);padding:.9rem 1.1rem;background:var(--card);margin:.8rem 0}
+.ex .ex-q{font-weight:600}
+.ex .fb{margin-top:.4rem;min-height:1.4em}
+.ex details{margin-top:.5rem}
+.ex summary{cursor:pointer;color:var(--acc);font-weight:600}
+.streak{font:700 .85rem var(--mono);color:var(--acc2)}
+
+/* ===== Code ===== */
+pre.code{background:#0f1420;color:#d8dee9;border-radius:10px;padding:.9rem 1rem;overflow-x:auto;font:13.5px/1.55 var(--mono);margin:.6rem 0;position:relative}
+pre.code .k{color:#81a1c1}pre.code .s{color:#a3be8c}pre.code .c{color:#6b7891;font-style:italic}pre.code .n{color:#b48ead}pre.code .f{color:#88c0d0}pre.code .p{color:#ebcb8b}
+.copy{position:absolute;top:6px;right:6px;background:#2b3245;color:#cdd6e4;border:none;border-radius:6px;padding:.15rem .5rem;font-size:.75rem;cursor:pointer}
+.term{background:#0b0d12;color:#9ef0a8;font:13px/1.5 var(--mono);border-radius:10px;padding:.8rem 1rem;white-space:pre-wrap;min-height:3em}
+
+/* ===== SVG helpers ===== */
+svg text{font-family:var(--sans)}
+.svgbox{width:100%;overflow-x:auto;background:var(--paper);border-radius:10px;padding:.4rem}
+svg .node circle,svg .node rect{transition:all .4s}
+.fadein{animation:fadeUp .5s both}
+
+/* ===== Animations ===== */
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes slideIn{to{opacity:1;transform:none}}
+@keyframes flip{0%{transform:rotateX(0)}50%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(47,91,211,.45)}50%{box-shadow:0 0 0 8px rgba(47,91,211,0)}}
+.pulse{animation:pulse 1.2s infinite}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+footer{max-width:1240px;margin:2rem auto 1rem;padding:1rem 1.2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--line)}
+.biblio li{margin:.2rem 0}
+@media print{header.top,.toc,.btn,.stepper .st-head{display:none!important}.panel{display:block!important}.with-toc{display:block}}
+
+:root{--acc:#3d5a80;--acc2:#ee6c4d;--acc-soft:#e4ebf4}
+body.dark{--acc-soft:color-mix(in srgb,#3d5a80 22%,#1b2029)}
+.hero{background:linear-gradient(135deg,#3d5a80 0%,#1b2340 100%)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <span class="badge-ui">UI 11</span>
+    <div class="top-title"><div class="sub">Programarea calculatoarelor și limbaje de programare I · Unitatea de învățare nr. 11</div><h1>Instrucțiuni specifice limbajelor de asamblare: transfer cu memoria, deplasări și rotații</h1></div>
+    <button class="icon-btn" id="themeBtn" title="Temă luminoasă / întunecată">◐ Temă</button>
+    <button class="icon-btn" onclick="window.print()" title="Tipărire">⎙</button>
+  </div>
+  <nav class="tabs">
+    <button data-tab="curs">📘 Curs</button>
+    <button data-tab="seminar">✏️ Seminar</button>
+    <button data-tab="laborator">💻 Laborator</button>
+    <button data-tab="test">✅ Autoevaluare</button>
+  </nav>
+  <div class="progress"><div></div></div>
+</header>
+<main>
+<!-- ===================== CURS ===================== -->
+<div class="panel" id="curs">
+<div class="hero">
+  <h2>Instrucțiuni specifice limbajelor de asamblare</h2>
+  <div>Procedee de transfer cu memoria, deplasări și rotații. Obiectivele unității de învățare nr. 11:</div>
+  <ul>
+    <li>Identificarea diferitelor niveluri (generații) de limbaj: limbaj mașină, limbaj de asamblare, limbaje de nivel înalt</li>
+    <li>Cunoașterea instrucțiunilor uzuale în limbaj de asamblare</li>
+  </ul>
+  <div class="meta">⏱ Timp mediu de studiu: 2–3 ore · Include un emulator 8086 simplificat, executabil pas cu pas.</div>
+</div>
+<div class="with-toc">
+<aside class="toc" data-for="curs"></aside>
+<div>
+
+<section class="unit-sec" id="c1" data-title="1. Limbaje de programare">
+<h2>1. Limbaje de programare</h2>
+<p>Un program include: <b>setul de instrucțiuni</b> necesare rezolvării unei probleme și <b>datele și adresele de memorie</b> necesare microprocesorului. Orice prelucrare trebuie să identifice sursa datelor, destinația rezultatelor și operațiile de efectuat.</p>
+<div class="card">
+<h3>🔁 Etapele execuției unei instrucțiuni</h3>
+<div id="cycSt"></div>
+</div>
+<p>Un program scris într-un limbaj de nivel înalt este <b>tradus</b> de compilator în <b>cod mașină</b> – secvențe de biți, singurul limbaj pe care calculatorul îl înțelege direct. Scrierea directă în cod mașină este dificilă: programe greu de scris, de înțeles și de depanat, lungi, cu erori greu de localizat și <b>neportabile</b>.</p>
+<div class="note fix">suportul afirmă că „fiecare instrucțiune în cod mașină este o combinație de 4 biți”. În realitate, lungimea instrucțiunilor depinde de procesor; la familia 8086/x86 o instrucțiune are între 1 și 15 octeți (vezi exemplele de mai jos).</div>
+<div class="grid2">
+<div class="card"><h4>Clasificarea limbajelor</h4><div class="svgbox"><svg id="lvlSvg" viewBox="0 0 460 300" width="100%" height="300"></svg></div><div id="lvlTxt" class="out">Treci cu mouse-ul peste un nivel.</div></div>
+<div class="card"><h4>De la C la cod mașină</h4><p style="font-size:.92rem">Apasă pe o linie: vezi instrucțiunea de asamblare și octeții de cod mașină (8086, mod real).</p>
+<table class="t" id="xlTbl" style="font-family:var(--mono);font-size:.85rem;cursor:pointer"></table><div id="xlOut" class="out"></div></div>
+</div>
+<div class="grid3">
+<div class="card"><h4>Limbajul de asamblare</h4>Limbaj simbolic, de nivel inferior, situat imediat deasupra limbajului mașină. Fiecărei instrucțiuni îi corespunde <b>un singur cod executabil</b>. Programul care îl traduce în cod mașină este <b>asamblorul</b>. Dependent de calculator.</div>
+<div class="card"><h4>Limbaje de nivel înalt</h4>Portabile, ușor de învățat, cu notații matematice și cuvinte din engleză. <b>Compilare</b>: program sursă → program obiect; <b>linkeditare</b>: se adaugă module din biblioteci.</div>
+<div class="card"><h4>Procedurale / orientate pe problemă / naturale</h4><b>Procedurale</b> (Fortran, Pascal, C++): exprimă procedura de calcul. <b>Orientate pe problemă</b>: definesc scopul, nu pașii. <b>Naturale</b>: limbaj uman, bazate pe cunoaștere (IA).</div>
+</div>
+</section>
+
+<section class="unit-sec" id="c2" data-title="2. Generalități; operații cu memoria">
+<h2>2. Programarea în limbaj de asamblare – generalități</h2>
+<p>UCP este caracterizată prin instrucțiunile mașină pe care le execută: ele îi spun unde să găsească datele, când să le citească și cum să le prelucreze. Setul complet de instrucțiuni, împreună cu modurile de adresare (algoritmul de calcul al adresei operanzilor), formează <b>arhitectura setului de instrucțiuni</b> (ISA).</p>
+<h3>Operații cu memoria: Read și Write</h3>
+<div class="grid2">
+<div class="card"><div class="row"><button class="btn small" id="rwR">▶ Read (Load/Fetch)</button><button class="btn small ghost" id="rwW">▶ Write (Store)</button><label>adresa</label><select id="rwA"></select></div>
+<div class="svgbox"><svg id="rwSvg" viewBox="0 0 520 250" width="100%" height="250"></svg></div><div id="rwOut" class="out"></div></div>
+<div class="card"><h4>Read (Load/Fetch)</h4><p>Transferă o <b>copie</b> a conținutului unei locații către procesor; memoria rămâne nemodificată. Procesorul trimite adresa și cere citirea.</p>
+<h4>Write (Store)</h4><p>Transferă o informație de la procesor într-o locație, <b>suprascriind</b> vechiul conținut. Procesorul trimite adresa împreună cu datele.</p></div>
+</div>
+</section>
+
+<section class="unit-sec" id="c3" data-title="3. Regiștrii 8086">
+<h2>3. Noțiuni de bază: regiștrii microprocesorului 8086</h2>
+<p>Toate operațiile aritmetice, logice și de acces la memorie se fac prin intermediul regiștrilor. Intel îi clasifică în: regiștri de uz general, regiștri de segment și index, regiștri speciali și flaguri.</p>
+<div class="card"><h3>🧩 AX = AH : AL</h3><p>Cei 8 biți mai puțin semnificativi formează registrul <b>L</b> (Low), cei 8 mai semnificativi registrul <b>H</b> (High). Scrie o valoare sau apasă pe biți:</p>
+<div class="row"><select id="rgSel"><option>AX</option><option>BX</option><option>CX</option><option>DX</option></select><input id="rgV" type="text" value="1234h" style="width:110px"></div>
+<div id="rgBits" style="margin-top:1rem;overflow-x:auto"></div><div id="rgOut" class="out"></div></div>
+<div class="scroll-x"><table class="t" id="regTbl"></table></div>
+<p style="font-size:.9rem">Regiștrii SI, DI, BP, SP au doar 16 biți. Treci cu mouse-ul peste un rând pentru detalii.</p>
+</section>
+
+<section class="unit-sec" id="c4" data-title="4. Setul de instrucțiuni">
+<h2>4. Setul de instrucțiuni</h2>
+<ul><li>de <b>transfer</b> între memorie și regiștri (LOAD/STORE): de uz general, cu stiva, specifice adreselor;</li><li><b>aritmetice</b>; <b>logice</b> și la nivel de bit;</li><li>de <b>control program</b> (ramificare); pentru <b>controlul procesorului</b>.</li></ul>
+<h3>MOV și XCHG</h3>
+<div class="formula" style="font-family:var(--mono)">mov &lt;destinație&gt;, &lt;sursă&gt; &nbsp;&nbsp;·&nbsp;&nbsp; xchg &lt;op1&gt;, &lt;op2&gt;</div>
+<p><code>mov</code> copiază sursa în destinație fără a modifica sursa. Reguli: destinația este registru sau memorie; sursa este registru, memorie sau valoare imediată; <b>nu ambele memorie</b>; operanzii au <b>aceeași dimensiune</b>; <b>CS nu poate fi destinație</b>; nu se transferă direct între doi regiștri de segment (și nici o valoare imediată într-un registru de segment). <code>xchg</code> interschimbă operanzii; cel puțin unul trebuie să fie registru general; regiștrii de segment nu pot fi operanzi.</p>
+<div class="card"><h3>✅ Verificator de instrucțiuni</h3><p>Scrie o instrucțiune; verificatorul spune dacă e corectă și de ce.</p>
+<div class="row"><input id="vfIn" type="text" value="mov ds, es" style="flex:1;font-family:var(--mono)"><button class="btn small" id="vfGo">Verifică</button></div>
+<div class="row" id="vfEx"></div><div id="vfOut" class="out"></div></div>
+<h3>Stiva: PUSH și POP</h3>
+<p><code>push sursă</code>: SP ← SP − 2, apoi cuvântul sursă se scrie în noul vârf. <code>pop destinație</code>: copiază cuvântul din vârf în destinație, apoi SP ← SP + 2. Stiva funcționează după principiul LIFO (Last In – First Out).</p>
+<div class="card"><div class="row"><button class="btn small" data-st="push ax">push AX</button><button class="btn small" data-st="push bx">push BX</button><button class="btn small" data-st="push cx">push CX</button><button class="btn small ghost" data-st="pop dx">pop DX</button><button class="btn small ghost" data-st="pop ax">pop AX</button><button class="btn small ghost" data-st="reset">↺</button></div>
+<div class="grid2"><div class="svgbox"><svg id="stSvg" viewBox="0 0 300 300" width="100%" height="300"></svg></div><div id="stOut" class="out"></div></div></div>
+<h3>LEA, LDS, LES</h3>
+<p><code>lea reg, mem</code> încarcă <b>adresa efectivă</b> a operandului (nu conținutul). <code>lds reg, adr</code> încarcă din memorie, de la adresa adr, un pointer complet: deplasamentul în <i>reg</i> și segmentul în <b>DS</b>; <code>les</code> face același lucru, dar segmentul ajunge în <b>ES</b>.</p>
+<div class="note fix">în suport, efectul lui <code>les</code> este descris tot cu registrul DS; corect: <code>les</code> încarcă segmentul în ES.</div>
+<h3>Instrucțiuni aritmetice</h3>
+<table class="t"><tr><th>Instrucțiune</th><th class="l">Efect</th></tr>
+<tr><td class="mono">add dest, src</td><td class="l">dest ← dest + src (cel mult un operand în memorie; src poate fi imediat)</td></tr>
+<tr><td class="mono">sub dest, src</td><td class="l">dest ← dest − src</td></tr>
+<tr><td class="mono">inc / dec op</td><td class="l">op ← op ± 1</td></tr>
+<tr><td class="mono">mul src</td><td class="l">fără semn: AX ← AL·src (8 biți) · DX:AX ← AX·src (16 biți)</td></tr>
+<tr><td class="mono">imul …</td><td class="l">cu semn; formate cu 1, 2 (op1 ← op1·op2) sau 3 operanzi (op1 ← op2·imediat)</td></tr>
+<tr><td class="mono">div src</td><td class="l">8 biți: AL ← AX / src, AH ← rest · 16 biți: AX ← DX:AX / src, DX ← rest</td></tr>
+<tr><td class="mono">idiv src</td><td class="l">ca div, pentru numere cu semn</td></tr>
+<tr><td class="mono">cmp a, b</td><td class="l">calculează a − b doar pentru flaguri (operanzii nu se modifică); urmată de salturi condiționate</td></tr></table>
+<div class="card"><h3>✖ MUL și DIV: unde ajunge rezultatul?</h3>
+<div class="row"><select id="mdOp"><option>mul</option><option>div</option></select><select id="mdSz"><option value="8">8 biți</option><option value="16" selected>16 biți</option></select><label>AX</label><input id="mdA" type="text" value="1234" style="width:80px"><label>DX</label><input id="mdD" type="text" value="0" style="width:70px"><label>src</label><input id="mdS" type="text" value="100" style="width:80px"><button class="btn small" id="mdGo">Execută</button></div>
+<div id="mdOut"></div></div>
+<h3>Instrucțiuni logice și la nivel de bit</h3>
+<p><code>and</code> (A &amp;= B), <code>or</code> (A |= B), <code>xor</code> (A ^= B), <code>not</code> (A = ~A) acționează bit cu bit. <code>test</code> face AND fără să păstreze rezultatul (ca <code>cmp</code> pentru scădere).</p>
+<div class="card"><div class="row"><select id="lgOp"><option>and</option><option>or</option><option>xor</option><option>not</option><option>test</option></select><label>A</label><input id="lgA" type="text" value="10110110b" style="width:120px"><label>B</label><input id="lgB" type="text" value="00001111b" style="width:120px"></div><div id="lgOut"></div></div>
+<h3>Deplasări și rotații</h3>
+<p><b>Deplasare</b>: biții se translatează; cei ieșiți se pierd, cu excepția ultimului, reținut în <b>CF</b>. <b>Rotație</b>: biții ieșiți reintră pe partea opusă (ROL, ROR) sau trec prin CF (RCL, RCR).</p>
+<table class="t"><tr><th>Instr.</th><th class="l">Efect</th><th class="l">Echivalent</th></tr>
+<tr><td class="mono">shl / sal</td><td class="l">stânga; în dreapta intră 0; MSB → CF</td><td class="l">înmulțire cu 2<sup>contor</sup></td></tr>
+<tr><td class="mono">shr</td><td class="l">dreapta; în stânga intră 0; LSB → CF</td><td class="l">împărțire fără semn la 2<sup>contor</sup></td></tr>
+<tr><td class="mono">sar</td><td class="l">dreapta; bitul de semn se păstrează (se copiază)</td><td class="l">împărțire cu semn la 2<sup>contor</sup> (rotunjire în jos)</td></tr>
+<tr><td class="mono">rol / ror</td><td class="l">rotație; MSB → LSB (rol) sau LSB → MSB (ror); bitul rotit e copiat și în CF</td><td class="l">—</td></tr>
+<tr><td class="mono">rcl / rcr</td><td class="l">rotație prin CF (operand de n+1 biți)</td><td class="l">—</td></tr></table>
+<div class="note fix">suportul spune că la SHR/SAR „în partea stângă se introduc biți zero”; pentru SAR se copiază de fapt bitul de semn, de aceea SAR păstrează semnul.</div>
+<div class="card"><h3>🎞 Animator de deplasări și rotații</h3>
+<div class="row"><select id="shOp"><option>shl</option><option>shr</option><option>sar</option><option>rol</option><option>ror</option><option>rcl</option><option>rcr</option></select><select id="shSz"><option value="8" selected>8 biți (AL)</option><option value="16">16 biți (AX)</option></select><label>valoare</label><input id="shV" type="text" value="10010110b" style="width:130px"><label>contor</label><input id="shN" type="number" value="3" min="1" max="16" style="width:60px"><label>CF inițial</label><select id="shC"><option>0</option><option>1</option></select><button class="btn small" id="shGo">▶ Animează</button></div>
+<div id="shVis" style="margin:1rem 0;overflow-x:auto"></div><div id="shOut" class="out"></div></div>
+</section>
+
+<section class="unit-sec" id="c5" data-title="Emulator 8086">
+<h2>Emulator 8086 simplificat</h2>
+<p>Scrie sau alege un program și execută-l pas cu pas. Variabilele se declară cu <code>nume dw valoare</code> (cuvânt, 16 biți) sau <code>nume db valoare</code> (octet). Valorile hexazecimale se scriu cu sufixul <code>h</code> (ex. <code>40h</code>), cele binare cu sufixul <code>b</code>.</p>
+<div id="tabAsm" class="tabs2"></div><div id="emu"></div>
+</section>
+
+<section class="unit-sec" id="c6" data-title="Rezumat">
+<h2>Rezumat</h2>
+<div class="card"><ul>
+<li>Un program cuprinde instrucțiuni, date și adrese. Ciclul unei instrucțiuni: preluare, traducere în comenzi, execuție, scrierea rezultatului.</li>
+<li>Limbaje „low-level” (mașină, asamblare) și „high-level” (procedurale, orientate pe problemă, naturale).</li>
+<li>ISA = setul de instrucțiuni + modurile de adresare. Operațiile cu memoria: Read (Load/Fetch) și Write (Store).</li>
+<li>8086: regiștri generali AX, BX, CX, DX (cu jumătăți H/L), SI, DI, BP, SP; de segment CS, DS, SS, ES; speciali IP și Flags.</li>
+<li>Instrucțiuni: transfer (mov, xchg, push, pop, lea, lds, les), aritmetice (add, sub, inc, dec, mul, imul, div, idiv, cmp), logice (and, or, xor, not, test), deplasări și rotații (shl, sal, shr, sar, rol, ror, rcl, rcr).</li>
+</ul></div>
+<h3>Bibliografie</h3>
+<ol class="biblio"><li>Dinu, S., Pomazan, C. „Programarea calculatoarelor”, Ed. Nautica, 2013.</li><li>Kernighan, B. W., Ritchie, D. M. „Limbajul C”, Ed. Teora, 2003.</li><li>Năstac, I. „Programarea calculatoarelor în limbajul C – Elemente fundamentale”, Ed. Printech, 2006.</li><li>Negrescu, L. „Limbajele C și C++ pentru începători”, Vol. 1 și 2, Ed. Albastră, 2000.</li></ol>
+</section>
+</div></div></div>
+
+<!-- ===================== SEMINAR ===================== -->
+<div class="panel" id="seminar">
+<div class="with-toc"><aside class="toc" data-for="seminar"></aside><div>
+<section class="unit-sec" id="s1" data-title="Secvențe urmărite pas cu pas">
+<h2>Secvențe urmărite pas cu pas</h2>
+<div class="row"><select id="prSel" style="max-width:100%"></select></div>
+<div id="prSt"></div>
+</section>
+<section class="unit-sec" id="s2" data-title="Exerciții generate">
+<h2>Exerciții generate aleator</h2>
+<p>Valorile se pot scrie în zecimal, în hexazecimal (sufix h) sau în binar (sufix b).</p>
+<div class="grid2" id="exGrid"></div>
+</section>
+<section class="unit-sec" id="s3" data-title="Teme de seminar">
+<h2>Teme propuse pentru seminar</h2>
+<div class="card"><ol>
+<li>Scrieți secvența care calculează P = 3·N + M folosind doar mov, add și shl.</li>
+<li>Interschimbați conținutul a două variabile din memorie A și B (indiciu: nu se poate <code>xchg A, B</code>).</li>
+<li>Ce valoare are AX după <code>mov ax, -20</code> și <code>sar ax, 2</code>? Dar după <code>shr ax, 2</code>? Explicați diferența.</li>
+<li>Folosind <code>and</code>, <code>or</code> și <code>xor</code>, scrieți secvențe care: pun pe 0 biții 4–7 ai lui AL, pun pe 1 bitul 0, inversează bitul 7.</li>
+<li>Scrieți un ciclu cu <code>loop</code> care calculează în AX suma numerelor de la 1 la 10.</li>
+<li>Explicați de ce instrucțiunile <code>mov ds, es</code> și <code>mov cs, 23h</code> sunt incorecte.</li>
+</ol></div>
+</section>
+</div></div></div>
+
+<!-- ===================== LABORATOR ===================== -->
+<div class="panel" id="laborator">
+<div class="with-toc"><aside class="toc" data-for="laborator"></aside><div>
+<section class="unit-sec" id="l0" data-title="Emulator liber">
+<h2>Laborator: emulatorul 8086</h2>
+<p>Instrucțiuni suportate: mov, xchg, push, pop, lea, lds, les, add, adc, sub, sbb, inc, dec, neg, mul, imul, div, idiv, cmp, and, or, xor, not, test, shl, sal, shr, sar, rol, ror, rcl, rcr, jmp, je/jz, jne/jnz, jg, jge, jl, jle, ja, jae, jb, jbe, jc, jnc, loop, nop, hlt. Etichetele se scriu <code>nume:</code>.</p>
+<div id="tabFree" class="tabs2"></div><div id="emuFree"></div>
+</section>
+<section class="unit-sec" id="l1" data-title="Probleme cu verificare automată">
+<h2>Probleme cu verificare automată</h2>
+<p>Scrie programul în editorul fiecărei probleme și apasă „Verifică”. Programul este rulat pentru mai multe valori ale datelor de intrare, iar rezultatul este comparat cu valoarea așteptată.</p>
+<div id="tasks"></div>
+</section>
+<section class="unit-sec" id="l2" data-title="Asamblare în C (inline)">
+<h2>Limbaj de asamblare în programe C</h2>
+<p>Compilatoarele permit inserarea de cod de asamblare în C (asamblare <i>inline</i>). Sintaxa diferă între compilatoare. Exemplu pentru GCC pe x86 (sintaxa AT&amp;T: sursă, destinație):</p>
+<pre class="code" data-c>
+#include &lt;stdio.h&gt;
+
+int main(void) {
+    int n = 13, m = 29, p;
+    __asm__ (
+        "movl %1, %%eax\n\t"     /* eax <- n       */
+        "addl %2, %%eax\n\t"     /* eax <- eax + m */
+        "movl %%eax, %0"         /* p   <- eax     */
+        : "=r"(p)                /* iesire         */
+        : "r"(n), "r"(m)         /* intrari        */
+        : "%eax");               /* registru modificat */
+    printf("p = n + m = %d\n", p);
+    int x = 5;
+    __asm__ ("shll $3, %0" : "+r"(x));   /* x <- x * 8 */
+    printf("x << 3 = %d\n", x);
+    return 0;
+}</pre>
+<p>Echivalentul în sintaxa Intel (Borland C / Turbo C, 16 biți): <code>asm { mov ax, n; add ax, m; mov p, ax }</code>.</p>
+</section>
+</div></div></div>
+
+<!-- ===================== TEST ===================== -->
+<div class="panel" id="test">
+<h2>Test de autoevaluare – Unitatea de învățare nr. 11</h2>
+<div id="quiz"></div>
+<div class="card"><h3>Întrebarea 5, interactiv: care instrucțiuni sunt corecte?</h3><p>Marchează fiecare instrucțiune, apoi verifică.</p><div id="q5"></div></div>
+</div>
+
+</main>
+<footer>
+  Material interactiv realizat pe baza suportului de curs „Programarea calculatoarelor și limbaje de programare I – Curs și aplicații”, Unitatea de învățare nr. 11.
+  Funcționează offline, fără dependențe externe.
+</footer>
+<script>
+/* ===== Utilitare comune ===== */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+function h(tag,attrs={},...kids){const e=document.createElement(tag);for(const[k,v]of Object.entries(attrs||{})){if(k==='class')e.className=v;else if(k==='html')e.innerHTML=v;else if(k.startsWith('on'))e.addEventListener(k.slice(2),v);else e.setAttribute(k,v)}for(const c of kids.flat()){if(c==null)continue;e.append(c.nodeType?c:document.createTextNode(c))}return e}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pad=(s,n,c='0')=>String(s).padStart(n,c);
+const fmt=(x,d=4)=>{const r=Number(x.toFixed(d));return String(r).replace('.',',')};
+const fmtDot=(x,d=4)=>String(Number(x.toFixed(d)));
+const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+function bitsHTML(str,o={}){
+  // o: {click, cls:(i,ch)=>string, weights:true, gapEvery:n, id}
+  let s='<span class="bits"'+(o.id?` id="${o.id}"`:'')+'>';
+  const n=str.length;
+  for(let i=0;i<n;i++){const ch=str[i];
+    if(ch===' '||ch==='.'||ch===','){s+=`<span style="align-self:center;font-weight:700;padding:0 2px">${ch===' '?'':ch}</span>`;continue}
+    let c='bit'+(ch==='1'?' one':'')+(o.click?' click':'');
+    if(o.cls)c+=' '+o.cls(i,ch);
+    if(o.gapEvery&&i>0&&(n-i)%o.gapEvery===0)c+=' gap';
+    const w=o.weights?`<span class="w">${o.weights===true?(n-1-i):o.weights[i]}</span>`:'';
+    s+=`<span class="${c}" data-i="${i}">${w}${ch}</span>`}
+  return s+'</span>'}
+
+/* ===== Tab-uri, cuprins, progres, temă ===== */
+function initShell(){
+  const btns=$$('nav.tabs button');
+  function show(id,push=true){btns.forEach(b=>b.classList.toggle('active',b.dataset.tab===id));$$('.panel').forEach(p=>p.classList.toggle('active',p.id===id));if(push)try{history.replaceState(null,'','#'+id)}catch(e){}window.scrollTo({top:0});setTimeout(spy,50)}
+  btns.forEach(b=>b.onclick=()=>show(b.dataset.tab));
+  const hsh=(location.hash||'').slice(1); show(btns.some(b=>b.dataset.tab===hsh)?hsh:btns[0].dataset.tab,false);
+  // cuprinsuri
+  $$('.toc[data-for]').forEach(toc=>{const p=document.getElementById(toc.dataset.for);toc.innerHTML='<b>Cuprins</b>';$$('section.unit-sec',p).forEach(s=>{const t=s.dataset.title||$('h2',s).textContent;toc.append(h('a',{href:'#'+s.id,onclick:e=>{e.preventDefault();s.scrollIntoView({behavior:'smooth'})}},t))})});
+  const bar=$('.progress>div');
+  function spy(){const st=document.documentElement;const pr=st.scrollTop/(st.scrollHeight-st.clientHeight||1);if(bar)bar.style.width=(pr*100)+'%';
+    const p=$('.panel.active');if(!p)return;const secs=$$('section.unit-sec',p);let cur=null;for(const s of secs){if(s.getBoundingClientRect().top<160)cur=s.id}
+    $$('.toc a',p).forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+cur))}
+  addEventListener('scroll',spy,{passive:true});
+  // temă
+  const tb=$('#themeBtn');if(store.get('dark',false))document.body.classList.add('dark');
+  if(tb)tb.onclick=()=>{document.body.classList.toggle('dark');store.set('dark',document.body.classList.contains('dark'))};
+  // copiere cod
+  $$('pre.code').forEach(p=>{const b=h('button',{class:'copy'},'copiază');b.onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(p.dataset.raw||p.innerText.replace(/copiază$/,''));b.textContent='copiat ✓';setTimeout(()=>b.textContent='copiază',1200)};p.append(b)});
+  heroRain();
+}
+
+/* fundal animat în banner: cifre binare care cad */
+function heroRain(){const hero=$('.hero');if(!hero)return;const c=h('canvas');hero.prepend(c);const x=c.getContext('2d');let W,H,cols,drops;
+  function rs(){W=c.width=hero.clientWidth;H=c.height=hero.clientHeight;cols=Math.floor(W/16);drops=Array.from({length:cols},()=>Math.random()*H/16)}
+  rs();addEventListener('resize',rs);
+  let last=0;function fr(t){requestAnimationFrame(fr);if(t-last<70)return;last=t;x.fillStyle='rgba(0,0,0,0.08)';x.globalCompositeOperation='destination-out';x.fillRect(0,0,W,H);x.globalCompositeOperation='source-over';x.fillStyle='#fff';x.font='14px monospace';
+    for(let i=0;i<cols;i++){x.fillText(Math.random()<.5?'0':'1',i*16,drops[i]*16);if(drops[i]*16>H&&Math.random()>.97)drops[i]=0;drops[i]+=.5}}
+  if(!matchMedia('(prefers-reduced-motion: reduce)').matches)requestAnimationFrame(fr)}
+
+/* ===== Stepper: animație pas cu pas ===== */
+class Stepper{
+  /* opts: {title, steps:[html|fn], cumulative:true|false, render:(i)=>html, n, delay, onShow:(i,body)=>{}} */
+  constructor(host,opts){this.o=Object.assign({delay:1400,cumulative:true},opts);this.i=-1;this.timer=null;
+    const el=typeof host==='string'?$(host):host;el.classList.add('stepper');el.innerHTML='';
+    this.n=this.o.n??this.o.steps.length;
+    const hd=h('div',{class:'st-head'});this.tt=h('span',{class:'st-title'},this.o.title||'Animație pas cu pas');
+    this.bR=h('button',{class:'btn small ghost',title:'De la început'},'⏮');this.bP=h('button',{class:'btn small ghost',title:'Pasul anterior'},'◀');
+    this.bN=h('button',{class:'btn small',title:'Pasul următor'},'Pas ▶');this.bA=h('button',{class:'btn small ghost',title:'Redare automată'},'⏵ Auto');
+    this.ct=h('span',{class:'st-count'});
+    hd.append(this.tt,this.ct,this.bR,this.bP,this.bN,this.bA);
+    this.bar=h('div',{class:'st-bar'},h('div'));this.body=h('div',{class:'st-body'});el.append(hd,this.bar,this.body);
+    this.bR.onclick=()=>{this.stop();this.go(-1)};this.bP.onclick=()=>{this.stop();this.go(this.i-1)};this.bN.onclick=()=>{this.stop();this.go(this.i+1)};
+    this.bA.onclick=()=>this.timer?this.stop():this.play();this.el=el;this.go(-1)}
+  setSteps(steps,title){this.stop();this.o.steps=steps;this.n=steps.length;if(title)this.tt.textContent=title;this.go(-1)}
+  go(i){i=Math.max(-1,Math.min(this.n-1,i));this.i=i;const o=this.o;
+    if(o.render){this.body.innerHTML=o.render(i)}
+    else if(o.cumulative){if(i<0)this.body.innerHTML=o.intro||'<small>Apasă „Pas ▶” sau „⏵ Auto” pentru a porni animația.</small>';else{this.body.innerHTML=(o.intro||'');for(let k=0;k<=i;k++){const s=o.steps[k];const d=h('div',{class:k===i?'step-line':''});d.innerHTML=typeof s==='function'?s():s;this.body.append(d)}}}
+    else{this.body.innerHTML=i<0?(o.intro||'<small>Apasă „Pas ▶”.</small>'):(typeof o.steps[i]==='function'?o.steps[i]():o.steps[i])}
+    if(o.onShow)o.onShow(i,this.body);
+    this.ct.textContent=`${i+1}/${this.n}`;this.bar.firstChild.style.width=((i+1)/this.n*100)+'%';this.bP.disabled=i<0;this.bN.disabled=i>=this.n-1}
+  play(){if(this.i>=this.n-1)this.go(-1);this.bA.textContent='⏸ Pauză';this.timer=setInterval(()=>{if(this.i>=this.n-1){this.stop();return}this.go(this.i+1)},this.o.delay)}
+  stop(){clearInterval(this.timer);this.timer=null;this.bA.textContent='⏵ Auto'}
+}
+
+/* ===== Test grilă ===== */
+function Quiz(host,qs,key){const el=typeof host==='string'?$(host):host;let score=0,ans=0;const sc=h('div',{class:'score'});
+  const upd=()=>sc.textContent=`Scor: ${score} / ${qs.filter(q=>!q.open).length}  ·  răspunse: ${ans}/${qs.length}`;
+  qs.forEach((q,qi)=>{const box=h('div',{class:'q'});box.append(h('div',{class:'qn'},`Întrebarea ${qi+1}`),h('div',{class:'qt',html:q.t}));
+    if(q.open){const ta=h('textarea',{rows:2,style:'width:100%',placeholder:'Scrie răspunsul tău aici (opțional), apoi verifică soluția…'});const b=h('button',{class:'btn small'},'Arată soluția');b.onclick=()=>{if(!box.classList.contains('done')){box.classList.add('done');ans++;upd()}};box.append(ta,h('div',{class:'row'},b))}
+    else{const opts=h('div',{class:'opts'});q.opts.forEach((o,oi)=>{const d=h('div',{class:'opt',html:String.fromCharCode(97+oi)+') '+o});d.onclick=()=>{if(box.classList.contains('done'))return;box.classList.add('done');ans++;if(oi===q.a){d.classList.add('right');score++}else{d.classList.add('wrong');opts.children[q.a].classList.add('right')}upd()};opts.append(d)});box.append(opts)}
+    box.append(h('div',{class:'expl',html:q.expl||''}));el.append(box)});
+  const rb=h('button',{class:'btn ghost',style:'margin-top:.5rem'},'↺ Reia testul');rb.onclick=()=>{el.innerHTML='';Quiz(el,qs,key)};el.append(rb,sc);upd()}
+
+/* ===== Exerciții generate ===== */
+function Exercise(host,o){const el=typeof host==='string'?$(host):host;el.classList.add('ex');let cur,streak=0;
+  const qd=h('div',{class:'ex-q'}),inp=h('input',{type:'text',placeholder:o.ph||'răspuns',style:'flex:1;min-width:160px'}),fb=h('div',{class:'fb'}),sol=h('div'),st=h('span',{class:'streak'});
+  const chk=h('button',{class:'btn small'},'Verifică'),nw=h('button',{class:'btn small ghost'},'↻ Exercițiu nou');
+  const det=h('details',{},h('summary',{},'Vezi rezolvarea pas cu pas'),sol);
+  el.append(h('div',{class:'row',style:'justify-content:space-between'},h('b',{},o.title||'Exercițiu'),st),qd,h('div',{class:'row'},inp,chk,nw),fb,det);
+  function gen(){cur=o.gen();qd.innerHTML=cur.q;inp.value='';fb.innerHTML='';sol.innerHTML=cur.sol;det.open=false}
+  function check(){const v=inp.value.trim();if(!v)return;const r=cur.check?cur.check(v):norm(v)===norm(cur.ans);
+    if(r){streak++;fb.innerHTML=`<span class="ok">✔ Corect!</span> ${streak>1?'Serie: '+streak+' 🔥':''}`}else{streak=0;fb.innerHTML=`<span class="bad">✘ Nu este corect.</span> Încearcă din nou sau vezi rezolvarea.`}st.textContent=streak?('serie '+streak):''}
+  const norm=s=>String(s).toUpperCase().replace(/\s|_/g,'').replace(',','.').replace(/^0+(?=.)/,'');
+  chk.onclick=check;inp.onkeydown=e=>{if(e.key==='Enter')check()};nw.onclick=gen;gen()}
+
+/* ===== Evidențiere sintaxă C ===== */
+function hlC(src){const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const re=/(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|(#\w+)|\b(int|unsigned|char|float|double|long|short|void|return|for|while|if|else|struct|union|const|sizeof|signed|do|break|uint8_t|uint16_t|uint32_t|int8_t|size_t|bool|switch|case|default|continue|goto|true|false|using|namespace|static|extern)\b|\b(0x[0-9a-fA-F]+|\d+\.?\d*[fFuU]?)\b|\b(printf|scanf|main|putchar|memcpy|strlen)\b/g;
+  let out='',last=0,m;while((m=re.exec(src))){out+=esc(src.slice(last,m.index));const t=esc(m[0]);
+    out+=m[1]?`<span class="c">${t}</span>`:m[2]?`<span class="s">${t}</span>`:m[3]?`<span class="p">${t}</span>`:m[4]?`<span class="k">${t}</span>`:m[5]?`<span class="n">${t}</span>`:`<span class="f">${t}</span>`;last=re.lastIndex}
+  return out+esc(src.slice(last))}
+function renderCode(){$$('pre.code[data-c]').forEach(p=>{const raw=p.textContent.replace(/^\n/,'');p.dataset.raw=raw;p.innerHTML=hlC(raw)})}
+
+/* ===== SVG ===== */
+const SVGNS='http://www.w3.org/2000/svg';
+function S(tag,attrs={},txt){const e=document.createElementNS(SVGNS,tag);for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);if(txt!=null)e.textContent=txt;return e}
+
+</script>
+<script>
+/* ================= UI 11 ================= */
+const css=v=>getComputedStyle(document.body).getPropertyValue(v).trim()||'#888';
+const hx=(v,n=4)=>pad((v>>>0).toString(16).toUpperCase(),n);
+function parseNum(s){s=String(s).trim();if(!s)return NaN;let neg=false;if(s[0]==='-'){neg=true;s=s.slice(1).trim()}else if(s[0]==='+')s=s.slice(1);let v;
+  if(/^'.'$/.test(s))v=s.charCodeAt(1);else if(/^0x[0-9a-f]+$/i.test(s))v=parseInt(s,16);else if(/^[0-9][0-9a-f]*h$/i.test(s))v=parseInt(s.slice(0,-1),16);else if(/^[01]+b$/i.test(s))v=parseInt(s.slice(0,-1),2);else if(/^\d+$/.test(s))v=parseInt(s,10);else return NaN;return neg?-v:v}
+const R16=['AX','BX','CX','DX','SI','DI','BP','SP'],R8=['AL','AH','BL','BH','CL','CH','DL','DH'],SEG=['CS','DS','SS','ES'];
+
+/* ---------------- Emulator ---------------- */
+class AsmErr extends Error{constructor(m,l){super(m);this.line=l}}
+function asmParse(src){const lines=src.replace(/\r/g,'').split('\n');const prog=[],labels={},vars=[];
+  lines.forEach((raw,li)=>{let s=raw.replace(/;.*$/,'').trim();if(!s)return;const line=li+1;
+    let m=/^([A-Za-z_]\w*)\s*:\s*(.*)$/.exec(s);if(m){labels[m[1].toUpperCase()]=prog.length;s=m[2].trim();if(!s)return}
+    m=/^([A-Za-z_]\w*)\s+(dw|db)\s+(.+)$/i.exec(s);if(m){const vals=m[3].split(',').map(x=>x.trim());vars.push({name:m[1].toUpperCase(),size:m[2].toLowerCase()==='dw'?16:8,vals,line});return}
+    if(/^\.(model|stack|data|code)|^(end|assume|org|main\s+(proc|endp)|ret)\b/i.test(s)&&!/^ret\b/i.test(s))return;
+    m=/^(\w+)\s*(.*)$/.exec(s);const op=m[1].toLowerCase();const args=m[2]?splitArgs(m[2]):[];prog.push({op,args,line,src:s})});
+  return{prog,labels,vars}}
+function splitArgs(s){const out=[];let d=0,cur='';for(const c of s){if(c==='['||c==='(')d++;if(c===']'||c===')')d--;if(c===','&&!d){out.push(cur.trim());cur=''}else cur+=c}if(cur.trim())out.push(cur.trim());return out}
+class CPU{
+  constructor(src,over){const P=asmParse(src);this.P=P;this.R={AX:0,BX:0,CX:0,DX:0,SI:0,DI:0,BP:0,SP:0x100,IP:0};this.S={CS:0x0700,DS:0x0800,SS:0x0900,ES:0x0800};this.F={CF:0,ZF:0,SF:0,OF:0};
+    this.changed=new Set();this.mem=new Uint8Array(512);this.stk=new Uint8Array(0x100);this.V={};let a=0;
+    for(const v of P.vars){const st=a;v.vals.forEach(x=>{let n=parseNum(x);if(x==='?')n=0;if(isNaN(n))throw new AsmErr(`Valoare invalidă „${x}” pentru ${v.name}`,v.line);if(v.size===16){this.mem[a]=n&255;this.mem[a+1]=(n>>8)&255;a+=2}else{this.mem[a]=n&255;a+=1}});this.V[v.name]={addr:st,size:v.size,count:v.vals.length,line:v.line}}
+    if(over)for(const[k,val]of Object.entries(over)){const v=this.V[k.toUpperCase()];if(v)this.wmem(v.addr,val,v.size)}
+    this.steps=0;this.halt=false;this.msg='';this.changed=new Set();P.prog.forEach(ins=>this.validate(ins))}
+  rmem(a,sz){a&=0x1FF;return sz===16?this.mem[a]|(this.mem[(a+1)&0x1FF]<<8):this.mem[a]}
+  wmem(a,v,sz){a&=0x1FF;this.mem[a]=v&255;if(sz===16)this.mem[(a+1)&0x1FF]=(v>>8)&255;this.changed.add('M'+a)}
+  operand(t,line){let s=t.trim();let size=null;const pm=/^(byte|word)\s+ptr\s+(.*)$/i.exec(s);if(pm){size=pm[1].toLowerCase()==='byte'?8:16;s=pm[2].trim()}
+    const U=s.toUpperCase();if(R16.includes(U))return{k:'reg',r:U,size:16};if(R8.includes(U))return{k:'reg',r:U,size:8};if(SEG.includes(U))return{k:'seg',r:U,size:16};
+    if(/^offset\s+/i.test(s)){const n=s.replace(/^offset\s+/i,'').toUpperCase();if(!this.V[n])throw new AsmErr(`Variabila ${n} nu este definită`,line);return{k:'imm',v:this.V[n].addr}}
+    const n=parseNum(s);if(!isNaN(n))return{k:'imm',v:n};
+    let inner=null,vn=null;const bm=/^([A-Za-z_]\w*)?\s*\[(.*)\]$/.exec(s);if(bm){vn=bm[1];inner=bm[2]}else if(/^[A-Za-z_]\w*$/.test(s))vn=s;else throw new AsmErr(`Operand invalid „${t}”`,line);
+    const terms=[];if(vn){const V=this.V[vn.toUpperCase()];if(!V)throw new AsmErr(`Variabila sau registrul „${vn}” nu este definit`,line);terms.push({v:V.addr});if(!size)size=V.size}
+    if(inner!=null){inner.replace(/\s/g,'').replace(/-/g,'+-').split('+').filter(Boolean).forEach(x=>{const X=x.toUpperCase();if(['BX','BP','SI','DI'].includes(X))terms.push({r:X});else if(this.V[X]){terms.push({v:this.V[X].addr});if(!size)size=this.V[X].size}else{const q=parseNum(x);if(isNaN(q))throw new AsmErr(`Adresare invalidă „${x}” (în [ ] se pot folosi BX, BP, SI, DI, variabile și constante)`,line);terms.push({v:q})}})}
+    return{k:'mem',terms,size,txt:s}}
+  ea(o){return o.terms.reduce((a,t)=>a+(t.r?this.R[t.r]:t.v),0)&0xFFFF}
+  get(o){switch(o.k){case'reg':if(o.size===16)return this.R[o.r];{const b=this.R[o.r[0]+'X'];return o.r[1]==='L'?b&255:b>>8}case'seg':return this.S[o.r];case'imm':return o.v;case'mem':return this.rmem(this.ea(o),o.size||16)}}
+  set(o,v){const sz=o.size||16;v&=sz===16?0xFFFF:0xFF;switch(o.k){case'reg':if(sz===16){this.R[o.r]=v;this.changed.add(o.r)}else{const R=o.r[0]+'X';this.R[R]=o.r[1]==='L'?(this.R[R]&0xFF00)|v:(this.R[R]&0xFF)|(v<<8);this.changed.add(R)}break;case'seg':this.S[o.r]=v;this.changed.add(o.r);break;case'mem':this.wmem(this.ea(o),v,sz)}}
+  validate(ins){const{op,args,line}=ins;const n=args.length;const need=k=>{if(n!==k)throw new AsmErr(`${op} are nevoie de ${k} operand${k===1?'':'zi'}`,line)};
+    if(/^(jmp|je|jz|jne|jnz|jg|jnle|jge|jnl|jl|jnge|jle|jng|ja|jnbe|jae|jnb|jnc|jb|jnae|jc|jbe|jna|loop)$/.test(op)){need(1);ins.target=args[0].toUpperCase();if(this.P.labels[ins.target]===undefined)throw new AsmErr(`Eticheta „${args[0]}” nu există`,line);ins.O=[];return}
+    const O=args.map(a=>this.operand(a,line));ins.O=O;const size=(a,b)=>{const sa=a.k==='imm'?null:a.size,sb=b.k==='imm'?null:b.size;
+      if(sa&&sb&&sa!==sb)throw new AsmErr(`Operanzii au dimensiuni diferite (${sa} și ${sb} biți)`,line);const s=sa||sb;if(!s)throw new AsmErr('Dimensiunea operandului din memorie nu este precizată (folosește byte ptr / word ptr)',line);
+      if(b.k==='imm'&&s===8&&(b.v>255||b.v<-128))throw new AsmErr(`Valoarea ${b.v} nu încape în 8 biți`,line);if(b.k==='imm'&&(b.v>65535||b.v<-32768))throw new AsmErr(`Valoarea ${b.v} nu încape în 16 biți`,line);return s};
+    const two=['mov','add','adc','sub','sbb','cmp','and','or','xor','test'];
+    if(two.includes(op)){need(2);const[a,b]=O;if(a.k==='imm')throw new AsmErr('Destinația nu poate fi o valoare imediată',line);if(a.k==='mem'&&b.k==='mem')throw new AsmErr('Sursa și destinația nu pot fi ambele locații de memorie',line);
+      if(op==='mov'){if(a.k==='seg'&&a.r==='CS')throw new AsmErr('Registrul de segment CS nu poate fi destinație',line);if(a.k==='seg'&&b.k==='seg')throw new AsmErr('Nu se pot transfera date direct între doi regiștri de segment',line);if(a.k==='seg'&&b.k==='imm')throw new AsmErr('Un registru de segment nu poate primi direct o valoare imediată (se trece printr-un registru general)',line)}
+      else if(a.k==='seg'||b.k==='seg')throw new AsmErr(`Regiștrii de segment nu pot fi operanzi pentru ${op}`,line);
+      ins.size=size(a,b);return}
+    if(op==='xchg'){need(2);const[a,b]=O;if(a.k==='seg'||b.k==='seg')throw new AsmErr('Regiștrii de segment nu pot apărea ca operanzi ai lui xchg',line);if(a.k==='imm'||b.k==='imm')throw new AsmErr('xchg nu acceptă valori imediate',line);if(a.k==='mem'&&b.k==='mem')throw new AsmErr('Cel puțin un operand al lui xchg trebuie să fie registru general',line);ins.size=size(a,b);return}
+    if(['push','pop'].includes(op)){need(1);const a=O[0];if(a.k==='reg'&&a.size===8)throw new AsmErr(`${op} lucrează doar cu cuvinte (16 biți)`,line);if(op==='pop'&&a.k==='seg'&&a.r==='CS')throw new AsmErr('pop cs nu este permis',line);if(op==='pop'&&a.k==='imm')throw new AsmErr('Destinația lui pop nu poate fi imediată',line);if(a.k==='mem')a.size=16;return}
+    if(['inc','dec','neg','not','mul','div','idiv'].includes(op)||(op==='imul'&&n===1)){need(1);const a=O[0];if(a.k==='imm')throw new AsmErr(`${op} nu acceptă o valoare imediată`,line);if(a.k==='seg')throw new AsmErr(`${op} nu acceptă regiștri de segment`,line);if(!a.size)throw new AsmErr('Dimensiunea operandului nu este precizată (byte ptr / word ptr)',line);ins.size=a.size;return}
+    if(op==='imul'){if(n<2||n>3)throw new AsmErr('imul are 1, 2 sau 3 operanzi',line);if(O[0].k!=='reg'||O[0].size!==16)throw new AsmErr('Primul operand al lui imul (2–3 operanzi) trebuie să fie registru de 16 biți',line);if(n===3&&O[2].k!=='imm')throw new AsmErr('Al treilea operand al lui imul trebuie să fie imediat',line);ins.size=16;return}
+    if(['shl','sal','shr','sar','rol','ror','rcl','rcr'].includes(op)){need(2);const[a,b]=O;if(a.k==='imm'||a.k==='seg')throw new AsmErr('Destinația trebuie să fie registru general sau memorie',line);if(!(b.k==='imm'||(b.k==='reg'&&b.r==='CL')))throw new AsmErr('Contorul trebuie să fie o constantă sau registrul CL',line);if(!a.size)throw new AsmErr('Dimensiunea operandului nu este precizată',line);ins.size=a.size;return}
+    if(op==='lea'||op==='lds'||op==='les'){need(2);if(O[0].k!=='reg'||O[0].size!==16)throw new AsmErr(`Destinația lui ${op} trebuie să fie un registru general de 16 biți (nu de segment)`,line);if(O[1].k!=='mem')throw new AsmErr(`Sursa lui ${op} trebuie să fie o locație de memorie`,line);return}
+    if(/^(jmp|je|jz|jne|jnz|jg|jnle|jge|jnl|jl|jnge|jle|jng|ja|jnbe|jae|jnb|jnc|jb|jnae|jc|jbe|jna|loop)$/.test(op)){need(1);ins.target=args[0].toUpperCase();if(this.P.labels[ins.target]===undefined)throw new AsmErr(`Eticheta „${args[0]}” nu există`,line);return}
+    if(['nop','hlt','ret','int'].includes(op))return;
+    throw new AsmErr(`Instrucțiune necunoscută „${op}”`,line)}
+  flagsSZ(r,sz){const m=sz===16?0xFFFF:0xFF;r&=m;this.F.ZF=r===0?1:0;this.F.SF=(r>>(sz-1))&1}
+  step(){if(this.halt)return false;const P=this.P.prog;if(this.R.IP>=P.length){this.halt=true;this.msg='Programul s-a terminat.';return false}
+    const ins=P[this.R.IP];this.cur=ins.line;this.changed=new Set(['IP']);this.R.IP++;this.steps++;if(this.steps>5000)throw new AsmErr('Prea mulți pași (ciclu infinit?)',ins.line);
+    const{op,O}=ins,sz=ins.size||16,m=sz===16?0xFFFF:0xFF,sb=sz===16?0x8000:0x80;const F=this.F;const g=o=>this.get(o)&(o.k==='imm'?m:0xFFFF);
+    const sx=(v,s)=>v&(s===16?0x8000:0x80)?v-(s===16?0x10000:0x100):v;let msg='';
+    switch(op){
+      case'mov':{const v=this.get(O[1])&m;this.set(O[0],v);msg=`${ins.args[0]} ← ${hx(v,sz/4)}h (${v})`;break}
+      case'xchg':{const a=this.get(O[0]),b=this.get(O[1]);this.set(O[0],b);this.set(O[1],a);msg=`${ins.args[0]} ↔ ${ins.args[1]}`;break}
+      case'push':{const v=this.get(O[0]);this.R.SP=(this.R.SP-2)&0xFFFF;this.stk[this.R.SP&0xFF]=v&255;this.stk[(this.R.SP+1)&0xFF]=v>>8;this.changed.add('SP');this.changed.add('S'+this.R.SP);msg=`SP ← SP − 2 = ${hx(this.R.SP)}h; [SS:SP] ← ${hx(v)}h`;break}
+      case'pop':{if(this.R.SP>=0x100)throw new AsmErr('Stiva este goală (pop fără push)',ins.line);const v=this.stk[this.R.SP&0xFF]|(this.stk[(this.R.SP+1)&0xFF]<<8);this.set(O[0],v);this.R.SP=(this.R.SP+2)&0xFFFF;this.changed.add('SP');msg=`${ins.args[0]} ← ${hx(v)}h; SP ← SP + 2 = ${hx(this.R.SP)}h`;break}
+      case'lea':{const a=this.ea(O[1]);this.set(O[0],a);msg=`${ins.args[0]} ← adresa efectivă = ${hx(a)}h`;break}
+      case'lds':case'les':{const a=this.ea(O[1]);const off=this.rmem(a,16),seg=this.rmem(a+2,16);this.set(O[0],off);const S=op==='lds'?'DS':'ES';this.S[S]=seg;this.changed.add(S);msg=`${ins.args[0]} ← ${hx(off)}h, ${S} ← ${hx(seg)}h`;break}
+      case'add':case'adc':case'sub':case'sbb':case'cmp':{const a=this.get(O[0])&m,b=this.get(O[1])&m;const c=(op==='adc'||op==='sbb')?F.CF:0;let r;
+        if(op==='add'||op==='adc'){r=a+b+c;F.CF=r>m?1:0;F.OF=((a^r)&(b^r)&sb)?1:0}else{r=a-b-c;F.CF=a<b+c?1:0;F.OF=((a^b)&(a^r)&sb)?1:0}
+        r&=m;this.flagsSZ(r,sz);if(op!=='cmp')this.set(O[0],r);msg=op==='cmp'?`compară ${a} cu ${b}: ${a} − ${b} → ZF=${F.ZF}, SF=${F.SF}, CF=${F.CF}, OF=${F.OF} (operanzii nu se modifică)`:`${ins.args[0]} ← ${a} ${op[0]==='a'?'+':'−'} ${b}${c?(op[0]==='a'?' + CF':' − CF'):''} = ${r} (${hx(r,sz/4)}h)`;['CF','ZF','SF','OF'].forEach(f=>this.changed.add(f));break}
+      case'inc':case'dec':{const a=this.get(O[0]);const r=(a+(op==='inc'?1:-1))&m;F.OF=op==='inc'?(r===sb?1:0):(a===sb?1:0);this.flagsSZ(r,sz);this.set(O[0],r);msg=`${ins.args[0]} ← ${r} (CF nu se modifică)`;break}
+      case'neg':{const a=this.get(O[0]);const r=(-a)&m;F.CF=a?1:0;F.OF=a===sb?1:0;this.flagsSZ(r,sz);this.set(O[0],r);msg=`${ins.args[0]} ← −${a} = ${hx(r,sz/4)}h`;break}
+      case'not':{const r=(~this.get(O[0]))&m;this.set(O[0],r);msg=`${ins.args[0]} ← NOT = ${pad(r.toString(2),sz)}b`;break}
+      case'and':case'or':case'xor':case'test':{const a=this.get(O[0])&m,b=this.get(O[1])&m;const r=op==='or'?a|b:op==='xor'?a^b:a&b;F.CF=0;F.OF=0;this.flagsSZ(r,sz);if(op!=='test')this.set(O[0],r);msg=`${pad(a.toString(2),sz)} ${op} ${pad(b.toString(2),sz)} = ${pad(r.toString(2),sz)}${op==='test'?' (doar flaguri)':''}`;break}
+      case'mul':case'imul':if(op==='imul'&&O.length>1){const a=sx(O.length===2?this.get(O[0]):this.get(O[1]),16),b=sx(this.get(O[O.length-1])&0xFFFF,16);const r=a*b;this.set(O[0],r&0xFFFF);F.CF=F.OF=(r<-32768||r>32767)?1:0;msg=`${ins.args[0]} ← ${a} × ${b} = ${r}${F.CF?' (depășire: CF=OF=1)':''}`;break}
+        {const s=this.get(O[0]);if(sz===8){const al=this.R.AX&255;const r=op==='mul'?al*s:sx(al,8)*sx(s,8);this.R.AX=r&0xFFFF;this.changed.add('AX');F.CF=F.OF=(op==='mul'?r>255:(r<-128||r>127))?1:0;msg=`AX ← AL × ${ins.args[0]} = ${op==='mul'?al:sx(al,8)} × ${op==='mul'?s:sx(s,8)} = ${r}`}
+          else{const ax=this.R.AX;const r=op==='mul'?ax*s:sx(ax,16)*sx(s,16);const u=((r%4294967296)+4294967296)%4294967296;this.R.AX=u&0xFFFF;this.R.DX=Math.floor(u/65536)&0xFFFF;this.changed.add('AX');this.changed.add('DX');F.CF=F.OF=this.R.DX!==(op==='mul'?0:(r<0?0xFFFF:0))?1:0;msg=`DX:AX ← AX × ${ins.args[0]} = ${r} → DX = ${hx(this.R.DX)}h, AX = ${hx(this.R.AX)}h`}}
+        ['CF','OF'].forEach(f=>this.changed.add(f));break;
+      case'div':case'idiv':{const s=this.get(O[0]);if(!s)throw new AsmErr('Împărțire la zero',ins.line);
+        if(sz===8){const ax=this.R.AX;const d=op==='div'?ax:sx(ax,16),q=Math.trunc(d/(op==='div'?s:sx(s,8))),r=d-q*(op==='div'?s:sx(s,8));if(op==='div'?q>255:(q>127||q<-128))throw new AsmErr('Câtul nu încape în AL (depășire la împărțire)',ins.line);this.R.AX=((r&255)<<8)|(q&255);this.changed.add('AX');msg=`AX / ${ins.args[0]} = ${d} / ${op==='div'?s:sx(s,8)} → AL (cât) = ${q}, AH (rest) = ${r}`}
+        else{const dd=this.R.DX*65536+this.R.AX;const d=op==='div'?dd:(dd>=2147483648?dd-4294967296:dd);const dv=op==='div'?s:sx(s,16);const q=Math.trunc(d/dv),r=d-q*dv;if(op==='div'?q>65535:(q>32767||q<-32768))throw new AsmErr('Câtul nu încape în AX (depășire la împărțire)',ins.line);this.R.AX=q&0xFFFF;this.R.DX=r&0xFFFF;this.changed.add('AX');this.changed.add('DX');msg=`DX:AX / ${ins.args[0]} = ${d} / ${dv} → AX (cât) = ${q}, DX (rest) = ${r}`}break}
+      case'shl':case'sal':case'shr':case'sar':case'rol':case'ror':case'rcl':case'rcr':{let v=this.get(O[0])&m;const cnt=(O[1].k==='imm'?O[1].v:this.R.CX&255)&31;const before=v;
+        for(let k=0;k<cnt;k++){const msb=(v>>(sz-1))&1,lsb=v&1;switch(op){case'shl':case'sal':F.CF=msb;v=(v<<1)&m;break;case'shr':F.CF=lsb;v>>=1;break;case'sar':F.CF=lsb;v=(v>>1)|(msb<<(sz-1));break;
+          case'rol':F.CF=msb;v=((v<<1)|msb)&m;break;case'ror':F.CF=lsb;v=(v>>1)|(lsb<<(sz-1));break;case'rcl':{const c=F.CF;F.CF=msb;v=((v<<1)|c)&m;break}case'rcr':{const c=F.CF;F.CF=lsb;v=(v>>1)|(c<<(sz-1));break}}}
+        if(cnt&&['shl','sal','shr','sar'].includes(op))this.flagsSZ(v,sz);this.set(O[0],v);['CF','ZF','SF'].forEach(f=>this.changed.add(f));msg=`${pad(before.toString(2),sz)} → ${pad(v.toString(2),sz)} (${v}), CF = ${F.CF}`;break}
+      case'nop':msg='nicio operație';break;case'hlt':case'ret':this.halt=true;msg='Oprire (hlt).';break;case'int':msg='întrerupere (ignorată în emulator)';break;
+      default:{let take;switch(op){case'jmp':take=1;break;case'je':case'jz':take=F.ZF;break;case'jne':case'jnz':take=!F.ZF;break;case'jg':case'jnle':take=!F.ZF&&F.SF===F.OF;break;case'jge':case'jnl':take=F.SF===F.OF;break;case'jl':case'jnge':take=F.SF!==F.OF;break;case'jle':case'jng':take=F.ZF||F.SF!==F.OF;break;
+        case'ja':case'jnbe':take=!F.CF&&!F.ZF;break;case'jae':case'jnb':case'jnc':take=!F.CF;break;case'jb':case'jnae':case'jc':take=F.CF;break;case'jbe':case'jna':take=F.CF||F.ZF;break;case'loop':this.R.CX=(this.R.CX-1)&0xFFFF;this.changed.add('CX');take=this.R.CX!==0;break}
+        if(take)this.R.IP=this.P.labels[ins.target];msg=op==='loop'?`CX ← CX − 1 = ${this.R.CX}; ${take?'CX ≠ 0 → salt la '+ins.args[0]:'CX = 0 → se continuă'}`:take?`salt la ${ins.args[0]}`:'condiția nu e îndeplinită: fără salt'}}
+    this.msg=msg;if(this.R.IP>=P.length){this.halt=true}return true}
+  varVal(n){const v=this.V[n.toUpperCase()];return v?this.rmem(v.addr,v.size):undefined}}
+function asmHL(l){const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');let c='';const i=l.indexOf(';');if(i>=0){c=`<span class="c">${esc(l.slice(i))}</span>`;l=l.slice(0,i)}
+  return esc(l).replace(/\b([A-Za-z_]\w*)\s*:/,'<span class="p">$1</span>:').replace(/\b(dw|db|ptr|word|byte|offset)\b/gi,'<span class="k">$1</span>').replace(/^(\s*(?:<span class="p">\w+<\/span>:\s*)?)([a-z]+)\b/i,'$1<span class="f">$2</span>').replace(/\b(ax|bx|cx|dx|al|ah|bl|bh|cl|ch|dl|dh|si|di|bp|sp|cs|ds|ss|es)\b/gi,'<span class="k">$1</span>').replace(/\b(\d[0-9a-fA-F]*[hb]?|0x[0-9a-f]+)\b/gi,'<span class="n">$1</span>')+c}
+/* stil emulator */
+(function(){const st=document.createElement('style');st.textContent=`
+.emu{border:1px solid var(--line);border-radius:var(--r);background:var(--card);margin:1rem 0;box-shadow:var(--shadow);overflow:hidden;container-type:inline-size}
+.em-head{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;padding:.5rem .8rem;background:var(--acc-soft)}.em-head b{flex:1}
+.em-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}@container (max-width:760px){.em-grid{grid-template-columns:1fr}}
+.em-code{background:#0f1420;color:#d8dee9;font:13.5px/1.65 var(--mono);max-height:460px;overflow:auto;padding:.4rem 0}
+.em-code .k{color:#81a1c1}.em-code .c{color:#6b7891;font-style:italic}.em-code .n{color:#b48ead}.em-code .f{color:#88c0d0;font-weight:700}.em-code .p{color:#ebcb8b}
+.em-ln{display:flex;white-space:pre;border-left:3px solid transparent}.em-ln.cur{background:rgba(238,108,77,.25);border-left-color:#ee6c4d}.em-ln.err{background:rgba(194,58,58,.4)}
+.em-no{width:2.6em;text-align:right;padding-right:.8em;color:#56607a;flex:none}
+.em-edit{width:100%;min-height:300px;background:#0f1420;color:#e6e9f0;border:none;font:13.5px/1.65 var(--mono);padding:.5rem .8rem;outline:none}
+.em-side{padding:.6rem .8rem;display:flex;flex-direction:column;gap:.4rem;font:13px var(--mono)}
+.em-regs{display:grid;grid-template-columns:repeat(2,1fr);gap:4px}.em-r{border:1px solid var(--line);border-radius:6px;padding:.2rem .45rem;display:flex;justify-content:space-between;gap:.3rem;cursor:pointer}
+.em-r b{color:var(--acc)}.em-r.chg{animation:clflash2 1s;border-color:var(--acc2)}.em-r small{color:var(--muted)}
+@keyframes clflash2{0%{background:var(--acc2)}100%{background:transparent}}
+.em-fl{display:flex;gap:4px;flex-wrap:wrap}.em-f{border:1px solid var(--line);border-radius:999px;padding:.05rem .55rem}.em-f.on{background:var(--acc);color:#fff;border-color:var(--acc)}.em-f.chg{outline:2px solid var(--acc2)}
+.em-msg{background:var(--paper);border-left:3px solid var(--acc);border-radius:6px;padding:.4rem .6rem;font:13px var(--sans);min-height:2.3em}
+.em-lbl{font:600 .75rem var(--sans);color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.em-bits .bit{width:19px;height:25px;font-size:.78rem}.em-bits .bit.gap{margin-left:6px}.em-bits .bits{flex-wrap:nowrap;gap:2px}
+.em-tbl{width:100%;border-collapse:collapse}.em-tbl td{border-top:1px solid var(--line);padding:.12rem .35rem}.em-tbl tr.chg td{animation:clflash2 1s}
+`;document.head.append(st)})();
+function Emu(host,o){const el=typeof host==='string'?$(host):host;el.classList.add('emu');o=o||{};let code=(o.code||'').replace(/^\n/,''),C=null,err=null,timer=null,sel='AX',over=o.over||null;
+  el.innerHTML=`<div class="em-head"><b>${o.title||'Emulator 8086'}</b><button class="btn small" data-a="step">Pas ▶</button><button class="btn small ghost" data-a="auto">⏵ Auto</button><button class="btn small ghost" data-a="run">⏭ Rulează tot</button><button class="btn small ghost" data-a="reset">↺</button><button class="btn small ghost" data-a="edit">✎ Editează</button></div>
+  <div class="em-grid"><div><div class="em-code"></div><textarea class="em-edit" spellcheck="false" style="display:none"></textarea></div><div class="em-side"><div class="em-msg">Apasă „Pas ▶”.</div>
+  <div class="em-lbl">Regiștri generali</div><div class="em-regs" data-g="gen"></div><div class="em-lbl">Index, pointeri, segment</div><div class="em-regs" data-g="oth"></div>
+  <div class="em-lbl">Flaguri</div><div class="em-fl"></div><div class="em-lbl">Biții registrului selectat (apasă pe un registru)</div><div class="em-bits"></div>
+  <div class="em-lbl">Variabile (segmentul de date)</div><table class="em-tbl em-vars"></table><div class="em-lbl">Stiva (de la SP până la baza 0100h)</div><table class="em-tbl em-stk"></table></div></div>`;
+  const view=$('.em-code',el),ed=$('.em-edit',el),msgE=$('.em-msg',el);ed.value=code;
+  function load(){err=null;try{C=new CPU(code,over);return true}catch(e){C=null;err=e;return false}}
+  function render(){const lines=code.split('\n');view.innerHTML=lines.map((l,i)=>`<div class="em-ln${C&&C.cur===i+1&&!C.haltShown?' cur':''}${err&&err.line===i+1?' err':''}"><span class="em-no">${i+1}</span><span>${asmHL(l)||' '}</span></div>`).join('');
+    const cur=$('.em-ln.cur,.em-ln.err',view);if(cur){const r=cur.offsetTop-view.clientHeight/2;view.scrollTop=Math.max(0,r)}
+    const ch=C?C.changed:new Set();const reg=(n,v,extra)=>`<div class="em-r${ch.has(n)?' chg':''}" data-r="${n}"><b>${n}</b><span>${hx(v)}h</span><small>${extra??v}</small></div>`;
+    const R=C?C.R:{AX:0,BX:0,CX:0,DX:0,SI:0,DI:0,BP:0,SP:0x100,IP:0},Sg=C?C.S:{CS:0x700,DS:0x800,SS:0x900,ES:0x800},F=C?C.F:{CF:0,ZF:0,SF:0,OF:0};
+    $('[data-g=gen]',el).innerHTML=['AX','BX','CX','DX'].map(n=>reg(n,R[n],`${n[0]}H=${hx(R[n]>>8,2)} ${n[0]}L=${hx(R[n]&255,2)}`)).join('');
+    $('[data-g=oth]',el).innerHTML=['SI','DI','BP','SP','IP'].map(n=>reg(n,R[n],n==='IP'?'instr. nr. '+R[n]:R[n])).join('')+SEG.map(n=>reg(n,Sg[n],'segment')).join('');
+    $('.em-fl',el).innerHTML=['CF','ZF','SF','OF'].map(f=>`<span class="em-f${F[f]?' on':''}${ch.has(f)?' chg':''}" title="${{CF:'Carry – transport',ZF:'Zero',SF:'Sign – semn',OF:'Overflow – depășire cu semn'}[f]}">${f}=${F[f]}</span>`).join('');
+    const sv=sel in R?R[sel]:Sg[sel];$('.em-bits',el).innerHTML=`<div style="padding-top:16px">${bitsHTML(pad(sv.toString(2),16),{weights:true,gapEvery:8,cls:i=>ch.has(sel)?'flip':''})}</div><small>${sel} = ${hx(sv)}h = ${sv} (fără semn) = ${sv>=32768?sv-65536:sv} (cu semn)</small>`;
+    $$('.em-r',el).forEach(x=>x.onclick=()=>{sel=x.dataset.r;render()});
+    $('.em-vars',el).innerHTML=C&&Object.keys(C.V).length?'<tr><td><b>nume</b></td><td><b>adresă</b></td><td><b>valoare</b></td></tr>'+Object.entries(C.V).map(([n,v])=>{const vals=[...Array(Math.min(v.count,8))].map((_,k)=>C.rmem(v.addr+k*(v.size/8),v.size));const chg=[...Array(v.count*(v.size/8))].some((_,k)=>ch.has('M'+(v.addr+k)));return `<tr class="${chg?'chg':''}"><td>${n} <small>${v.size===16?'dw':'db'}</small></td><td>${hx(v.addr)}h</td><td>${vals.map(x=>`${x} <small>(${hx(x,v.size/4)}h)</small>`).join(', ')}</td></tr>`}).join(''):'<tr><td><small>(nicio variabilă)</small></td></tr>';
+    let sh='';if(C)for(let a=C.R.SP;a<0x100;a+=2){const w=C.stk[a&0xFF]|(C.stk[(a+1)&0xFF]<<8);sh+=`<tr class="${ch.has('S'+a)?'chg':''}"><td>${a===C.R.SP?'SP →':''}</td><td>${hx(a)}h</td><td>${hx(w)}h (${w})</td></tr>`}
+    $('.em-stk',el).innerHTML=sh||'<tr><td><small>(stiva este goală)</small></td></tr>'}
+  function step(){if(!C&&!load()){msgE.innerHTML=`<span class="bad">Eroare (linia ${err.line}):</span> ${err.message}`;render();return false}
+    try{const ok=C.step();msgE.innerHTML=C.halt&&!ok?`<span class="ok">✔ ${C.msg||'Programul s-a terminat.'}</span>`:`<b>Linia ${C.cur}</b>: ${C.msg}${C.halt?' <span class="ok">— program terminat</span>':''}`;render();return ok&&!C.halt}
+    catch(e){err=e;msgE.innerHTML=`<span class="bad">Eroare la execuție (linia ${e.line}):</span> ${e.message}`;render();return false}}
+  const stop=()=>{clearInterval(timer);timer=null;$('[data-a=auto]',el).textContent='⏵ Auto'};
+  el.addEventListener('click',e=>{const a=e.target.dataset&&e.target.dataset.a;if(!a)return;
+    if(a==='edit'){stop();const on=ed.style.display==='none';ed.style.display=on?'block':'none';view.style.display=on?'none':'block';e.target.textContent=on?'✔ Gata':'✎ Editează';if(!on){code=ed.value;C=null;err=null;render();msgE.textContent='Cod actualizat. Apasă „Pas ▶”.'}return}
+    if(ed.style.display!=='none'){code=ed.value;ed.style.display='none';view.style.display='block';$('[data-a=edit]',el).textContent='✎ Editează';C=null}
+    if(a==='reset'){stop();C=null;err=null;render();msgE.textContent='Resetat.';return}
+    if(a==='step'){stop();if(C&&C.halt)C=null;step()}
+    if(a==='run'){stop();if(C&&C.halt)C=null;let g=0;while(step()&&g++<6000);}
+    if(a==='auto'){if(timer){stop();return}if(C&&C.halt)C=null;e.target.textContent='⏸ Pauză';timer=setInterval(()=>{if(!step())stop()},650)}});
+  render();
+  return{setCode(c,ov){stop();code=c.replace(/^\n/,'');ed.value=code;over=ov||null;C=null;err=null;render();msgE.textContent='Apasă „Pas ▶”.'},get code(){return ed.style.display!=='none'?ed.value:code}}}
+function asmRun(code,over){const C=new CPU(code,over);let g=0;while(!C.halt&&g++<6000)C.step();return C}
+
+/* ---------------- Curs: componente ---------------- */
+new Stepper('#cycSt',{title:'Ciclul instrucțiunii: add ax, [N]',steps:[
+ '<b>1. UCP preia instrucțiunea din memorie</b> (fetch): adresa din IP se trimite memoriei; codul instrucțiunii (03 06 00 01) ajunge în procesor; IP avansează.',
+ '<b>2. Traduce instrucțiunea</b> (decode) într-o serie de comenzi: „citește cuvântul de la adresa N”, „adună-l la AX”.',
+ '<b>3. Execută comenzile</b>: ALU calculează AX + [N].',
+ '<b>4. Accesează memoria și scrie rezultatul în regiștri</b>: rezultatul se depune în AX; flagurile CF, ZF, SF, OF se actualizează.']});
+(function(){const svg=$('#lvlSvg');const L=[['Limbaje naturale','Limbaj uman; bazate pe cunoaștere; integrate cu inteligența artificială.','high'],['Limbaje orientate pe problemă','Definesc scopul, nu pașii: interogări, generatoare de rapoarte, planificare financiară.','high'],['Limbaje procedurale (Fortran, Pascal, C++)','Exprimă procedura de calcul; independente de calculator, portabile.','high'],['Limbaj de asamblare','Simbolic; o instrucțiune = un cod executabil; tradus de asamblor; dependent de procesor.','low'],['Limbaj mașină','Secvențe de biți; singurul limbaj înțeles direct de UCP.','low']];
+  L.forEach((l,i)=>{const y=12+i*56,w=160+i*55;const g=S('g',{style:'cursor:pointer'});const r=S('rect',{x:230-w/2,y,width:w,height:48,rx:8,fill:l[2]==='high'?css('--acc-soft'):'#fde3da',stroke:css('--acc'),'stroke-width':1.5});
+    g.append(r,S('text',{x:230,y:y+29,'text-anchor':'middle','font-size':12.5,'font-weight':600,fill:'#1c2230'},l[0]));g.onmouseenter=()=>{$$('#lvlSvg rect').forEach(x=>x.setAttribute('stroke-width',1.5));r.setAttribute('stroke-width',4);$('#lvlTxt').innerHTML=`<b>${l[0]}</b> (${l[2]==='high'?'high-level':'low-level'}): ${l[1]}`};svg.append(g)});
+  svg.append(S('text',{x:8,y:80,'font-size':11,fill:css('--muted')},'High-level ↑'));svg.append(S('text',{x:8,y:250,'font-size':11,fill:css('--muted')},'Low-level ↓'))})();
+(function(){const X=[['p = n + m;','mov ax, [n]','A1 00 01','încarcă în AX cuvântul de la adresa lui n (0100h)'],['','add ax, [m]','03 06 02 01','adună la AX cuvântul de la adresa lui m (0102h)'],['','mov [p], ax','A3 04 01','scrie AX la adresa lui p (0104h)'],['x = x * 8;','shl word ptr [x], 3','C1 26 06 01 03','deplasare la stânga cu 3 = înmulțire cu 8 (80186+)'],['i++;','inc cx','41','1 octet: incrementează CX'],['','mov ax, 40h','B8 40 00','încarcă valoarea imediată 0040h în AX']];
+  const t=$('#xlTbl');t.innerHTML='<tr><th>C</th><th>Asamblare</th><th>Cod mașină (hex)</th></tr>'+X.map((r,i)=>`<tr data-i="${i}"><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+  t.onclick=e=>{const tr=e.target.closest('tr');if(!tr||tr.dataset.i==null)return;const r=X[+tr.dataset.i];$$('tr',t).forEach(x=>x.style.background='');tr.style.background='var(--acc-soft)';
+    $('#xlOut').innerHTML=`<b>${r[1]}</b>: ${r[3]}\n${r[2].split(' ').map(b=>`${b} = ${pad(parseInt(b,16).toString(2),8)}`).join('\n')}\n${r[2].split(' ').length} octeți = ${r[2].split(' ').length*8} biți`};t.rows[1].click()})();
+
+/* Read / Write */
+const RW={mem:[0x12,0x34,0x56,0x78,0x9A,0xBC,0xDE,0xF0],reg:0x0000};$('#rwA').innerHTML=RW.mem.map((_,i)=>`<option value="${i}">${hx(0x100+i)}h</option>`).join('');
+function rwDraw(hl={}){const svg=$('#rwSvg');svg.innerHTML='';const box=(x,y,w,hh,t,on)=>{svg.append(S('rect',{x,y,width:w,height:hh,rx:8,fill:on?css('--acc-soft'):css('--card'),stroke:on?css('--acc2'):css('--acc'),'stroke-width':on?3:1.5}));svg.append(S('text',{x:x+w/2,y:y+hh/2+5,'text-anchor':'middle','font-size':13,'font-weight':600,fill:css('--ink')},t))};
+  box(20,70,130,110,'',hl.cpu);svg.append(S('text',{x:85,y:92,'text-anchor':'middle','font-size':13,'font-weight':700,fill:css('--ink')},'Procesor'));box(35,120,100,40,`AL = ${hx(RW.reg,2)}h`,hl.reg);
+  RW.mem.forEach((v,i)=>{const on=hl.cell===i;svg.append(S('rect',{x:370,y:12+i*28,width:130,height:26,fill:on?css('--acc2'):css('--card'),stroke:css('--line')}));svg.append(S('text',{x:378,y:30+i*28,'font-size':12,'font-family':'monospace',fill:css('--ink')},`${hx(0x100+i)}h: ${hx(v,2)}h`))});
+  const bus=(y,t,on,dir)=>{svg.append(S('line',{x1:150,y1:y,x2:370,y2:y,stroke:on?css('--acc2'):css('--line'),'stroke-width':on?5:3}));svg.append(S('text',{x:200,y:y-6,'font-size':11,fill:css('--muted')},t+(on?(dir>0?'  →':'  ←'):'')))};
+  bus(100,'magistrala de adrese',hl.ab,1);bus(150,'magistrala de date',hl.db,hl.dir||1);bus(200,'control: '+(hl.ctl||'—'),!!hl.ctl,1)}
+async function rwGo(w){const i=+$('#rwA').value,a=hx(0x100+i);const S2=t=>$('#rwOut').innerHTML=t;
+  rwDraw({cpu:1});S2(`1. Procesorul pune adresa ${a}h pe magistrala de adrese`);await sleep(700);rwDraw({ab:1,cell:i});
+  S2(`2. Semnal de control: ${w?'WRITE':'READ'}`);await sleep(700);rwDraw({ab:1,ctl:w?'WRITE':'READ',cell:i});await sleep(600);
+  if(w){RW.reg=(RW.reg+0x11)&255;rwDraw({db:1,dir:1,cell:i,ctl:'WRITE',reg:1});S2(`3. Procesorul pune data ${hx(RW.reg,2)}h pe magistrala de date`);await sleep(800);RW.mem[i]=RW.reg;rwDraw({cell:i});S2(`4. Memoria suprascrie locația ${a}h cu ${hx(RW.reg,2)}h (vechiul conținut se pierde)`)}
+  else{rwDraw({db:1,dir:-1,cell:i,ctl:'READ'});S2(`3. Memoria pune pe magistrala de date o copie a conținutului: ${hx(RW.mem[i],2)}h`);await sleep(800);RW.reg=RW.mem[i];rwDraw({reg:1,cell:i});S2(`4. AL ← ${hx(RW.reg,2)}h; memoria rămâne neschimbată`)}}
+$('#rwR').onclick=()=>rwGo(0);$('#rwW').onclick=()=>rwGo(1);rwDraw();
+
+/* AX = AH:AL */
+let RG=0x1234;function rg(fromText){const n=$('#rgSel').value;if(fromText){const v=parseNum($('#rgV').value);if(!isNaN(v))RG=v&0xFFFF}const s=pad(RG.toString(2),16);
+  $('#rgBits').innerHTML=`<div style="display:flex;gap:14px;align-items:flex-end;min-width:max-content"><div><small>${n[0]}H</small><br>${bitsHTML(s.slice(0,8),{click:1,weights:[15,14,13,12,11,10,9,8],cls:()=>'exp'})}</div><div><small>${n[0]}L</small><br>${bitsHTML(s.slice(8),{click:1,weights:[7,6,5,4,3,2,1,0]})}</div></div>`;
+  $$('#rgBits .bit').forEach((b,k)=>b.onclick=()=>{RG^=1<<(15-k);$('#rgV').value=hx(RG)+'h';rg()});
+  $('#rgOut').innerHTML=`${n} = ${hx(RG)}h = ${RG}   ·   ${n[0]}H = ${hx(RG>>8,2)}h = ${RG>>8}   ·   ${n[0]}L = ${hx(RG&255,2)}h = ${RG&255}\nCu semn: ${n} = ${RG>=32768?RG-65536:RG}`}
+$('#rgV').oninput=()=>rg(1);$('#rgSel').onchange=()=>rg();rg(1);
+(function(){const T=[['AX / EAX','acumulator','16 / 32','Cel mai utilizat registru: operații aritmetice, logice, deplasarea datelor, transferuri cu porturile I/O. AL/AH.'],['BX / EBX','base (bază)','16 / 32','Adresarea indirectă a memoriei ([BX]). BL/BH.'],['CX / ECX','count (contor)','16 / 32','Contor pentru cicluri (loop) și pentru deplasări (CL). CL/CH.'],['DX / EDX','data','16 / 32','Înmulțiri/împărțiri (DX:AX) și transferuri de date. DL/DH.'],
+  ['SI, DI','source / destination index','16','Pointeri pentru accesarea indirectă a memoriei; instrucțiuni pe șiruri de caractere.'],['BP','base pointer','16','Accesul la parametrii și variabilele locale ale unei proceduri (în stivă).'],['SP','stack pointer','16','Indică vârful stivei (LIFO); folosit la apelul și revenirea din proceduri.'],
+  ['CS, DS, SS, ES','segment de cod, date, stivă, suplimentar','16','Folosiți la accesările de memorie și transferurile de date.'],['IP','instruction pointer','16','Adresa instrucțiunii următoare care va fi executată.'],['Flags','indicatori de stare','16','Starea procesorului și rezultatele ultimelor instrucțiuni (CF, ZF, SF, OF, …).']];
+  $('#regTbl').innerHTML='<tr><th>Registru</th><th>Denumire</th><th>Biți</th><th class="l">Rol</th></tr>'+T.map(r=>`<tr><td class="mono"><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td class="l">${r[3]}</td></tr>`).join('')})();
+
+/* Verificator */
+function verify(ins){try{new CPU('N dw 5\nM dw 7\nP dw 0\nB db 3\nlbl: nop\n'+ins);return{ok:true}}catch(e){return{ok:false,msg:e.message}}}
+function vf(){const s=$('#vfIn').value.trim();const r=verify(s);$('#vfOut').innerHTML=r.ok?`<span class="ok">✔ Corectă.</span> ${explain(s)}`:`<span class="bad">✘ Incorectă:</span> ${r.msg}`}
+function explain(s){try{const C=new CPU('N dw 5\nM dw 7\nP dw 0\nB db 3\n'+s);C.R.AX=0x1234;C.R.BX=2;C.R.CX=3;C.step();return'Efect (pornind de la AX=1234h, BX=2, CX=3, N=5, M=7): '+C.msg}catch(e){return''}}
+$('#vfGo').onclick=vf;$('#vfIn').onkeydown=e=>{if(e.key==='Enter')vf()};
+['mov ax, bx','mov ds, ax','mov dl, al','mov ds, es','mov cs, 23h','mov N, M','mov al, bx','xchg ax, N','add ax, 5','mov [bx], 5','lea si, N','shl ax, cl'].forEach(x=>{const b=h('button',{class:'btn small ghost',style:'font-family:var(--mono)'},x);b.onclick=()=>{$('#vfIn').value=x;vf()};$('#vfEx').append(b)});vf();
+
+/* Stiva */
+let ST={sp:0x100,regs:{AX:0x1111,BX:0x2222,CX:0x3333,DX:0x4444},s:[]};
+function stDraw(msg,hl){const svg=$('#stSvg');svg.innerHTML='';for(let k=0;k<6;k++){const a=0x100-2*(k+1);const y=250-k*40;const v=ST.s[k];const top=ST.sp===a;
+  svg.append(S('rect',{x:110,y,width:120,height:36,fill:v!=null?(hl===k?css('--acc2'):css('--acc-soft')):css('--card'),stroke:css('--acc')}));svg.append(S('text',{x:40,y:y+22,'font-size':11,'font-family':'monospace',fill:css('--muted')},hx(a)+'h'));
+  if(v!=null)svg.append(S('text',{x:170,y:y+23,'text-anchor':'middle','font-size':14,'font-weight':700,'font-family':'monospace',fill:'#1c2230'},hx(v)+'h'));if(top)svg.append(S('text',{x:236,y:y+23,'font-size':13,'font-weight':700,fill:css('--acc')},'← SP'))}
+  if(ST.sp===0x100)svg.append(S('text',{x:236,y:292,'font-size':13,'font-weight':700,fill:css('--acc')},'← SP (gol)'));
+  $('#stOut').innerHTML=`${msg||''}\n\nAX=${hx(ST.regs.AX)}h BX=${hx(ST.regs.BX)}h\nCX=${hx(ST.regs.CX)}h DX=${hx(ST.regs.DX)}h\nSP=${hx(ST.sp)}h`}
+$$('[data-st]').forEach(b=>b.onclick=()=>{const[op,r]=b.dataset.st.split(' ');if(op==='reset'){ST={sp:0x100,regs:{AX:0x1111,BX:0x2222,CX:0x3333,DX:0x4444},s:[]};stDraw('Stivă goală.');return}const R=r.toUpperCase();
+  if(op==='push'){if(ST.s.length>=6){stDraw('Stiva demonstrativă este plină.');return}ST.sp-=2;ST.s.push(ST.regs[R]);stDraw(`push ${R}: SP ← SP − 2 = ${hx(ST.sp)}h, apoi [SP] ← ${R} = ${hx(ST.regs[R])}h`,ST.s.length-1)}
+  else{if(!ST.s.length){stDraw('Eroare: stiva este goală!');return}const v=ST.s.pop();ST.regs[R]=v;stDraw(`pop ${R}: ${R} ← [SP] = ${hx(v)}h, apoi SP ← SP + 2 = ${hx(ST.sp+2)}h`);ST.sp+=2;stDraw(`pop ${R}: ${R} ← ${hx(v)}h; SP ← ${hx(ST.sp)}h (LIFO: ultimul introdus iese primul)`)}});stDraw('Stivă goală.');
+
+/* MUL / DIV */
+function md(){const op=$('#mdOp').value,sz=+$('#mdSz').value;const ax=parseNum($('#mdA').value)&0xFFFF,dx=parseNum($('#mdD').value)&0xFFFF,s=parseNum($('#mdS').value)&(sz===8?255:0xFFFF);const src=sz===8?'BL':'BX';
+  const code=`mov ax, ${ax}\nmov dx, ${dx}\nmov ${src.toLowerCase()}, ${s}\n${op} ${src.toLowerCase()}`;try{const C=asmRun(code);
+  $('#mdOut').innerHTML=`<div class="out">${code}\n\n${C.msg}\nAX = ${hx(C.R.AX)}h (AH=${hx(C.R.AX>>8,2)}h, AL=${hx(C.R.AX&255,2)}h)   DX = ${hx(C.R.DX)}h${op==='mul'?`   CF=OF=${C.F.CF}`:''}</div>`}catch(e){$('#mdOut').innerHTML=`<div class="out"><span class="bad">${e.message}</span></div>`}}
+['#mdOp','#mdSz'].forEach(s=>$(s).onchange=md);$('#mdGo').onclick=md;md();
+/* logice */
+function lg(){const op=$('#lgOp').value;const a=parseNum($('#lgA').value)&255,b=parseNum($('#lgB').value)&255;const r=op==='or'?a|b:op==='xor'?a^b:op==='not'?(~a)&255:a&b;const B=v=>pad(v.toString(2),8);
+  $('#lgOut').innerHTML=`<div style="font-family:var(--mono);margin-top:.6rem">${bitsHTML(B(a))} &nbsp;A = ${a}<br>${op!=='not'?bitsHTML(B(b),{cls:()=>'exp'})+` &nbsp;B = ${b}<br>`:''}<div style="border-top:2px solid var(--ink);width:270px;margin:4px 0"></div>${bitsHTML(B(r),{cls:(i,c)=>'flip'})} &nbsp;${op==='test'?'(rezultat folosit doar pentru flaguri; A nu se modifică)':'rezultat = '+r}</div>
+  <p style="font-size:.9rem">${{and:'AND cu o mască păstrează biții unde masca are 1 și îi șterge pe ceilalți.',or:'OR cu o mască forțează la 1 biții unde masca are 1.',xor:'XOR cu o mască inversează biții unde masca are 1; xor ax, ax pune AX pe 0.',not:'NOT inversează toți biții.',test:'TEST face AND fără a modifica destinația; ZF = 1 dacă rezultatul e 0.'}[op]} ZF = ${r?0:1}</p>`}
+['#lgOp','#lgA','#lgB'].forEach(s=>$(s).oninput=lg);lg();
+/* animator deplasări */
+let shRun=0;async function sh(){const my=++shRun;const op=$('#shOp').value,sz=+$('#shSz').value,m=sz===16?0xFFFF:0xFF;let v=parseNum($('#shV').value)&m,n=Math.max(1,Math.min(16,+$('#shN').value)),cf=+$('#shC').value;const v0=v;
+  const draw=(v,cf,hlOut,hlIn,label)=>{const s=pad(v.toString(2),sz);$('#shVis').innerHTML=`<div style="display:flex;align-items:center;gap:14px;min-width:max-content"><div style="text-align:center"><small>CF</small><br><span class="bit ${cf?'one':''} ${hlOut==='cf'?'flip':''}" style="border-color:var(--bad)">${cf}</span></div><div style="padding-top:16px">${bitsHTML(s,{weights:true,gapEvery:sz===16?8:0,cls:i=>(i===hlOut?'err':'')+(i===hlIn?' flip':'')})}</div></div><div style="margin-top:.4rem;font-size:.9rem">${label}</div>`};
+  draw(v,cf,null,null,'Stare inițială');await sleep(700);
+  for(let k=0;k<n;k++){if(my!==shRun)return;const msb=(v>>(sz-1))&1,lsb=v&1;const left=['shl','rol','rcl'].includes(op);draw(v,cf,left?0:sz-1,null,`Pasul ${k+1}: bitul ${left?'MSB':'LSB'} (${left?msb:lsb}) iese ${op.startsWith('ro')||op.startsWith('rc')?'și ':''}→ ${op==='rol'||op==='ror'?'intră pe partea opusă și e copiat în CF':op[1]==='c'?'trece în CF, iar vechiul CF intră pe partea opusă':'ajunge în CF'}`);await sleep(650);
+    switch(op){case'shl':cf=msb;v=(v<<1)&m;break;case'shr':cf=lsb;v>>=1;break;case'sar':cf=lsb;v=(v>>1)|(msb<<(sz-1));break;case'rol':cf=msb;v=((v<<1)|msb)&m;break;case'ror':cf=lsb;v=(v>>1)|(lsb<<(sz-1));break;case'rcl':{const c=cf;cf=msb;v=((v<<1)|c)&m;break}case'rcr':{const c=cf;cf=lsb;v=(v>>1)|(c<<(sz-1));break}}
+    draw(v,cf,'cf',left?sz-1:0,`După pasul ${k+1}: ${left?'în dreapta (LSB)':'în stânga (MSB)'} a intrat ${left?(v&1):((v>>(sz-1))&1)}${op==='sar'?' (copia bitului de semn)':''}`);await sleep(650)}
+  const sg=x=>x>=(m+1)/2?x-(m+1):x;const eq={shl:`${v0} × 2^${n} = ${v0*2**n}${v0*2**n>m?' → depășire, se păstrează '+v:''}`,shr:`${v0} / 2^${n} = ${Math.floor(v0/2**n)} (fără semn)`,sar:`${sg(v0)} / 2^${n} = ${Math.floor(sg(v0)/2**n)} (cu semn, rotunjire în jos)`}[op]||'';
+  $('#shOut').innerHTML=`${op} ${sz===8?'al':'ax'}, ${n}: ${pad(v0.toString(2),sz)}b → <b>${pad(v.toString(2),sz)}b</b> = ${v} (${hx(v,sz/4)}h), CF = ${cf}${eq?'\nEchivalent aritmetic: '+eq:''}`}
+$('#shGo').onclick=sh;$('#shOp').onchange=()=>{if($('#shOp').value==='sar')$('#shV').value='10010110b'};sh();
+
+/* emulator din curs */
+const PR={
+ suma:`; P <- N + M  (intrebarea 7 din test)
+N dw 12
+M dw 30
+P dw 0
+    mov ax, N       ; AX <- N
+    add ax, M       ; AX <- AX + M
+    mov P, ax       ; P  <- AX`,
+ seg:`; intrebarea 6: incarcarea unui registru de segment
+    mov ax, 40h     ; valoarea trece printr-un registru general
+    mov es, ax      ; ES <- 40h
+    ; mov es, 40h   ar fi incorect (imediat -> segment)`,
+ shift:`; inmultiri si impartiri cu puteri ale lui 2
+    mov ax, 25
+    shl ax, 1       ; AX * 2  = 50
+    shl ax, 3       ; AX * 8  = 400
+    mov bx, ax
+    shr bx, 2       ; BX / 4  = 100
+    mov cx, -40
+    sar cx, 2       ; -40 / 4 = -10 (semnul se pastreaza)
+    mov dx, -40
+    shr dx, 2       ; fara semn: rezultat mare, pozitiv`,
+ rot:`; rotatii
+    mov al, 10010110b
+    rol al, 1
+    ror al, 2
+    rcl al, 1       ; rotatie prin CF
+    rcr al, 1`,
+ stiva:`; interschimbare cu stiva (LIFO)
+    mov ax, 1111h
+    mov bx, 2222h
+    push ax
+    push bx
+    pop ax          ; AX <- 2222h
+    pop bx          ; BX <- 1111h
+    xchg ax, bx     ; si inapoi, cu xchg`,
+ loop:`; suma 1 + 2 + ... + N cu instructiunea LOOP
+N dw 5
+S dw 0
+    mov cx, N       ; contor
+    mov ax, 0
+urm:
+    add ax, cx
+    loop urm        ; CX <- CX-1; salt daca CX != 0
+    mov S, ax`,
+ muldiv:`; inmultire si impartire
+    mov ax, 300
+    mov bx, 250
+    mul bx          ; DX:AX <- 300*250 = 75000
+    mov cx, 7
+    div cx          ; AX <- 75000/7, DX <- rest
+    mov al, 200
+    mov bl, 3
+    mul bl          ; AX <- AL*BL = 600`,
+ max:`; maximul a doua numere cu CMP si salt conditionat
+A dw 17
+B dw 42
+MX dw 0
+    mov ax, A
+    cmp ax, B
+    jge gata        ; daca A >= B, AX ramane A
+    mov ax, B
+gata:
+    mov MX, ax`};
+const emu=Emu('#emu',{title:'Emulator 8086',code:PR.suma});
+[['P = N + M','suma'],['segment ES','seg'],['deplasări','shift'],['rotații','rot'],['stiva','stiva'],['loop','loop'],['mul / div','muldiv'],['maxim (cmp)','max']].forEach(([n,k],i)=>{const b=h('button',{class:i?'':'on'},n);b.onclick=()=>{$$('#tabAsm button').forEach(x=>x.classList.remove('on'));b.classList.add('on');emu.setCode(PR[k])};$('#tabAsm').append(b)});
+
+/* ================= SEMINAR ================= */
+const SEQ=[['P ← N + M',PR.suma],['Încărcarea lui ES',PR.seg],['Deplasări (înmulțiri/împărțiri)',PR.shift],['Interschimbare prin stivă',PR.stiva],['MUL și DIV',PR.muldiv],['Ciclu cu LOOP',PR.loop],['Maximul (CMP + JGE)',PR.max]];
+SEQ.forEach(([t],i)=>$('#prSel').append(h('option',{value:i},`${i+1}. ${t}`)));
+const prSt=new Stepper('#prSt',{title:'',steps:[]});
+function loadSeq(){const[t,code]=SEQ[+$('#prSel').value];const C=new CPU(code);const steps=[];let g=0;
+  while(!C.halt&&g++<80){const ins=C.P.prog[C.R.IP];C.step();const regs=['AX','BX','CX','DX','SP'].filter(r=>C.changed.has(r)).map(r=>`${r}=${hx(C.R[r])}h (${C.R[r]})`).concat(Object.keys(C.V).filter(n=>[...C.changed].some(x=>x==='M'+C.V[n].addr)).map(n=>`${n}=${C.varVal(n)}`)).concat(SEG.filter(s=>C.changed.has(s)).map(s=>`${s}=${hx(C.S[s])}h`));
+    steps.push(`<code>${ins.src}</code> — ${C.msg}${regs.length?`<br><small>modificat: ${regs.join(', ')} · flaguri CF=${C.F.CF} ZF=${C.F.ZF} SF=${C.F.SF} OF=${C.F.OF}</small>`:''}`)}
+  prSt.setSteps(steps,t)}
+$('#prSel').onchange=loadSeq;loadSeq();
+const numOk=(v,x,sz=16)=>{const n=parseNum(v.replace(/\s/g,''));return!isNaN(n)&&((n&(sz===8?255:0xFFFF))===(x&(sz===8?255:0xFFFF)))};
+const b8=v=>pad((v&255).toString(2),8);
+const EX=[
+ {title:'SHL',gen(){const v=rnd(1,40),n=rnd(1,3);const r=(v<<n)&255;return{q:`AL = ${v}. Ce valoare are AL după <code>shl al, ${n}</code>?`,check:x=>numOk(x,r,8),sol:`${b8(v)} → ${b8(r)} = ${r} (${v} × ${2**n}${v*2**n>255?' cu depășire':''})`}}},
+ {title:'SHR / SAR',gen(){const v=rnd(129,250),n=rnd(1,3),op=rnd(0,1)?'shr':'sar';const C=asmRun(`mov al, ${v}\n${op} al, ${n}`);const r=C.R.AX&255;return{q:`AL = ${b8(v)}b. Ce valoare are AL (în binar) după <code>${op} al, ${n}</code>?`,check:x=>numOk(/b$/i.test(x.trim())?x:x+'b',r,8)||numOk(x,r,8),sol:`${b8(v)} → <b>${b8(r)}</b>: ${op==='sar'?'la SAR intră copii ale bitului de semn (1)':'la SHR intră zerouri'}`}}},
+ {title:'ROL / ROR',gen(){const v=rnd(1,255),n=rnd(1,4),op=rnd(0,1)?'rol':'ror';const C=asmRun(`mov al, ${v}\n${op} al, ${n}`);const r=C.R.AX&255;return{q:`AL = ${b8(v)}b. Ce valoare are AL (în binar) după <code>${op} al, ${n}</code>?`,check:x=>numOk(/b$/i.test(x.trim())?x:x+'b',r,8)||numOk(x,r,8),sol:`${b8(v)} → <b>${b8(r)}</b> (biții ieșiți reintră pe partea opusă); CF = ${C.F.CF}`}}},
+ {title:'AND / OR / XOR',gen(){const a=rnd(0,255),b=rnd(0,255),op=['and','or','xor'][rnd(0,2)];const r=op==='and'?a&b:op==='or'?a|b:a^b;return{q:`AL = ${b8(a)}b, BL = ${b8(b)}b. Ce valoare are AL (în binar) după <code>${op} al, bl</code>?`,check:x=>numOk(/b$/i.test(x.trim())?x:x+'b',r,8)||numOk(x,r,8),sol:`${b8(a)}<br>${b8(b)} ${op}<br><b>${b8(r)}</b>`}}},
+ {title:'ADD și CF',ph:'0 sau 1',gen(){const a=rnd(100,255),b=rnd(50,200);const r=a+b;return{q:`AL = ${a}, BL = ${b}. După <code>add al, bl</code>, cât este CF?`,check:x=>x.trim()===String(r>255?1:0),sol:`${a} + ${b} = ${r} ${r>255?'> 255 ⇒ <b>CF = 1</b>, AL = '+(r&255):'≤ 255 ⇒ <b>CF = 0</b>'}`}}},
+ {title:'MUL pe 8 biți',gen(){const a=rnd(10,99),b=rnd(2,30);return{q:`AL = ${a}, BL = ${b}. Ce valoare are AX după <code>mul bl</code>?`,check:x=>numOk(x,a*b),sol:`AX ← AL × BL = ${a} × ${b} = <b>${a*b}</b>`}}},
+ {title:'DIV pe 8 biți',ph:'cât rest',gen(){const a=rnd(100,999),b=rnd(5,30);const q=Math.floor(a/b),r=a%b;if(q>255)return this.gen();return{q:`AX = ${a}, BL = ${b}. După <code>div bl</code>, ce valori au AL și AH? (scrie „AL AH”)`,check:x=>{const p=x.trim().split(/[\s,;]+/).map(parseNum);return p[0]===q&&p[1]===r},sol:`AL (cât) = ${a} / ${b} = <b>${q}</b>, AH (rest) = <b>${r}</b>`}}},
+ {title:'Instrucțiune corectă?',ph:'da / nu',gen(){const pool=['mov ax, bx','mov ds, ax','mov dl, al','mov ds, es','mov cs, 23h','mov N, M','mov al, bx','mov es, 40h','xchg ax, N','xchg ds, ax','add N, 5','push al','lea si, N','lea ds, N','shl ax, cl','shl ax, bx','mov ax, N','sub 5, ax'];const s=pool[rnd(0,pool.length-1)];const r=verify(s);
+   return{q:`Este corectă instrucțiunea <code>${s}</code>? (N, M sunt variabile dw)`,check:x=>/^(da|d)$/i.test(x.trim())===r.ok&&/^(da|d|nu|n)$/i.test(x.trim()),sol:r.ok?'<b>DA</b>. '+explain(s):'<b>NU</b>: '+r.msg}}}];
+EX.forEach(e=>{const d=h('div');$('#exGrid').append(d);Exercise(d,e)});
+
+/* ================= LABORATOR ================= */
+const emuF=Emu('#emuFree',{title:'Emulator liber',code:PR.loop});
+[['ciclu LOOP','loop'],['maxim','max'],['mul / div','muldiv'],['stiva','stiva'],['gol',null]].forEach(([n,k],i)=>{const b=h('button',{class:i?'':'on'},n);b.onclick=()=>{$$('#tabFree button').forEach(x=>x.classList.remove('on'));b.classList.add('on');emuF.setCode(k?PR[k]:'; scrie programul aici\nX dw 0\n    mov ax, 1\n')};$('#tabFree').append(b)});
+function AsmTask(host,o){const el=host;el.classList.add('task');el.append(h('h4',{style:'margin:.2rem 0'},o.title),h('div',{html:o.text}));const d=h('div');el.append(d);const E=Emu(d,{title:'Soluția ta',code:o.starter});
+  const bt=h('button',{class:'btn small'},'✓ Verifică'),res=h('div',{class:'tres'}),sol=h('details',{},h('summary',{},'Vezi o soluție posibilă'));const pc=h('pre',{class:'code'});pc.innerHTML=o.solution.split('\n').map(asmHL).join('\n');const lb=h('button',{class:'btn small ghost'},'Încarcă soluția în emulator');lb.onclick=()=>E.setCode(o.solution);sol.append(pc,lb);
+  el.append(h('div',{class:'row'},bt),res,sol);
+  bt.onclick=()=>{let pass=0;res.innerHTML=o.tests.map((t,i)=>{let ok=false,got='';try{const C=asmRun(E.code,t.set);ok=t.check(C);got=t.show(C)}catch(e){got='eroare: '+e.message}if(ok)pass++;return `<div>${ok?'<span class="ok">✔</span>':'<span class="bad">✘</span>'} Test ${i+1}: ${Object.entries(t.set).map(([k,v])=>k+'='+v).join(', ')} → așteptat ${t.want}${ok?'':' · obținut: '+got}</div>`}).join('')+`<div style="margin-top:.3rem"><b>${pass}/${o.tests.length} teste trecute</b>${pass===o.tests.length?' 🎉':''}</div>`}}
+const vt=(n,want,set)=>({set,want:`${n} = ${want}`,check:C=>C.varVal(n)===((want%65536)+65536)%65536,show:C=>`${n} = ${C.varVal(n)}`});
+const AT=[
+ {title:'P1. P = N + M (întrebarea 7)',text:'Calculează în variabila P suma N + M.',starter:'N dw 12\nM dw 30\nP dw 0\n    ; completeaza aici\n',solution:PR.suma,tests:[vt('P',42,{N:12,M:30}),vt('P',1000,{N:999,M:1}),vt('P',0,{N:0,M:0})]},
+ {title:'P2. Înmulțire cu 10 fără MUL',text:'Calculează R = 10·N folosind doar deplasări și adunări (10·N = 8·N + 2·N).',starter:'N dw 7\nR dw 0\n    mov ax, N\n    ; completeaza aici\n',solution:'N dw 7\nR dw 0\n    mov ax, N\n    shl ax, 1      ; 2N\n    mov bx, ax\n    shl ax, 2      ; 8N\n    add ax, bx     ; 10N\n    mov R, ax',tests:[vt('R',70,{N:7}),vt('R',0,{N:0}),vt('R',2500,{N:250})]},
+ {title:'P3. Maximul a două numere',text:'Pune în MX maximul dintre A și B (numere cu semn). Folosește cmp și un salt condiționat.',starter:'A dw 17\nB dw 42\nMX dw 0\n',solution:PR.max,tests:[vt('MX',42,{A:17,B:42}),vt('MX',17,{A:17,B:-5}),vt('MX',-3,{A:-3,B:-9})]},
+ {title:'P4. Suma 1 + 2 + … + N cu LOOP',text:'Calculează în S suma primelor N numere naturale (N ≥ 1), folosind registrul CX și instrucțiunea loop.',starter:'N dw 5\nS dw 0\n',solution:PR.loop,tests:[vt('S',15,{N:5}),vt('S',1,{N:1}),vt('S',5050,{N:100})]},
+ {title:'P5. Interschimbarea a două variabile',text:'Interschimbă valorile variabilelor A și B din memorie (atenție: <code>xchg A, B</code> nu este permisă).',starter:'A dw 3\nB dw 8\n',solution:'A dw 3\nB dw 8\n    mov ax, A\n    xchg ax, B     ; AX <- B, B <- A\n    mov A, ax',tests:[{set:{A:3,B:8},want:'A = 8, B = 3',check:C=>C.varVal('A')===8&&C.varVal('B')===3,show:C=>`A = ${C.varVal('A')}, B = ${C.varVal('B')}`},{set:{A:100,B:7},want:'A = 7, B = 100',check:C=>C.varVal('A')===7&&C.varVal('B')===100,show:C=>`A = ${C.varVal('A')}, B = ${C.varVal('B')}`}]},
+ {title:'P6. Numărul de biți 1 dintr-un octet',text:'Numără în K câți biți de 1 are octetul X (db). Indiciu: deplasează la dreapta de 8 ori și testează CF (jnc).',starter:'X db 10110110b\nK db 0\n',solution:'X db 10110110b\nK db 0\n    mov al, X\n    mov bl, 0\n    mov cx, 8\nurm:\n    shr al, 1\n    jnc zero\n    inc bl\nzero:\n    loop urm\n    mov K, bl',tests:[vt('K',5,{X:0b10110110}),vt('K',0,{X:0}),vt('K',8,{X:255}),vt('K',1,{X:128})]}];
+AT.forEach(t=>{const d=h('div');$('#tasks').append(d);AsmTask(d,t)});
+
+/* ================= TEST ================= */
+Quiz('#quiz',[
+ {t:'Cel mai mic nivel de reprezentare a unui program este:',opts:['limbajul natural','limbajul mașină','limbajul de programare','limbajul procedural'],a:1,expl:'Limbajul mașină este cel mai mic nivel de reprezentare a unui program.'},
+ {t:'Limbajul mașină este compus numai din:',opts:['cuvinte cheie','numere hexazecimale','adrese de memorie','cifre binare 0 și 1'],a:3,expl:'În esență, orice program se reduce la secvențe de biți.'},
+ {open:true,t:'Care sunt regiștrii de uz general?',expl:'<b>AX/EAX</b> – acumulator; <b>BX/EBX</b> – bază (adresare indirectă); <b>CX/ECX</b> – contor; <b>DX/EDX</b> – date (înmulțiri/împărțiri, transferuri); <b>SI, DI</b> – indecși sursă/destinație (pointeri, șiruri); <b>BP</b> – base pointer (parametri și variabile locale); <b>SP</b> – stack pointer (vârful stivei).'},
+ {open:true,t:'Care este rolul registrului IP?',expl:'IP (Instruction Pointer) conține adresa instrucțiunii următoare ce va fi executată de procesor.'},
+ {open:true,t:'Care dintre instrucțiunile următoare sunt corecte? <code>mov ax, bx</code> · <code>mov ds, ax</code> · <code>mov dl, al</code> · <code>mov ds, es</code> · <code>mov cs, 23H</code>',expl:'Corecte: <code>mov ax, bx</code>, <code>mov ds, ax</code>, <code>mov dl, al</code>. Incorecte: <code>mov ds, es</code> (transfer direct între regiștri de segment) și <code>mov cs, 23H</code> (CS nu poate fi destinație, iar un registru de segment nu primește direct o valoare imediată). Încearcă varianta interactivă de mai jos.'},
+ {t:'Care este efectul instrucțiunilor <code>mov ax, 40h</code> · <code>mov es, ax</code>?',opts:['încarcă AX cu 40h și ES cu 0','încarcă registrul ES cu valoarea 40h (prin AX)','copiază ES în AX','este o secvență incorectă'],a:1,expl:'Secvența încarcă registrul ES cu valoarea 40h; valoarea trece prin registrul general AX, pentru că <code>mov es, 40h</code> nu este permis.'},
+ {t:'Care este efectul secvenței <code>mov ax, N</code> · <code>add ax, M</code> · <code>mov P, ax</code>?',opts:['P ← N − M','P ← N + M','AX ← P','N ← M + P'],a:1,expl:'AX ← N; AX ← AX + M; P ← AX. Deci P ← N + M.'},
+]);
+(function(){const L=['mov ax , bx','mov ds , ax','mov dl , al','mov ds, es','mov cs , 23H'];const box=$('#q5');const st=L.map(()=>null);
+  L.forEach((s,i)=>{const r=h('div',{class:'row'},h('code',{style:'min-width:150px'},s));['corectă','incorectă'].forEach((t,k)=>{const b=h('button',{class:'btn small ghost'},t);b.onclick=()=>{st[i]=k===0;$$('button',r).forEach(x=>x.classList.add('ghost'));b.classList.remove('ghost')};r.append(b)});r.append(h('span',{class:'fb'}));box.append(r)});
+  const c=h('button',{class:'btn small'},'Verifică');c.onclick=()=>{$$('.row',box).forEach((r,i)=>{const v=verify(L[i]);const f=$('.fb',r);f.innerHTML=st[i]===null?'<span class="bad">nemarcată</span>':st[i]===v.ok?'<span class="ok">✔</span>':`<span class="bad">✘</span>`;f.innerHTML+=' '+(v.ok?'corectă':'incorectă: '+v.msg)})};box.append(c)})();
+
+renderCode();initShell();
+
+</script>
+</body>
+</html>
